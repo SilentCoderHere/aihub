@@ -232,7 +232,8 @@ val serviceDomains = mapOf(
         "grok.com",
 
         // Auth
-        "accounts.x.ai"
+        "accounts.x.ai",
+        "auth.grokipedia.com"
     ),
 
     // Lumo
@@ -384,5 +385,6 @@ val TRACKING_PARAMS = setOf(
     "source",
     "campaign",
     "medium",
-    "content"
+    "content",
+    "referrer"
 )
