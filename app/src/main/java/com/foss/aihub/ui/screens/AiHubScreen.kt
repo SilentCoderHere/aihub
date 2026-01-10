@@ -224,13 +224,22 @@ fun AiHubApp(activity: MainActivity) {
                                         showLinkDialog = true
                                     },
                                     onError = { errorCode, description ->
-                                        if (ErrorType.shouldShowOverlay(errorCode)) {
-                                            errorStates[selectedService.id] =
-                                                Pair(errorCode, description)
+                                        Log.w("AI_HUB", "→ $errorCode | $description | hide=${errorCode !in 500..599 && ErrorType.shouldShowOverlay(errorCode)}")
+                                        errorStates[selectedService.id] = errorCode to description
+
+                                        val isCriticalError = when {
+                                            errorCode < 0               -> true   // network, ssl, timeout, etc.
+                                            errorCode in 400..499       -> true   // client errors (forbidden, not found...)
+                                            errorCode in 500..599       -> false  // server errors → show server's page
+                                            else                        -> true   // everything else treated as critical
+                                        }
+
+                                        if (isCriticalError) {
                                             webViewStates[selectedService.id] = WebViewState.ERROR
                                             webViews[selectedService.id]?.visibility = View.GONE
                                         }
-                                    })
+                                    }
+                                )
                                 webViews[selectedService.id] = newWebView
                                 addView(newWebView)
 
@@ -296,12 +305,21 @@ fun AiHubApp(activity: MainActivity) {
                                 onLinkLongPress = { url, title, type ->
                                     selectedLink = LinkData(url, title, type)
                                     showLinkDialog = true
-                                },
-                                onError = { errorCode, description ->
-                                    errorStates[selectedService.id] = Pair(errorCode, description)
-                                    webViewStates[selectedService.id] = WebViewState.ERROR
+                                }, onError = { errorCode, description ->
+                                    Log.w("AI_HUB", "→ $errorCode | $description | hide=${errorCode !in 500..599 && ErrorType.shouldShowOverlay(errorCode)}")
+                                    errorStates[selectedService.id] = errorCode to description
 
-                                    webViews[selectedService.id]?.visibility = View.GONE
+                                    val isCriticalError = when {
+                                        errorCode < 0               -> true   // network, ssl, timeout, etc.
+                                        errorCode in 400..499       -> true   // client errors (forbidden, not found...)
+                                        errorCode in 500..599       -> false  // server errors → show server's page
+                                        else                        -> true   // everything else treated as critical
+                                    }
+
+                                    if (isCriticalError) {
+                                        webViewStates[selectedService.id] = WebViewState.ERROR
+                                        webViews[selectedService.id]?.visibility = View.GONE
+                                    }
                                 })
                             webViews[selectedService.id] = newWebView
                             root.addView(newWebView)
