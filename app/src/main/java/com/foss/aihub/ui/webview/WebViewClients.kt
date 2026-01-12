@@ -1,8 +1,11 @@
 package com.foss.aihub.ui.webview
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -10,6 +13,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.ContextCompat
 import com.foss.aihub.MainActivity
 import com.foss.aihub.models.AiService
 import java.io.ByteArrayInputStream
@@ -103,7 +107,7 @@ class ProgressTrackingWebViewClient(
     }
 }
 
-class ProgressTrackingWebChromeClient(
+open class ProgressTrackingWebChromeClient(
     private val onProgressUpdate: (Int) -> Unit, private val activity: MainActivity
 ) : WebChromeClient() {
 
@@ -122,4 +126,25 @@ class ProgressTrackingWebChromeClient(
         return true
     }
 
+    override fun onPermissionRequest(request: PermissionRequest) {
+        Log.d("AI_HUB", "WebView requesting permission for: ${request.resources.joinToString()}")
+
+        if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
+            activity.runOnUiThread {
+                if (ContextCompat.checkSelfPermission(
+                        activity, Manifest.permission.RECORD_AUDIO
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    Log.d("AI_HUB", "Microphone permission already granted, granting to WebView")
+                    request.grant(request.resources)
+                } else {
+                    Log.d("AI_HUB", "Requesting microphone permission for WebView")
+                    activity.requestMicrophonePermissionForWebView(request)
+                }
+            }
+        } else {
+            request.deny()
+            Log.d("AI_HUB", "Denied non-microphone permission request")
+        }
+    }
 }

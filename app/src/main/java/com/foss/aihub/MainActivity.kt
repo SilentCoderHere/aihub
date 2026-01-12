@@ -1,13 +1,17 @@
 package com.foss.aihub
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.ui.Modifier
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.foss.aihub.ui.screens.AiHubApp
 import com.foss.aihub.ui.theme.AiHubTheme
@@ -29,6 +34,50 @@ class MainActivity : ComponentActivity() {
     var filePathCallback: ValueCallback<Array<Uri>>? = null
     private lateinit var fileChooserLauncher: ActivityResultLauncher<Intent>
     lateinit var settingsManager: SettingsManager
+    private var pendingWebViewPermissionRequest: PermissionRequest? = null
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Toast.makeText(this, "Microphone enabled", Toast.LENGTH_SHORT).show()
+            Log.d("AI_HUB", "User granted microphone permission")
+
+            pendingWebViewPermissionRequest?.let { request ->
+                if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
+                    request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
+                    Log.d("AI_HUB", "Granted microphone access to WebView")
+                }
+                pendingWebViewPermissionRequest = null
+            }
+        } else {
+            Toast.makeText(
+                this, "Microphone permission denied", Toast.LENGTH_LONG
+            ).show()
+            Log.d("AI_HUB", "User denied microphone permission")
+
+            pendingWebViewPermissionRequest?.deny()
+            pendingWebViewPermissionRequest = null
+        }
+    }
+
+    fun requestMicrophonePermissionForWebView(permissionRequest: PermissionRequest) {
+        pendingWebViewPermissionRequest = permissionRequest
+
+        when {
+            ContextCompat.checkSelfPermission(
+                this, Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.d("AI_HUB", "Microphone permission already granted")
+                permissionRequest.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
+                pendingWebViewPermissionRequest = null
+            }
+
+            else -> {
+                Log.d("AI_HUB", "Requesting microphone permission for WebView")
+                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

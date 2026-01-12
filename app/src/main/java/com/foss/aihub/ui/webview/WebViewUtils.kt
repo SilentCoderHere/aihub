@@ -19,73 +19,6 @@ import com.foss.aihub.utils.cleanTrackingParams
 import com.foss.aihub.utils.extractLinkTitle
 
 @SuppressLint("SetJavaScriptEnabled")
-fun updateWebViewSettings(
-    webView: WebView, settings: AppSettings, reload: Boolean
-) {
-    webView.context
-    webView.settings.apply {
-        setSupportZoom(settings.enableZoom)
-        builtInZoomControls = settings.enableZoom
-        displayZoomControls = false
-        when (settings.fontSize.lowercase()) {
-            "x-small" -> {
-                textZoom = 80
-                defaultFontSize = 14
-                defaultFixedFontSize = 13
-            }
-
-            "small" -> {
-                textZoom = 90
-                defaultFontSize = 15
-                defaultFixedFontSize = 14
-            }
-
-            "medium" -> {
-                textZoom = 100
-                defaultFontSize = 16
-                defaultFixedFontSize = 15
-            }
-
-            "large" -> {
-                textZoom = 110
-                defaultFontSize = 18
-                defaultFixedFontSize = 16
-            }
-
-            "x-large" -> {
-                textZoom = 120
-                defaultFontSize = 20
-                defaultFixedFontSize = 17
-            }
-
-            else -> {
-                textZoom = 100
-                defaultFontSize = 16
-                defaultFixedFontSize = 15
-            }
-
-        }
-        javaScriptEnabled = true
-        domStorageEnabled = true
-        javaScriptCanOpenWindowsAutomatically = true
-        setSupportMultipleWindows(true)
-        loadWithOverviewMode = true
-        useWideViewPort = true
-        allowFileAccess = true
-        allowContentAccess = true
-        mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        cacheMode = WebSettings.LOAD_DEFAULT
-        userAgentString = USER_AGENT
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            isAlgorithmicDarkeningAllowed = true
-        }
-    }
-    webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-
-    if (reload) webView.reload()
-}
-
-@SuppressLint("SetJavaScriptEnabled")
 fun createWebViewForService(
     context: Context,
     service: AiService,
@@ -110,10 +43,10 @@ fun createWebViewForService(
             service = service,
             onError = onError
         )
+
         webChromeClient = ProgressTrackingWebChromeClient(
             onProgressUpdate = onProgressUpdate, activity = activity
         )
-
 
         setOnLongClickListener { view ->
             val result = (view as WebView).hitTestResult
@@ -163,4 +96,78 @@ fun createWebViewForService(
         Log.d("AI_HUB", "Loading URL for ${service.name}: ${service.url}")
         loadUrl(service.url)
     }
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+fun updateWebViewSettings(
+    webView: WebView, settings: AppSettings, reload: Boolean
+) {
+    webView.settings.apply {
+        setSupportZoom(settings.enableZoom)
+        builtInZoomControls = settings.enableZoom
+        displayZoomControls = false
+
+        when (settings.fontSize.lowercase()) {
+            "x-small" -> {
+                textZoom = 80
+                defaultFontSize = 14
+                defaultFixedFontSize = 13
+            }
+
+            "small" -> {
+                textZoom = 90
+                defaultFontSize = 15
+                defaultFixedFontSize = 14
+            }
+
+            "medium" -> {
+                textZoom = 100
+                defaultFontSize = 16
+                defaultFixedFontSize = 15
+            }
+
+            "large" -> {
+                textZoom = 110
+                defaultFontSize = 18
+                defaultFixedFontSize = 16
+            }
+
+            "x-large" -> {
+                textZoom = 120
+                defaultFontSize = 20
+                defaultFixedFontSize = 17
+            }
+
+            else -> {
+                textZoom = 100
+                defaultFontSize = 16
+                defaultFixedFontSize = 15
+            }
+        }
+
+        javaScriptEnabled = true
+        domStorageEnabled = true
+        mediaPlaybackRequiresUserGesture = false
+
+        javaScriptCanOpenWindowsAutomatically = true
+        setSupportMultipleWindows(true)
+        loadWithOverviewMode = true
+        useWideViewPort = true
+        allowFileAccess = true
+        allowContentAccess = true
+        mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        cacheMode = WebSettings.LOAD_DEFAULT
+        userAgentString = USER_AGENT
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            mediaPlaybackRequiresUserGesture = false
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            isAlgorithmicDarkeningAllowed = true
+        }
+    }
+    webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+
+    if (reload) webView.reload()
 }
