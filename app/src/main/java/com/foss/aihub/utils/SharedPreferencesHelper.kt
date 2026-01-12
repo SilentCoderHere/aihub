@@ -42,6 +42,8 @@ class SettingsManager(context: Context) {
             val newServices = currentServices.filter { it !in existingOrder }
             val newOrder = (existingOrder + newServices).toMutableList()
 
+            newEnabled.addAll(newServices)
+
             settings.enabledServices = newEnabled
             settings.serviceOrder = newOrder
 
