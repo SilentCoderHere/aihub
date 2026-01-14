@@ -250,6 +250,7 @@ val serviceDomains = mapOf(
     // Grok
     "grok" to listOf(
         "grok.com",
+        "imagine-public.x.ai",
 
         // Auth
         "accounts.x.ai", "auth.grokipedia.com"
