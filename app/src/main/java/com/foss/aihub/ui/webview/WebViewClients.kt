@@ -16,6 +16,7 @@ import android.webkit.WebViewClient
 import androidx.core.content.ContextCompat
 import com.foss.aihub.MainActivity
 import com.foss.aihub.models.AiService
+import com.foss.aihub.utils.buildBlockedPage
 import java.io.ByteArrayInputStream
 
 
@@ -25,7 +26,6 @@ class ProgressTrackingWebViewClient(
     private val service: AiService,
     private val onError: (Int, String) -> Unit
 ) : WebViewClient() {
-
     private var hasErrorOccurred = false
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -84,9 +84,9 @@ class ProgressTrackingWebViewClient(
         if (!WebViewSecurity.allowConnectivityForService(service.id, url)) {
             Log.d("AI_HUB", "🚫 Blocked for ${service.name}: $url")
             return WebResourceResponse(
-                "text/plain",
+                "text/html",
                 "UTF-8",
-                ByteArrayInputStream("Blocked by AI Hub security policy".toByteArray())
+                ByteArrayInputStream(buildBlockedPage(url, service).toByteArray())
             )
         }
         return null
