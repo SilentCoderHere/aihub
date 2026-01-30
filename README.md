@@ -56,6 +56,8 @@
 
 <br>
 
+⚠️ F-Droid version is outdated because this [issue](https://github.com/SilentCoderHere/aihub/issues) uses GitHub release to update the app until we solve the issue.
+
 ## 🙏 Special Thanks
 
 - **[Nora](https://github.com/nonbili/Nora)** – Gave me the original idea for this app
