@@ -39,24 +39,36 @@
 ## 📥 Download Now
 
 <div align="center">
-  <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://app/%7B%22id%22%3A%22com.foss.aihub%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FSilentCoderHere%2Faihub%22%2C%22author%22%3A%22Silent%20Coder%22%2C%22name%22%3A%22AI%20Hub%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D">
-    <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" width="160" style="margin: 8px;">
-  </a>
-  <a href="https://f-droid.org/packages/com.foss.aihub">
-    <img src="https://f-droid.org/badge/get-it-on.png" width="160" style="margin: 8px;">
-  </a>
-  <a href="https://www.openapk.net/ai-hub/com.foss.aihub/">
-    <img src="https://www.openapk.net/images/openapk-badge.png" width="160" style="margin: 8px;">
-  </a>
-  <br>
-  <a href="https://github.com/SilentCoderHere/aihub/releases/latest">
-    <img src="https://img.shields.io/badge/Download_on_GitHub-24292e?style=for-the-badge&logo=github" width="180" style="border-radius:10px; margin-top: 12px;">
-  </a>
+
+  <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px;">
+    
+  <a href="https://f-droid.org/packages/com.foss.aihub" style="font-size: 0;">
+      <img src="https://f-droid.org/badge/get-it-on.png" width="160">
+    </a>
+
+   <a href="https://www.openapk.net/ai-hub/com.foss.aihub/" style="font-size: 0;">
+      <img src="https://www.openapk.net/images/openapk-badge.png" width="160">
+    </a>
+
+   <a href="https://github.com/SilentCoderHere/aihub/releases/latest" style="font-size: 0;">
+      <img src="./fastlane/metadata/android/en-US/images/badge_github.png" width="160">
+    </a>
+    
+  </div>
+
+  <div style="display: flex; justify-content: center; margin-top: 8px;">
+    <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://app/%7B%22id%22%3A%22com.foss.aihub%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FSilentCoderHere%2Faihub%22%2C%22author%22%3A%22Silent%20Coder%22%2C%22name%22%3A%22AI%20Hub%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D" style="font-size: 0;">
+      <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" width="140">
+    </a>
+  </div>
+  
+  <div style="margin-top: 80px; text-align: center; font-size: 0.8em; color: #555;">
+    ⚠️ F-Droid version is outdated because this <a href="https://github.com/SilentCoderHere/aihub/issues">issue</a> uses GitHub release to update the app until we solve this issue.
+  </div>
+
 </div>
 
 <br>
-
-⚠️ F-Droid version is outdated because this [issue](https://github.com/SilentCoderHere/aihub/issues) uses GitHub release to update the app until we solve the issue.
 
 ## 🙏 Special Thanks
 
