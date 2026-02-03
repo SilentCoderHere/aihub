@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -19,42 +18,52 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import com.foss.aihub.ui.screens.AiHubApp
+import com.foss.aihub.ui.screens.ErrorScreen
+import com.foss.aihub.ui.screens.InitialLoadingScreen
 import com.foss.aihub.ui.theme.AiHubTheme
 import com.foss.aihub.ui.webview.WebViewSecurity
+import com.foss.aihub.utils.ConfigUpdater
 import com.foss.aihub.utils.SettingsManager
+import com.foss.aihub.utils.refreshAiServicesFromSettings
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     var filePathCallback: ValueCallback<Array<Uri>>? = null
     private lateinit var fileChooserLauncher: ActivityResultLauncher<Intent>
     lateinit var settingsManager: SettingsManager
     private var pendingWebViewPermissionRequest: PermissionRequest? = null
+
+    private var isInitialConfigReady by mutableStateOf(false)
+    private var initialConfigError by mutableStateOf<String?>(null)
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
             Toast.makeText(this, "Microphone enabled", Toast.LENGTH_SHORT).show()
-            Log.d("AI_HUB", "User granted microphone permission")
 
             pendingWebViewPermissionRequest?.let { request ->
                 if (request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
                     request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
-                    Log.d("AI_HUB", "Granted microphone access to WebView")
                 }
                 pendingWebViewPermissionRequest = null
             }
         } else {
-            Toast.makeText(
-                this, "Microphone permission denied", Toast.LENGTH_LONG
-            ).show()
-            Log.d("AI_HUB", "User denied microphone permission")
+            Toast.makeText(this, "Microphone permission denied", Toast.LENGTH_LONG).show()
 
             pendingWebViewPermissionRequest?.deny()
             pendingWebViewPermissionRequest = null
@@ -68,13 +77,11 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(
                 this, Manifest.permission.RECORD_AUDIO
             ) == PackageManager.PERMISSION_GRANTED -> {
-                Log.d("AI_HUB", "Microphone permission already granted")
                 permissionRequest.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
                 pendingWebViewPermissionRequest = null
             }
 
             else -> {
-                Log.d("AI_HUB", "Requesting microphone permission for WebView")
                 requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
         }
@@ -84,47 +91,88 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WebViewSecurity.init(this)
 
-        Log.d("AI_HUB", "onCreate started")
         enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         try {
             settingsManager = SettingsManager(this)
-            settingsManager.cleanupAndFixServices()
 
-            Log.d("AI_HUB", "SettingsManager initialized")
+            if (!needsInitialConfig()) {
+                refreshAiServicesFromSettings(this)
+                settingsManager.cleanupAndFixServices(this)
+            }
 
             initializeFileChooserLauncher()
-            Log.d("AI_HUB", "File chooser launcher initialized")
 
             setContent {
-                Log.d("AI_HUB", "setContent started")
-                AiHubTheme(
-                    darkTheme = isSystemInDarkTheme(), dynamicColor = true
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(colorScheme.background)
-                    ) {
-                        AiHubApp(this@MainActivity)
+                AiHubTheme(context = this) {
+                    when {
+                        initialConfigError != null -> {
+                            ErrorScreen(
+                                message = initialConfigError ?: "Unknown error", onRetry = {
+                                    initialConfigError = null
+                                    lifecycleScope.launch { runInitialConfig() }
+                                })
+                        }
+
+                        isInitialConfigReady -> {
+                            AiHubApp(this@MainActivity)
+                        }
+
+                        else -> {
+                            InitialLoadingScreen()
+                        }
                     }
                 }
-                Log.d("AI_HUB", "setContent completed")
+            }
+
+            lifecycleScope.launch {
+                if (needsInitialConfig()) {
+                    runInitialConfig()
+                } else {
+                    isInitialConfigReady = true
+                }
             }
 
         } catch (e: Exception) {
-            Log.e("MainActivity", "Error in onCreate", e)
-
             setContent {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(colorScheme.errorContainer)
-                ) {}
+                AiHubTheme(context = this) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.errorContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "App failed to start\n${e.message}",
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
-        Log.d("AI_HUB", "onCreate completed")
+    }
+
+    private fun needsInitialConfig(): Boolean {
+        val hasDomain = settingsManager.hasDomainConfig()
+        val aiServicesList = settingsManager.getAiServices()
+        val hasAiServices = aiServicesList.isNotEmpty()
+        return !hasDomain || !hasAiServices
+    }
+
+    private suspend fun runInitialConfig() {
+        try {
+            val (_, _) = ConfigUpdater.updateBothIfNeeded(this)
+            settingsManager.cleanupAndFixServices(this)
+
+            isInitialConfigReady = true
+            initialConfigError = null
+
+        } catch (e: Exception) {
+            initialConfigError =
+                e.message ?: "Failed to load configurations. Please check your internet connection."
+        }
     }
 
     private fun initializeFileChooserLauncher() {
@@ -141,7 +189,6 @@ class MainActivity : ComponentActivity() {
         if (result.resultCode == RESULT_OK) {
             val data = result.data
             val uris: Array<Uri>? = if (data != null) {
-
                 WebChromeClient.FileChooserParams.parseResult(result.resultCode, data)
             } else {
                 null
@@ -175,7 +222,6 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             filePathCallback.onReceiveValue(null)
             this.filePathCallback = null
-            Log.e("MainActivity", "Error launching file chooser", e)
         }
     }
 }
