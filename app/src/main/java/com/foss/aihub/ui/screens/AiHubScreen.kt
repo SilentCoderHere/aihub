@@ -10,26 +10,15 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -44,13 +33,8 @@ import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -67,13 +51,11 @@ import com.foss.aihub.ui.screens.dialogs.MD3LinkOptionsDialog
 import com.foss.aihub.ui.webview.WebViewSecurity
 import com.foss.aihub.ui.webview.createWebViewForService
 import com.foss.aihub.ui.webview.updateWebViewSettings
-import com.foss.aihub.utils.DomainConfigUpdater
 import com.foss.aihub.utils.aiServices
 import com.foss.aihub.utils.copyLinkToClipboard
 import com.foss.aihub.utils.openInExternalBrowser
 import com.foss.aihub.utils.shareLink
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.system.exitProcess
 
 @SuppressLint("UnrememberedMutableState")
@@ -85,18 +67,6 @@ fun AiHubApp(activity: MainActivity) {
     val context = LocalContext.current
     val settingsManager = remember { activity.settingsManager }
     val settings by settingsManager.settingsFlow.collectAsState()
-
-    var isDomainLoading by remember { mutableStateOf(true) }
-    var isInitialLoadDone by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        Log.d("AI_HUB", "Checking domain configuration...")
-        if (!settingsManager.hasDomainConfig()) {
-            DomainConfigUpdater.updateIfNeeded(context)
-        }
-        isDomainLoading = false
-        Log.d("AI_HUB", "Domain configuration loaded")
-    }
 
     var showLinkDialog by remember { mutableStateOf(false) }
     var selectedLink by remember { mutableStateOf<LinkData?>(null) }
@@ -247,12 +217,6 @@ fun AiHubApp(activity: MainActivity) {
         enforceWebViewLimit()
     }
 
-    LaunchedEffect(isDomainLoading, settings.enabledServices, isInitialLoadDone) {
-        if (!isDomainLoading && settings.enabledServices.isNotEmpty() && !isInitialLoadDone) {
-            isInitialLoadDone = true
-        }
-    }
-
     ModalNavigationDrawer(
         drawerState = drawerState, gesturesEnabled = drawerState.isOpen, drawerContent = {
             DrawerContent(
@@ -282,7 +246,7 @@ fun AiHubApp(activity: MainActivity) {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing),
+                .windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.safeDrawing),
             topBar = {
                 AiHubAppBar(selectedService = selectedService, onMenuClick = {
                     scope.launch {
@@ -297,100 +261,24 @@ fun AiHubApp(activity: MainActivity) {
                     .padding(innerPadding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                if (!isDomainLoading && settings.enabledServices.isNotEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") AndroidView(
-                            factory = { ctx ->
-                            FrameLayout(ctx).apply {
-                                currentRoot = this
+                Box(modifier = Modifier.fillMaxSize()) {
+                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") AndroidView(
+                        factory = { ctx ->
+                        FrameLayout(ctx).apply {
+                            currentRoot = this
 
-                                webViews.values.forEach { wv ->
-                                    if (wv.parent == null) {
-                                        addView(wv)
-                                        wv.visibility = View.GONE
-                                    }
-                                }
-
-                                val currentService = selectedService
-                                val currentWebView = webViews[currentService.id]
-                                if (currentWebView == null) {
-                                    val newWebView = createWebViewForService(
-                                        context = context,
-                                        service = currentService,
-                                        activity = activity,
-                                        settings = settings,
-                                        onProgressUpdate = { progress ->
-                                            updateServiceState(currentService.id) { state ->
-                                                state.copy(progress = progress)
-                                            }
-                                        },
-                                        onLoadingStateChange = { isLoading ->
-                                            updateServiceState(currentService.id) { state ->
-                                                state.copy(
-                                                    isLoading = isLoading,
-                                                    webViewState = if (isLoading) WebViewState.LOADING else WebViewState.SUCCESS
-                                                )
-                                            }
-
-                                            if (isLoading) {
-                                                updateServiceState(currentService.id) { state ->
-                                                    state.copy(error = null)
-                                                }
-                                            }
-                                        },
-                                        onLinkLongPress = { url, title, type ->
-                                            selectedLink = LinkData(url, title, type)
-                                            showLinkDialog = true
-                                        },
-                                        onError = { errorCode, description ->
-                                            updateServiceState(currentService.id) { state ->
-                                                state.copy(
-                                                    error = errorCode to description,
-                                                    webViewState = WebViewState.ERROR,
-                                                    isLoading = false
-                                                )
-                                            }
-                                            webViews[currentService.id]?.visibility = View.GONE
-                                        })
-
-                                    updateWebViewSettings(newWebView, settings, false)
-                                    webViews[currentService.id] = newWebView
-                                    addView(newWebView)
-                                    newWebView.visibility = View.VISIBLE
-                                    newWebView.bringToFront()
-
-                                    updateServiceState(currentService.id) { state ->
-                                        state.copy(
-                                            webViewState = WebViewState.LOADING,
-                                            isLoading = true,
-                                            progress = 0
-                                        )
-                                    }
-
-                                    newWebView.loadUrl(currentService.url)
-                                } else {
-                                    if (currentWebView.parent == null) {
-                                        addView(currentWebView)
-                                    }
-                                    currentWebView.bringToFront()
-
-                                    val shouldBeVisible =
-                                        serviceStates[currentService.id]?.error == null
-                                    currentWebView.visibility =
-                                        if (shouldBeVisible) View.VISIBLE else View.GONE
-
-                                    if (currentWebView.url.isNullOrEmpty() || currentWebView.url == "about:blank") {
-                                        currentWebView.loadUrl(currentService.url)
-                                    }
+                            webViews.values.forEach { wv ->
+                                if (wv.parent == null) {
+                                    addView(wv)
+                                    wv.visibility = View.GONE
                                 }
                             }
-                        }, update = { root ->
-                            currentRoot = root
 
                             val currentService = selectedService
-                            if (webViews[currentService.id] == null) {
+                            val currentWebView = webViews[currentService.id]
+                            if (currentWebView == null) {
                                 val newWebView = createWebViewForService(
-                                    context = root.context,
+                                    context = context,
                                     service = currentService,
                                     activity = activity,
                                     settings = settings,
@@ -430,7 +318,7 @@ fun AiHubApp(activity: MainActivity) {
 
                                 updateWebViewSettings(newWebView, settings, false)
                                 webViews[currentService.id] = newWebView
-                                root.addView(newWebView)
+                                addView(newWebView)
                                 newWebView.visibility = View.VISIBLE
                                 newWebView.bringToFront()
 
@@ -444,125 +332,130 @@ fun AiHubApp(activity: MainActivity) {
 
                                 newWebView.loadUrl(currentService.url)
                             } else {
-                                val currentWebView = webViews[currentService.id]!!
                                 if (currentWebView.parent == null) {
-                                    root.addView(currentWebView)
+                                    addView(currentWebView)
                                 }
+                                currentWebView.bringToFront()
 
                                 val shouldBeVisible =
                                     serviceStates[currentService.id]?.error == null
                                 currentWebView.visibility =
                                     if (shouldBeVisible) View.VISIBLE else View.GONE
-                                currentWebView.bringToFront()
 
                                 if (currentWebView.url.isNullOrEmpty() || currentWebView.url == "about:blank") {
                                     currentWebView.loadUrl(currentService.url)
                                 }
                             }
-                        }, modifier = Modifier.fillMaxSize()
-                        )
-
-                        if (currentState.isLoading && !hasCurrentError) {
-                            LoadingOverlay(
-                                isVisible = true,
-                                isRefreshing = false,
-                                serviceName = selectedService.name,
-                                accentColor = selectedService.accentColor,
-                                progress = currentState.progress,
-                                modifier = Modifier.fillMaxSize()
-                            )
                         }
+                    }, update = { root ->
+                        currentRoot = root
 
-                        if (hasCurrentError && currentState.error != null) {
-                            val (errorCode, errorMessage) = currentState.error!!
-                            ErrorOverlay(
-                                errorType = ErrorType.fromErrorCode(errorCode),
-                                errorCode = errorCode,
-                                errorMessage = errorMessage,
-                                serviceName = selectedService.name,
-                                accentColor = selectedService.accentColor,
-                                onRetry = {
-                                    updateServiceState(selectedService.id) { state ->
+                        val currentService = selectedService
+                        if (webViews[currentService.id] == null) {
+                            val newWebView = createWebViewForService(
+                                context = root.context,
+                                service = currentService,
+                                activity = activity,
+                                settings = settings,
+                                onProgressUpdate = { progress ->
+                                    updateServiceState(currentService.id) { state ->
+                                        state.copy(progress = progress)
+                                    }
+                                },
+                                onLoadingStateChange = { isLoading ->
+                                    updateServiceState(currentService.id) { state ->
                                         state.copy(
-                                            error = null,
-                                            webViewState = WebViewState.LOADING,
-                                            isLoading = true,
-                                            progress = 0
+                                            isLoading = isLoading,
+                                            webViewState = if (isLoading) WebViewState.LOADING else WebViewState.SUCCESS
                                         )
                                     }
-                                    webViews[selectedService.id]?.reload()
+
+                                    if (isLoading) {
+                                        updateServiceState(currentService.id) { state ->
+                                            state.copy(error = null)
+                                        }
+                                    }
                                 },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(horizontal = 32.dp)
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(56.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                strokeWidth = 4.dp,
-                                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                            )
+                                onLinkLongPress = { url, title, type ->
+                                    selectedLink = LinkData(url, title, type)
+                                    showLinkDialog = true
+                                },
+                                onError = { errorCode, description ->
+                                    updateServiceState(currentService.id) { state ->
+                                        state.copy(
+                                            error = errorCode to description,
+                                            webViewState = WebViewState.ERROR,
+                                            isLoading = false
+                                        )
+                                    }
+                                    webViews[currentService.id]?.visibility = View.GONE
+                                })
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            updateWebViewSettings(newWebView, settings, false)
+                            webViews[currentService.id] = newWebView
+                            root.addView(newWebView)
+                            newWebView.visibility = View.VISIBLE
+                            newWebView.bringToFront()
 
-                            Text(
-                                text = "AI Hub",
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Preparing your AI assistants",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            LinearProgressIndicator(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(4.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            Text(
-                                text = "Loading security rules...",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.alpha(0.8f)
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            AssistChip(
-                                onClick = {}, label = {
-                                Text(
-                                    text = "This only happens once",
-                                    style = MaterialTheme.typography.labelSmall
+                            updateServiceState(currentService.id) { state ->
+                                state.copy(
+                                    webViewState = WebViewState.LOADING,
+                                    isLoading = true,
+                                    progress = 0
                                 )
-                            }, colors = AssistChipDefaults.assistChipColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                    alpha = 0.5f
-                                ), labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            ), modifier = Modifier.padding(top = 4.dp)
-                            )
+                            }
+
+                            newWebView.loadUrl(currentService.url)
+                        } else {
+                            val currentWebView = webViews[currentService.id]!!
+                            if (currentWebView.parent == null) {
+                                root.addView(currentWebView)
+                            }
+
+                            val shouldBeVisible = serviceStates[currentService.id]?.error == null
+                            currentWebView.visibility =
+                                if (shouldBeVisible) View.VISIBLE else View.GONE
+                            currentWebView.bringToFront()
+
+                            if (currentWebView.url.isNullOrEmpty() || currentWebView.url == "about:blank") {
+                                currentWebView.loadUrl(currentService.url)
+                            }
                         }
+                    }, modifier = Modifier.fillMaxSize()
+                    )
+
+                    if (currentState.isLoading && !hasCurrentError) {
+                        LoadingOverlay(
+                            isVisible = true,
+                            isRefreshing = false,
+                            serviceName = selectedService.name,
+                            accentColor = selectedService.accentColor,
+                            progress = currentState.progress,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    if (hasCurrentError && currentState.error != null) {
+                        val (errorCode, errorMessage) = currentState.error!!
+                        ErrorOverlay(
+                            errorType = ErrorType.fromErrorCode(errorCode),
+                            errorCode = errorCode,
+                            errorMessage = errorMessage,
+                            serviceName = selectedService.name,
+                            accentColor = selectedService.accentColor,
+                            onRetry = {
+                                updateServiceState(selectedService.id) { state ->
+                                    state.copy(
+                                        error = null,
+                                        webViewState = WebViewState.LOADING,
+                                        isLoading = true,
+                                        progress = 0
+                                    )
+                                }
+                                webViews[selectedService.id]?.reload()
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }
@@ -712,10 +605,10 @@ fun AiHubApp(activity: MainActivity) {
                 try {
                     context.cacheDir?.deleteRecursively()
 
-                    val webViewCacheDir = File(context.cacheDir, "webviewCache")
+                    val webViewCacheDir = java.io.File(context.cacheDir, "webviewCache")
                     webViewCacheDir.deleteRecursively()
 
-                    val webViewDatabaseDir = File(context.filesDir, "webview")
+                    val webViewDatabaseDir = java.io.File(context.filesDir, "webview")
                     webViewDatabaseDir.deleteRecursively()
 
                     WebView(context).apply {
