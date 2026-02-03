@@ -5,7 +5,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,35 +23,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteSweep
-import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Layers
-import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.outlined.Memory
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material.icons.outlined.TextIncrease
-import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material.icons.outlined.WebAsset
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,10 +48,12 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -83,21 +73,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.foss.aihub.ui.components.Md3TopAppBar
 import com.foss.aihub.ui.webview.WebViewSecurity
-import com.foss.aihub.utils.DomainConfigUpdater
+import com.foss.aihub.utils.ConfigUpdater
 import com.foss.aihub.utils.SettingsManager
 import com.foss.aihub.utils.aiServices
-import com.foss.aihub.utils.serviceIcons
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -136,15 +122,7 @@ fun SettingsScreen(
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
 
-    var isUpdating by remember { mutableStateOf(false) }
-
-    var configVersion by remember {
-        mutableStateOf(settingsManager.getDomainConfigVersion() ?: "Not loaded")
-    }
-
-    val refreshVersion = {
-        configVersion = settingsManager.getDomainConfigVersion() ?: "Not loaded"
-    }
+    var isUpdatingDomainRules by remember { mutableStateOf(false) }
 
     LaunchedEffect(loadLastAi) {
         settingsManager.updateSettings { it.loadLastOpenedAI = loadLastAi }
@@ -185,9 +163,7 @@ fun SettingsScreen(
             title = "Settings", onBack = onBack
         )
     }, snackbarHost = {
-        SnackbarHost(hostState = snackbarHostState) { data ->
-            ModernSnackbar(snackbarData = data)
-        }
+        SnackbarHost(hostState = snackbarHostState)
     }, containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
         LazyColumn(
@@ -197,50 +173,43 @@ fun SettingsScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
             item {
-                SettingSectionHeader(
-                    title = "App Behavior",
-                    icon = Icons.Outlined.Tune,
-                    color = MaterialTheme.colorScheme.primary
+                Text(
+                    text = "Preferences",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
             }
 
             item {
-                ModernCard {
+                SettingsCard {
                     Column {
-                        ListItem(headlineContent = {
-                            Text(
-                                "Load last opened AI",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }, supportingContent = {
-                            Text("Reopen the last used assistant on launch")
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.Restore,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }, trailingContent = {
+                        SettingItem(
+                            title = "Load last opened AI",
+                            description = "Reopen the last used assistant on launch",
+                            icon = Icons.Outlined.Restore,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
                             Switch(
                                 checked = loadLastAi,
                                 onCheckedChange = { loadLastAi = it },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
-                        })
-
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        }
 
                         AnimatedVisibility(
                             visible = !loadLastAi,
                             enter = fadeIn() + expandVertically(),
                             exit = fadeOut() + shrinkVertically()
                         ) {
-                            Column {
+                            Column(modifier = Modifier.padding(bottom = 8.dp)) {
                                 ListItem(headlineContent = {
                                     Text(
                                         "Default AI Assistant",
@@ -250,9 +219,11 @@ fun SettingsScreen(
                                 }, supportingContent = {
                                     Text("Shown when app starts")
                                 }, leadingContent = {
-                                    IconBox(
-                                        icon = Icons.Outlined.Home,
-                                        color = MaterialTheme.colorScheme.primary
+                                    Icon(
+                                        Icons.Outlined.Home,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 })
 
@@ -273,21 +244,9 @@ fun SettingsScreen(
                                                     maxLines = 1
                                                 )
                                             },
-                                            leadingIcon = {
-                                                Icon(
-                                                    serviceIcons[service.id]
-                                                        ?: Icons.Outlined.SmartToy,
-                                                    null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            },
                                             colors = FilterChipDefaults.elevatedFilterChipColors(
-                                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                                selectedContainerColor = service.accentColor,
-                                                labelColor = MaterialTheme.colorScheme.onSurface,
-                                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                containerColor = service.accentColor.copy(alpha = 0.08f),
+                                                labelColor = service.accentColor
                                             )
                                         )
                                     }
@@ -301,70 +260,60 @@ fun SettingsScreen(
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
 
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
 
-                        ListItem(headlineContent = {
-                            Text(
-                                "Manage AI Services",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }, supportingContent = {
-                            Text("Enable, disable & reorder assistants")
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.Apps,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }, trailingContent = {
-                            Icon(
-                                Icons.Outlined.ChevronRight,
-                                contentDescription = "Go to manage services",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }, modifier = Modifier.clickable { onManageServicesClick() })
+                        SettingItem(
+                            title = "Manage AI Services",
+                            description = "Enable, disable & reorder assistants",
+                            icon = Icons.Outlined.Apps,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                            onClick = onManageServicesClick,
+                            trailingContent = {
+                                Icon(
+                                    Icons.Outlined.ChevronRight,
+                                    contentDescription = "Go to manage services",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            })
                     }
                 }
             }
 
             item {
-                SettingSectionHeader(
-                    title = "Performance",
-                    icon = Icons.Outlined.Memory,
-                    color = MaterialTheme.colorScheme.secondary
+                Text(
+                    text = "Performance",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
             item {
-                ModernCard {
+                SettingsCard {
                     Column {
-                        ListItem(headlineContent = {
-                            Text(
-                                "Limit simultaneous AIs",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }, supportingContent = {
-                            Text("Reduces memory usage")
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.Layers,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }, trailingContent = {
+                        SettingItem(
+                            title = "Memory Management",
+                            description = "Control simultaneous AI loading",
+                            icon = Icons.Outlined.Layers,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
                             Switch(
                                 checked = limitSimultaneousAIs,
                                 onCheckedChange = { limitSimultaneousAIs = it },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.secondary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.secondaryContainer
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
-                        })
+                        }
 
                         AnimatedVisibility(
                             visible = limitSimultaneousAIs,
@@ -372,66 +321,55 @@ fun SettingsScreen(
                             exit = fadeOut() + shrinkVertically()
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                                modifier = Modifier.padding(
+                                    start = 56.dp, end = 16.dp, bottom = 8.dp
+                                )
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     Text(
-                                        "Max loaded AIs",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Medium
+                                        "Max:",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(bottom = 4.dp)
                                     )
-                                    Text(
-                                        "$maxKeepAlive",
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-
-                                Spacer(Modifier.height(8.dp))
-
-                                Slider(
-                                    value = (maxKeepAlive - 1).toFloat(),
-                                    onValueChange = {
-                                        maxKeepAlive = (it.roundToInt() + 1).coerceIn(1, 5)
-                                    },
-                                    valueRange = 0f..4f,
-                                    steps = 3,
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = MaterialTheme.colorScheme.secondary,
-                                        activeTrackColor = MaterialTheme.colorScheme.secondary,
-                                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                )
-
-                                Spacer(Modifier.height(4.dp))
-
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    (1..5).forEach { value ->
-                                        Text(
-                                            text = "$value",
-                                            color = if (maxKeepAlive == value) MaterialTheme.colorScheme.secondary
-                                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontWeight = if (maxKeepAlive == value) FontWeight.Bold else FontWeight.Normal,
-                                            modifier = Modifier.clickable { maxKeepAlive = value })
+                                    SingleChoiceSegmentedButtonRow(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        (1..5).forEach { value ->
+                                            SegmentedButton(
+                                                selected = maxKeepAlive == value,
+                                                onClick = { maxKeepAlive = value },
+                                                shape = SegmentedButtonDefaults.itemShape(
+                                                    index = value - 1, count = 5
+                                                ),
+                                                colors = SegmentedButtonDefaults.colors(
+                                                    activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                    activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                )
+                                            ) {
+                                                Text(
+                                                    "$value",
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                            }
+                                        }
                                     }
                                 }
 
-                                Spacer(Modifier.height(12.dp))
+                                Spacer(Modifier.height(4.dp))
 
                                 Text(
                                     text = when (maxKeepAlive) {
-                                        1 -> "Minimal memory – reloads often"
-                                        2 -> "Good balance"
+                                        1 -> "Minimal memory"
+                                        2 -> "Balanced"
                                         3 -> "Recommended"
-                                        4 -> "Smooth switching"
-                                        5 -> "Most convenient"
+                                        4 -> "Smooth"
+                                        5 -> "Maximum convenience"
                                         else -> ""
                                     },
                                     style = MaterialTheme.typography.bodySmall,
@@ -444,60 +382,59 @@ fun SettingsScreen(
             }
 
             item {
-                SettingSectionHeader(
-                    title = "WebView",
-                    icon = Icons.Outlined.WebAsset,
-                    color = MaterialTheme.colorScheme.secondary
+                Text(
+                    text = "WebView",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
             }
 
             item {
-                ModernCard {
+                SettingsCard {
                     Column {
-                        ListItem(headlineContent = {
-                            Text(
-                                "Pinch to zoom",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.ZoomIn,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }, trailingContent = {
+                        SettingItem(
+                            title = "Pinch to zoom",
+                            icon = Icons.Outlined.ZoomIn,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
                             Switch(
                                 checked = enableZoom,
                                 onCheckedChange = { enableZoom = it },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.secondary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.secondaryContainer
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
-                        })
+                        }
 
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
 
-                        ListItem(headlineContent = {
-                            Text(
-                                "Font size",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.TextIncrease,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }, trailingContent = {
-                            Icon(
-                                if (showFontSizeOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                                null,
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        }, modifier = Modifier.clickable {
-                            showFontSizeOptions = !showFontSizeOptions
-                        })
+                        SettingItem(
+                            title = "Font size",
+                            icon = Icons.Outlined.TextIncrease,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                            onClick = { showFontSizeOptions = !showFontSizeOptions }) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    selectedFontSize.replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                Icon(
+                                    if (showFontSizeOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
 
                         AnimatedVisibility(
                             visible = showFontSizeOptions,
@@ -506,7 +443,7 @@ fun SettingsScreen(
                         ) {
                             Column(
                                 modifier = Modifier.padding(
-                                    start = 72.dp, end = 16.dp, bottom = 12.dp
+                                    start = 56.dp, end = 16.dp, bottom = 12.dp
                                 )
                             ) {
                                 fontSizeOptions.forEach { option ->
@@ -514,19 +451,20 @@ fun SettingsScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clickable { selectedFontSize = option }
-                                            .padding(vertical = 10.dp),
+                                            .padding(vertical = 8.dp),
                                         verticalAlignment = Alignment.CenterVertically) {
                                         Text(
                                             text = option.replaceFirstChar { it.uppercase() },
                                             modifier = Modifier.weight(1f),
-                                            style = MaterialTheme.typography.bodyMedium
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                         if (selectedFontSize == option) {
                                             Icon(
                                                 Icons.Outlined.CheckCircle,
                                                 null,
                                                 tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(24.dp)
+                                                modifier = Modifier.size(20.dp)
                                             )
                                         }
                                     }
@@ -538,243 +476,206 @@ fun SettingsScreen(
             }
 
             item {
-                SettingSectionHeader(
-                    title = "Storage",
-                    icon = Icons.Outlined.DeleteSweep,
-                    color = MaterialTheme.colorScheme.tertiary
+                Text(
+                    text = "Security & Privacy",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
             }
 
             item {
-                ModernCard {
-                    Column {
-                        ListItem(headlineContent = {
-                            Text(
-                                "Clear cache",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }, supportingContent = {
-                            Text("Removes temporary files")
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.Delete,
-                                color = MaterialTheme.colorScheme.tertiary
-                            )
-                        }, trailingContent = {
-                            Icon(Icons.Outlined.ChevronRight, null)
-                        }, modifier = Modifier.clickable { showClearCacheDialog = true })
-
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-
-                        ListItem(headlineContent = {
-                            Text(
-                                "Clear all data",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }, supportingContent = {
-                            Text("Resets everything – use carefully")
-                        }, leadingContent = {
-                            IconBox(
-                                icon = Icons.Outlined.DeleteSweep,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }, trailingContent = {
-                            Icon(
-                                Icons.Outlined.ChevronRight,
-                                null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }, modifier = Modifier.clickable { showClearDataDialog = true })
-                    }
-                }
-            }
-
-            item {
-                SettingSectionHeader(
-                    title = "Security",
-                    icon = Icons.Outlined.Security,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-            }
-
-            item {
-                ModernCard {
-                    ListItem(headlineContent = {
-                        Text(
-                            "Block trackers & ads",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }, supportingContent = {
-                        Text("Recommended for privacy")
-                    }, leadingContent = {
-                        IconBox(
-                            icon = Icons.Outlined.Block, color = MaterialTheme.colorScheme.tertiary
-                        )
-                    }, trailingContent = {
+                SettingsCard {
+                    SettingItem(
+                        title = "Block trackers & ads",
+                        description = "Recommended for privacy",
+                        icon = Icons.Outlined.Block,
+                        iconColor = MaterialTheme.colorScheme.primary
+                    ) {
                         Switch(
                             checked = blockUnnecessaryConnections, onCheckedChange = {
                                 blockUnnecessaryConnections = it
                                 WebViewSecurity.isBlockingEnabled = it
                             }, colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.tertiary,
-                                checkedTrackColor = MaterialTheme.colorScheme.tertiaryContainer
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
                             )
                         )
-                    })
+                    }
                 }
             }
 
             item {
-                SettingSectionHeader(
-                    title = "Domain Security",
-                    icon = Icons.Outlined.CloudSync,
-                    color = MaterialTheme.colorScheme.tertiary
+                Text(
+                    text = "Cloud Data",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
             }
 
             item {
-                ModernCard {
+                SettingsCard {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Text(
-                                    "Rules version",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    configVersion,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            Icons.Outlined.Security,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        "Domain Rules & AI Services",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
                             }
 
                             Button(
                                 onClick = {
                                     scope.launch {
-                                        isUpdating = true
+                                        isUpdatingDomainRules = true
                                         try {
-                                            val msg = DomainConfigUpdater.updateIfNeeded(context)
-                                            snackbarHostState.showSnackbar(
-                                                message = msg,
-                                                actionLabel = null,
-                                                withDismissAction = true,
-                                                duration = SnackbarDuration.Short
+                                            val (domainUpdated, aiUpdated) = ConfigUpdater.updateBothIfNeeded(
+                                                context
                                             )
+
+                                            val snackbarText = when {
+                                                domainUpdated && aiUpdated -> "Domain rules and AI services updated (restart required)"
+                                                domainUpdated -> "Domain rules updated (restart required)"
+                                                aiUpdated -> "AI services updated (restart required)"
+                                                else -> "Everything is up to date"
+                                            }
+
+                                            launch {
+                                                snackbarHostState.showSnackbar(
+                                                    message = snackbarText,
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
                                         } catch (e: Exception) {
-                                            snackbarHostState.showSnackbar(
-                                                message = "Failed to update: ${e.message ?: "No internet connection"}",
-                                                withDismissAction = true,
-                                                duration = SnackbarDuration.Long
-                                            )
+                                            launch {
+                                                snackbarHostState.showSnackbar(
+                                                    message = "Update failed: ${e.localizedMessage ?: "check connection"}",
+                                                    duration = SnackbarDuration.Short
+                                                )
+                                            }
                                         } finally {
-                                            refreshVersion()
-                                            isUpdating = false
+                                            isUpdatingDomainRules = false
                                         }
                                     }
-                                }, enabled = !isUpdating, colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiary,
-                                    contentColor = MaterialTheme.colorScheme.onTertiary
-                                )
+                                },
+                                enabled = !isUpdatingDomainRules,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                modifier = Modifier.height(36.dp)
                             ) {
-                                if (isUpdating) {
-                                    CircularProgressIndicator(
-                                        Modifier.size(18.dp), strokeWidth = 2.dp
+                                if (isUpdatingDomainRules) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(18.dp),
+                                            strokeWidth = 2.5.dp,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                        Text(
+                                            "Updating…",
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        "Check for updates",
+                                        style = MaterialTheme.typography.labelMedium
                                     )
-                                    Spacer(Modifier.width(12.dp))
                                 }
-                                Text(if (isUpdating) "Updating…" else "Check update")
                             }
                         }
+
+                        Text(
+                            "Security rules for AI domains, trackers & latest AI assistants",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp, start = 44.dp)
+                        )
                     }
                 }
             }
 
             item {
-                SettingSectionHeader(
-                    title = "Tips",
-                    icon = Icons.Outlined.Lightbulb,
-                    color = MaterialTheme.colorScheme.primary
+                Text(
+                    text = "Storage",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
                 )
             }
 
             item {
-                ModernCard(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Outlined.Refresh,
-                                null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Text(
-                                "Tap AI card in drawer → quick reload",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Outlined.Block,
-                                null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Text(
-                                "Disable ad-blocker temporarily if site won't load",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Outlined.DragIndicator,
-                                null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Text(
-                                "Long-press & drag to reorder AIs in Manage section",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Outlined.Memory,
-                                null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Text(
-                                "Limit loaded AIs on low-RAM devices",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                SettingsCard {
+                    Column {
+                        SettingItem(
+                            title = "Clear cache",
+                            description = "Removes temporary files",
+                            icon = Icons.Outlined.Delete,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                            onClick = { showClearCacheDialog = true },
+                            trailingContent = {
+                                Icon(Icons.Outlined.ChevronRight, null)
+                            })
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
+                            title = "Clear all data",
+                            description = "Resets everything - use carefully",
+                            icon = Icons.Outlined.DeleteSweep,
+                            iconColor = MaterialTheme.colorScheme.error,
+                            onClick = { showClearDataDialog = true },
+                            trailingContent = {
+                                Icon(
+                                    Icons.Outlined.ChevronRight,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            })
                     }
                 }
             }
 
-            item { Spacer(Modifier.height(24.dp)) }
+            item { Spacer(Modifier.height(32.dp)) }
         }
     }
 
@@ -790,166 +691,101 @@ fun SettingsScreen(
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = "Cache cleared successfully",
-                            actionLabel = null,
-                            withDismissAction = true,
                             duration = SnackbarDuration.Short
                         )
                     }
                 }) {
-                    Text("Clear", color = MaterialTheme.colorScheme.primary)
+                    Text("Clear")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showClearCacheDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showClearCacheDialog = false }) {
+                    Text("Cancel")
+                }
             })
     }
 
     if (showClearDataDialog) {
-        AlertDialog(
-            onDismissRequest = { showClearDataDialog = false },
-            title = { Text("Clear All Data", color = MaterialTheme.colorScheme.error) },
-            text = {
-                Text(
-                    "Deletes cache, cookies, history, logins…\n" + "This cannot be undone."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onClearData()
-                    showClearDataDialog = false
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = "All data cleared successfully",
-                            actionLabel = null,
-                            withDismissAction = true,
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                }) {
-                    Text("Clear Everything", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearDataDialog = false }) { Text("Cancel") }
-            })
-    }
-}
-
-@Composable
-private fun SettingSectionHeader(
-    title: String, icon: ImageVector, color: androidx.compose.ui.graphics.Color
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Surface(
-            shape = CircleShape,
-            color = color.copy(alpha = 0.12f),
-            modifier = Modifier
-                .size(36.dp)
-                .padding(6.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    icon, null, tint = color, modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-        Spacer(Modifier.width(12.dp))
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            color = color,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.3.sp
-        )
-    }
-}
-
-@Composable
-private fun IconBox(
-    icon: ImageVector, color: androidx.compose.ui.graphics.Color
-) {
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(color.copy(alpha = 0.12f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            icon, null, tint = color, modifier = Modifier.size(20.dp)
-        )
-    }
-}
-
-@Composable
-private fun ModernCard(
-    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceContainerLowest,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(20.dp),
-                ambientColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
-                spotColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
-            ), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(
-            containerColor = containerColor
-        ), elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(content = content)
-    }
-}
-
-@Composable
-fun ModernSnackbar(
-    snackbarData: androidx.compose.material3.SnackbarData, modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.inverseSurface,
-            contentColor = MaterialTheme.colorScheme.inverseOnSurface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        AlertDialog(onDismissRequest = { showClearDataDialog = false }, title = {
             Text(
-                text = snackbarData.visuals.message,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
+                "Clear All Data", color = MaterialTheme.colorScheme.error
             )
-
-            snackbarData.visuals.actionLabel?.let { actionLabel ->
-                TextButton(
-                    onClick = { snackbarData.performAction() },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.inverseOnSurface
-                    ),
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Text(
-                        actionLabel,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold
+        }, text = {
+            Text(
+                "Deletes cache, cookies, history, logins…\n" + "This cannot be undone."
+            )
+        }, confirmButton = {
+            TextButton(onClick = {
+                onClearData()
+                showClearDataDialog = false
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "All data cleared successfully", duration = SnackbarDuration.Short
                     )
                 }
+            }) {
+                Text(
+                    "Clear Everything", color = MaterialTheme.colorScheme.error
+                )
             }
-        }
+        }, dismissButton = {
+            TextButton(onClick = { showClearDataDialog = false }) {
+                Text("Cancel")
+            }
+        })
+    }
+}
+
+@Composable
+private fun SettingItem(
+    title: String,
+    description: String? = null,
+    icon: ImageVector,
+    iconColor: Color,
+    onClick: (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null
+) {
+    ListItem(
+        headlineContent = {
+        Text(
+            title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium
+        )
+    },
+        supportingContent = description?.let {
+            {
+                Text(
+                    it, style = MaterialTheme.typography.bodySmall
+                )
+            }
+        },
+        leadingContent = {
+            Icon(
+                icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp)
+            )
+        },
+        trailingContent = trailingContent,
+        modifier = Modifier
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .padding(vertical = 4.dp),
+        colors = ListItemDefaults.colors(
+            headlineColor = MaterialTheme.colorScheme.onSurface,
+            supportingColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            leadingIconColor = iconColor,
+            trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ))
+}
+
+@Composable
+private fun SettingsCard(
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        color = containerColor,
+        tonalElevation = 1.dp
+    ) {
+        Column(content = content)
     }
 }
