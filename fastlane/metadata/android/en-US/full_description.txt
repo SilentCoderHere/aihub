@@ -1,13 +1,12 @@
 AI Hub lets you use many AI tools in one simple place. No need to jump between apps.
 
-**Key features:**
-
-* Fast tab switching
-* Clean Material Design 3
-* Dynamic colors and auto light/dark theme
-* Remembers the last AI you used
-* Enable or disable any AI you want
-* No trackers
+Key features:
+- Fast tab switching
+- Clean Material Design 3
+- Dynamic colors and auto light/dark theme
+- Remembers the last AI you used
+- Enable or disable any AI you want
+- No trackers
 
 Perfect for anyone who uses multiple AI tools daily.
 Open-source, free, and easy to use.
