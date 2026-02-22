@@ -3,9 +3,8 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-//    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -16,8 +15,8 @@ android {
         applicationId = "com.foss.aihub"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "2.0.0"
+        versionCode = 7
+        versionName = "2.0.1"
     }
 
     compileOptions {
@@ -34,6 +33,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -45,7 +45,7 @@ android {
         includeInBundle = false
     }
 
-    val keystorePropertiesFile = file("../local.properties")
+    val keystorePropertiesFile = file("$rootDir/../local.properties")
     val keystoreProperties = Properties()
     val keystoreExists = keystorePropertiesFile.exists()
 
@@ -59,7 +59,7 @@ android {
     signingConfigs {
         if (keystoreExists) {
             create("release") {
-                storeFile = file("$rootDir/keystore.jks")
+                storeFile = file("$rootDir/../keystore.jks")
                 storePassword = keystoreProperties.getProperty("KEYSTORE_PASSWORD") ?: ""
                 keyAlias = keystoreProperties.getProperty("KEY_ALIAS") ?: ""
                 keyPassword = keystoreProperties.getProperty("KEY_PASSWORD") ?: ""
@@ -72,8 +72,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
 
             if (keystoreExists) {
@@ -108,19 +107,18 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Manual dependency
-    implementation("androidx.webkit:webkit:1.15.0")
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("com.google.code.gson:gson:2.13.2")
-    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
-    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
-    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0")
-    implementation("com.google.android.material:material:1.13.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-    implementation("io.ktor:ktor-client-core:3.4.0")
-    implementation("io.ktor:ktor-client-cio:3.4.0")
-    implementation("io.ktor:ktor-client-content-negotiation:3.4.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:3.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-
+    // Manually added dependency
+    implementation(libs.androidx.webkit)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.gson)
+    implementation(libs.androidx.compose.adaptive)
+    implementation(libs.androidx.compose.adaptive.layout)
+    implementation(libs.androidx.compose.adaptive.navigation)
+    implementation(libs.material)
+    implementation(libs.jetbrains.kotlinx.serialization.json)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.jetbrains.kotlinx.serialization.json)
 }
