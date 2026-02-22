@@ -11,6 +11,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -19,6 +21,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -35,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -71,6 +76,8 @@ fun AiHubApp(activity: MainActivity) {
     var showLinkDialog by remember { mutableStateOf(false) }
     var selectedLink by remember { mutableStateOf<LinkData?>(null) }
     var previousEnabledServices by remember { mutableStateOf(settings.enabledServices) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     data class ServiceUiState(
         val webViewState: WebViewState = WebViewState.LOADING,
@@ -115,6 +122,7 @@ fun AiHubApp(activity: MainActivity) {
 
     var showSettingsScreen by remember { mutableStateOf(false) }
     var showManageServices by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
 
     var currentRoot by remember { mutableStateOf<FrameLayout?>(null) }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -240,7 +248,8 @@ fun AiHubApp(activity: MainActivity) {
                 },
                 webViewStates = serviceStates.mapValues { it.value.webViewState },
                 enabledServices = settings.enabledServices,
-                serviceOrder = settings.serviceOrder
+                serviceOrder = settings.serviceOrder,
+                snackbarHostState = snackbarHostState
             )
         }) {
         Scaffold(
@@ -248,11 +257,28 @@ fun AiHubApp(activity: MainActivity) {
                 .fillMaxSize()
                 .windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.safeDrawing),
             topBar = {
-                AiHubAppBar(selectedService = selectedService, onMenuClick = {
-                    scope.launch {
-                        if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                    }
-                }, onSettingsClick = { showSettingsScreen = true })
+                AiHubAppBar(
+                    selectedService = selectedService,
+                    onMenuClick = {
+                        scope.launch {
+                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
+                        }
+                    },
+                    onSettingsClick = { showSettingsScreen = true },
+                    loadedServiceIds = webViews.keys,
+                    allServices = aiServices,
+                    onServiceSelected = { service ->
+                        selectedService = service
+                    })
+            },
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding()
+                        .padding(horizontal = 8.dp),
+                )
             }) { innerPadding ->
 
             Box(
@@ -645,6 +671,9 @@ fun AiHubApp(activity: MainActivity) {
                         Toast.makeText(context, "All data cleared", Toast.LENGTH_SHORT).show()
                     }
                 }
+            },
+            onAboutClick = {
+                showAbout = true
             })
     }
 
@@ -663,5 +692,10 @@ fun AiHubApp(activity: MainActivity) {
             loadLastAiEnabled = settings.loadLastOpenedAI,
             settingsManager = settingsManager
         )
+    }
+
+    if (showAbout) {
+        BackHandler { showAbout = false }
+        AboutScreen(onBack = { showAbout = false })
     }
 }
