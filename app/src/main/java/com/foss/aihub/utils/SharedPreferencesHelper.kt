@@ -160,6 +160,7 @@ class SettingsManager(context: Context) {
             fontSize = sharedPref.getString("fontSize", "medium") ?: "medium",
             defaultServiceId = sharedPref.getString("defaultServiceId", "chatgpt") ?: "chatgpt",
             maxKeepAlive = sharedPref.getInt("maxKeepAlive", 5),
+            theme = sharedPref.getString("theme", "auto") ?: "auto",
             enabledServices = loadEnabledServices(),
             serviceOrder = loadServiceOrder()
         )
@@ -172,6 +173,7 @@ class SettingsManager(context: Context) {
             putString("fontSize", settings.fontSize)
             putString("defaultServiceId", settings.defaultServiceId)
             putInt("maxKeepAlive", settings.maxKeepAlive)
+            putString("theme", settings.theme)
             saveEnabledServices(settings.enabledServices)
             saveServiceOrder(settings.serviceOrder)
         }

@@ -13,7 +13,6 @@ import android.webkit.WebChromeClient
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.foss.aihub.ui.screens.AiHubApp
 import com.foss.aihub.ui.screens.ErrorScreen
@@ -91,9 +89,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WebViewSecurity.init(this)
 
-        enableEdgeToEdge()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         try {
             settingsManager = SettingsManager(this)
 
@@ -105,7 +100,7 @@ class MainActivity : ComponentActivity() {
             initializeFileChooserLauncher()
 
             setContent {
-                AiHubTheme(context = this) {
+                AiHubTheme(context = this, settingsManager = settingsManager) {
                     when {
                         initialConfigError != null -> {
                             ErrorScreen(
@@ -136,7 +131,7 @@ class MainActivity : ComponentActivity() {
 
         } catch (e: Exception) {
             setContent {
-                AiHubTheme(context = this) {
+                AiHubTheme(context = this, settingsManager = settingsManager) {
                     Box(
                         Modifier
                             .fillMaxSize()

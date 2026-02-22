@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -20,9 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Block
@@ -33,15 +30,13 @@ import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Restore
-import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.TextIncrease
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChipDefaults
@@ -75,15 +70,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.foss.aihub.ui.components.Md3TopAppBar
 import com.foss.aihub.ui.webview.WebViewSecurity
-import com.foss.aihub.utils.ConfigUpdater
 import com.foss.aihub.utils.SettingsManager
 import com.foss.aihub.utils.aiServices
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -92,9 +86,9 @@ fun SettingsScreen(
     settingsManager: SettingsManager,
     onManageServicesClick: () -> Unit,
     onClearCache: () -> Unit,
-    onClearData: () -> Unit
+    onClearData: () -> Unit,
+    onAboutClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -121,8 +115,6 @@ fun SettingsScreen(
 
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
-
-    var isUpdatingDomainRules by remember { mutableStateOf(false) }
 
     LaunchedEffect(loadLastAi) {
         settingsManager.updateSettings { it.loadLastOpenedAI = loadLastAi }
@@ -173,6 +165,87 @@ fun SettingsScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                SettingsCard {
+                    Column {
+                        SettingItem(
+                            title = "Theme",
+                            description = "Choose between system default, light or dark",
+                            icon = Icons.Outlined.Palette,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                        )
+
+                        val themeOptions = listOf("auto", "light", "dark")
+
+                        var selectedTheme by remember { mutableStateOf(settings.theme) }
+
+                        LaunchedEffect(selectedTheme) {
+                            settingsManager.updateSettings { it.theme = selectedTheme }
+                        }
+
+                        LaunchedEffect(settings) {
+                            selectedTheme = settings.theme
+                        }
+
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                        ) {
+                            themeOptions.forEachIndexed { index, option ->
+                                SegmentedButton(
+                                    selected = selectedTheme == option,
+                                    onClick = { selectedTheme = option },
+                                    shape = SegmentedButtonDefaults.itemShape(
+                                        index = index, count = themeOptions.size
+                                    ),
+                                    colors = SegmentedButtonDefaults.colors(
+                                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    ),
+                                    enabled = false
+                                ) {
+                                    Text(
+                                        text = when (option) {
+                                        "auto" -> "Auto"
+                                        "light" -> "Light"
+                                        "dark" -> "Dark"
+                                        else -> option.replaceFirstChar {
+                                            if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                                        }
+                                    }, style = MaterialTheme.typography.labelLarge)
+                                }
+                            }
+                        }
+
+                        AnimatedVisibility(visible = selectedTheme != "auto") {
+                            Text(
+                                text = when (selectedTheme) {
+                                    "light" -> "Always uses light mode"
+                                    "dark" -> "Always uses dark mode"
+                                    else -> ""
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(
+                                    start = 16.dp, end = 16.dp, bottom = 12.dp
+                                )
+                            )
+                        }
+
+                        Text(
+                            text = "Theme switching is temporarily disabled (not working correctly)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                }
+            }
+
             item {
                 Text(
                     text = "Preferences",
@@ -510,128 +583,6 @@ fun SettingsScreen(
 
             item {
                 Text(
-                    text = "Cloud Data",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
-                )
-            }
-
-            item {
-                SettingsCard {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            Icons.Outlined.Security,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-                                Spacer(Modifier.width(12.dp))
-                                Column {
-                                    Text(
-                                        "Domain Rules & AI Services",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                            }
-
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        isUpdatingDomainRules = true
-                                        try {
-                                            val (domainUpdated, aiUpdated) = ConfigUpdater.updateBothIfNeeded(
-                                                context
-                                            )
-
-                                            val snackbarText = when {
-                                                domainUpdated && aiUpdated -> "Domain rules and AI services updated (restart required)"
-                                                domainUpdated -> "Domain rules updated (restart required)"
-                                                aiUpdated -> "AI services updated (restart required)"
-                                                else -> "Everything is up to date"
-                                            }
-
-                                            launch {
-                                                snackbarHostState.showSnackbar(
-                                                    message = snackbarText,
-                                                    duration = SnackbarDuration.Short
-                                                )
-                                            }
-                                        } catch (e: Exception) {
-                                            launch {
-                                                snackbarHostState.showSnackbar(
-                                                    message = "Update failed: ${e.localizedMessage ?: "check connection"}",
-                                                    duration = SnackbarDuration.Short
-                                                )
-                                            }
-                                        } finally {
-                                            isUpdatingDomainRules = false
-                                        }
-                                    }
-                                },
-                                enabled = !isUpdatingDomainRules,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
-                                ),
-                                modifier = Modifier.height(36.dp)
-                            ) {
-                                if (isUpdatingDomainRules) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(18.dp),
-                                            strokeWidth = 2.5.dp,
-                                            color = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                        Text(
-                                            "Updating…",
-                                            style = MaterialTheme.typography.labelMedium
-                                        )
-                                    }
-                                } else {
-                                    Text(
-                                        "Check for updates",
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
-                            }
-                        }
-
-                        Text(
-                            "Security rules for AI domains, trackers & latest AI assistants",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 8.dp, start = 44.dp)
-                        )
-                    }
-                }
-            }
-
-            item {
-                Text(
                     text = "Storage",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
@@ -675,7 +626,33 @@ fun SettingsScreen(
                 }
             }
 
-            item { Spacer(Modifier.height(32.dp)) }
+            item {
+                Text(
+                    text = "About",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                SettingsCard {
+                    SettingItem(
+                        title = "About AI Hub",
+                        description = "Version • License • Credits",
+                        icon = Icons.Outlined.Info,
+                        iconColor = MaterialTheme.colorScheme.primary,
+                        onClick = onAboutClick,
+                        trailingContent = {
+                            Icon(
+                                Icons.Outlined.ChevronRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        })
+                }
+            }
         }
     }
 

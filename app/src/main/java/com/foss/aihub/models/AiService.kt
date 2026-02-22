@@ -19,6 +19,7 @@ data class AppSettings(
     var loadLastOpenedAI: Boolean = true,
     var fontSize: String = "medium",
     var defaultServiceId: String = "chatgpt",
+    var theme: String = "auto",
     var maxKeepAlive: Int = 5,
     var enabledServices: Set<String> = emptySet(),
     var serviceOrder: List<String> = emptyList()
