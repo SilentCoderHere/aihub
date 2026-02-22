@@ -66,7 +66,6 @@ object ConfigUpdater {
 
             val manager = SettingsManager(context)
             val currentVersion = manager.getAiVersion() ?: "0.0.0"
-            manager.getAiServices()
 
             if (remote.version == currentVersion) {
                 return false
