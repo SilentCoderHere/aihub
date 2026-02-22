@@ -1,0 +1,6 @@
+- Added a search button on the Manage AI screen to search AIs
+- Manage active AIs directly from the app bar
+- Added an Update Cloud Data button in the navigation drawer
+- Added a theme switcher option in Settings
+  - Note: This option is currently disabled because it is not working correctly yet
+- Added an About screen
