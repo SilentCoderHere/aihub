@@ -1,6 +1,5 @@
 package com.foss.aihub.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,8 +16,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropUp
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,19 +30,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.foss.aihub.models.AiService
-import com.foss.aihub.ui.components.Md3TopAppBar
 import com.foss.aihub.utils.SettingsManager
 import com.foss.aihub.utils.aiServices
 import java.util.Collections
@@ -59,11 +70,78 @@ fun ManageAiServicesScreen(
     val orderedServices = remember(settings, aiServices.toList()) {
         settings.serviceOrder.mapNotNull { id -> aiServices.find { it.id == id } }
     }
+    var isSearching by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredServices = orderedServices.filter {
+        if (searchQuery.isEmpty()) true
+        else it.name.contains(
+            searchQuery, ignoreCase = true
+        )
+    }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = { Md3TopAppBar(title = "Manage AI Services", onBack = onBack) },
-        containerColor = MaterialTheme.colorScheme.background
+        modifier = Modifier.fillMaxSize(), topBar = {
+            if (isSearching) {
+                TopAppBar(
+                    title = {
+                    val focusRequester = remember { FocusRequester() }
+                    TextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        placeholder = { Text("Search AI services") },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Rounded.Clear, contentDescription = null)
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        )
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                }, navigationIcon = {
+                    IconButton(onClick = { isSearching = false; searchQuery = "" }) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    }
+                }, actions = {
+                    IconButton(onClick = { isSearching = true }) {
+                        Icon(Icons.Rounded.Search, contentDescription = null)
+                    }
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+                )
+            } else {
+                TopAppBar(
+                    title = { Text("Manage AI Services") }, navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    }
+                }, actions = {
+                    IconButton(onClick = { isSearching = true }) {
+                        Icon(Icons.Rounded.Search, contentDescription = null)
+                    }
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+                )
+            }
+        }, containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -73,15 +151,16 @@ fun ManageAiServicesScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             itemsIndexed(
-                items = orderedServices, key = { _, service -> service.id }) { index, service ->
+                items = filteredServices, key = { _, service -> service.id }) { _, service ->
+                val originalIndex = orderedServices.indexOf(service)
                 val isEnabled = service.id in enabledServices
                 val isDefault = service.id == defaultServiceId
                 val isOnlyEnabled = enabledServices.size == 1 && isEnabled
                 val canDisable =
                     if (loadLastAiEnabled) !isOnlyEnabled else !isDefault && !isOnlyEnabled
 
-                val isFirst = index == 0
-                val isLast = index == orderedServices.lastIndex
+                val isFirst = originalIndex == 0
+                val isLast = originalIndex == orderedServices.lastIndex
 
                 AiServiceItem(
                     service = service,
@@ -91,6 +170,7 @@ fun ManageAiServicesScreen(
                     loadLastAiEnabled = loadLastAiEnabled,
                     isFirst = isFirst,
                     isLast = isLast,
+                    showReorder = searchQuery.isEmpty(),
                     onToggle = { enabled ->
                         val newSet = enabledServices.toMutableSet().apply {
                             if (enabled) add(service.id) else remove(service.id)
@@ -100,7 +180,7 @@ fun ManageAiServicesScreen(
                     onMoveUp = {
                         if (!isFirst) {
                             val newOrder = settings.serviceOrder.toMutableList().apply {
-                                Collections.swap(this, index, index - 1)
+                                Collections.swap(this, originalIndex, originalIndex - 1)
                             }
                             settingsManager.updateSettings { it.serviceOrder = newOrder }
                         }
@@ -108,7 +188,7 @@ fun ManageAiServicesScreen(
                     onMoveDown = {
                         if (!isLast) {
                             val newOrder = settings.serviceOrder.toMutableList().apply {
-                                Collections.swap(this, index, index + 1)
+                                Collections.swap(this, originalIndex, originalIndex + 1)
                             }
                             settingsManager.updateSettings { it.serviceOrder = newOrder }
                         }
@@ -153,6 +233,7 @@ fun AiServiceItem(
     loadLastAiEnabled: Boolean,
     isFirst: Boolean,
     isLast: Boolean,
+    showReorder: Boolean,
     onToggle: (Boolean) -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit
@@ -249,6 +330,7 @@ fun AiServiceItem(
                 canToggle = canToggle,
                 isFirst = isFirst,
                 isLast = isLast,
+                showReorder = showReorder,
                 onToggle = onToggle,
                 onMoveUp = onMoveUp,
                 onMoveDown = onMoveDown
@@ -280,6 +362,7 @@ private fun TrailingControlsCompact(
     canToggle: Boolean,
     isFirst: Boolean,
     isLast: Boolean,
+    showReorder: Boolean,
     onToggle: (Boolean) -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit
@@ -301,29 +384,31 @@ private fun TrailingControlsCompact(
             modifier = Modifier.scale(0.8f)
         )
 
-        Column {
-            IconButton(
-                onClick = onMoveUp, enabled = !isFirst, modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    Icons.Rounded.ArrowDropUp,
-                    contentDescription = "Move up",
-                    tint = if (!isFirst) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+        if (showReorder) {
+            Column {
+                IconButton(
+                    onClick = onMoveUp, enabled = !isFirst, modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Rounded.ArrowDropUp,
+                        contentDescription = "Move up",
+                        tint = if (!isFirst) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
 
-            IconButton(
-                onClick = onMoveDown, enabled = !isLast, modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    Icons.Rounded.ArrowDropDown,
-                    contentDescription = "Move down",
-                    tint = if (!isLast) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                    modifier = Modifier.size(20.dp)
-                )
+                IconButton(
+                    onClick = onMoveDown, enabled = !isLast, modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Rounded.ArrowDropDown,
+                        contentDescription = "Move down",
+                        tint = if (!isLast) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }
