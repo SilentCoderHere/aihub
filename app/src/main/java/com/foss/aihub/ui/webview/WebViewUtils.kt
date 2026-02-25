@@ -32,7 +32,7 @@ fun createWebViewForService(
     return WebView(context).apply {
         val cookieManager = CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
-        cookieManager.setAcceptThirdPartyCookies(this, false)
+        cookieManager.setAcceptThirdPartyCookies(this, true)
 
         layoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
