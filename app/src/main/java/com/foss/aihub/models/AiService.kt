@@ -22,5 +22,6 @@ data class AppSettings(
     var thirdPartyCookies: Boolean = false,
     var maxKeepAlive: Int = 5,
     var enabledServices: Set<String> = emptySet(),
-    var serviceOrder: List<String> = emptyList()
+    var serviceOrder: List<String> = emptyList(),
+    var favoriteServices: Set<String> = emptySet()
 )

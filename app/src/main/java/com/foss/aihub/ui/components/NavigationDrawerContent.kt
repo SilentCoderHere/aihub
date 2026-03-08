@@ -31,11 +31,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -86,6 +86,8 @@ fun DrawerContent(
     webViewStates: Map<String, WebViewState>,
     enabledServices: Set<String>,
     serviceOrder: List<String>,
+    favoriteServices: Set<String>,
+    onToggleFavorite: (String) -> Unit,
     snackbarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
@@ -127,7 +129,6 @@ fun DrawerContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
                     .navigationBarsPadding()
             ) {
                 Box(
@@ -321,6 +322,14 @@ fun DrawerContent(
                     }
                 }
 
+                val favoriteFilteredServices by derivedStateOf {
+                    filteredServices.filter { it.id in favoriteServices }
+                }
+
+                val nonFavoriteFilteredServices by derivedStateOf {
+                    filteredServices.filter { it.id !in favoriteServices }
+                }
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -329,20 +338,79 @@ fun DrawerContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
-                    items(filteredServices, key = { it.id }) { service ->
+                    if (favoriteFilteredServices.isNotEmpty()) {
+                        item(key = "favorites_header") {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.padding(start = 4.dp, top = 4.dp, bottom = 2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Star,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFFB300),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = "Favorites",
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                    color = colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        items(favoriteFilteredServices, key = { "fav_${it.id}" }) { service ->
+                            val state = webViewStates[service.id] ?: WebViewState.IDLE
+                            Md3ServiceCard(
+                                service = service,
+                                serviceColor = service.accentColor,
+                                isSelected = selectedService.id == service.id,
+                                state = state,
+                                isFavorite = true,
+                                onFavoriteToggle = { onToggleFavorite(service.id) },
+                                onClick = {
+                                    if (selectedService.id == service.id) {
+                                        onServiceReload(service)
+                                    } else {
+                                        onServiceSelected(service)
+                                    }
+                                }
+                            )
+                        }
+
+                        if (nonFavoriteFilteredServices.isNotEmpty()) {
+                            item(key = "all_header") {
+                                Text(
+                                    text = "All Services",
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                    color = colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 2.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    items(nonFavoriteFilteredServices, key = { it.id }) { service ->
                         val state = webViewStates[service.id] ?: WebViewState.IDLE
                         Md3ServiceCard(
                             service = service,
                             serviceColor = service.accentColor,
                             isSelected = selectedService.id == service.id,
                             state = state,
+                            isFavorite = false,
+                            onFavoriteToggle = { onToggleFavorite(service.id) },
                             onClick = {
                                 if (selectedService.id == service.id) {
                                     onServiceReload(service)
                                 } else {
                                     onServiceSelected(service)
                                 }
-                            })
+                            }
+                        )
                     }
                 }
 

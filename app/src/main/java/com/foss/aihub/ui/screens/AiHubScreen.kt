@@ -250,6 +250,16 @@ fun AiHubApp(activity: MainActivity) {
                 webViewStates = serviceStates.mapValues { it.value.webViewState },
                 enabledServices = settings.enabledServices,
                 serviceOrder = settings.serviceOrder,
+                favoriteServices = settings.favoriteServices,
+                onToggleFavorite = { serviceId ->
+                    settingsManager.updateSettings { current ->
+                        current.favoriteServices = if (serviceId in current.favoriteServices) {
+                            current.favoriteServices - serviceId
+                        } else {
+                            current.favoriteServices + serviceId
+                        }
+                    }
+                },
                 snackbarHostState = snackbarHostState
             )
         }) {

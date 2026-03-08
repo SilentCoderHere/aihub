@@ -1,25 +1,33 @@
 package com.foss.aihub.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Error
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +43,8 @@ fun Md3ServiceCard(
     serviceColor: Color,
     isSelected: Boolean,
     state: WebViewState,
+    isFavorite: Boolean,
+    onFavoriteToggle: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -70,7 +80,7 @@ fun Md3ServiceCard(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(0.dp)
         ) {
@@ -186,6 +196,26 @@ fun Md3ServiceCard(
                         modifier = Modifier.weight(1f)
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            val starColor by animateColorAsState(
+                targetValue = if (isFavorite) Color(0xFFFFB300) else colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                animationSpec = tween(durationMillis = 250),
+                label = "starColor"
+            )
+
+            IconButton(
+                onClick = onFavoriteToggle,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline,
+                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                    tint = starColor,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }

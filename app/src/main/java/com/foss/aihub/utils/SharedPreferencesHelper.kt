@@ -164,7 +164,8 @@ class SettingsManager(context: Context) {
             desktopView = sharedPref.getBoolean("desktopView", false),
             thirdPartyCookies = sharedPref.getBoolean("thirdPartyCookies", false),
             enabledServices = loadEnabledServices(),
-            serviceOrder = loadServiceOrder()
+            serviceOrder = loadServiceOrder(),
+            favoriteServices = loadFavoriteServices()
         )
     }
 
@@ -180,6 +181,7 @@ class SettingsManager(context: Context) {
             putBoolean("thirdPartyCookies", settings.thirdPartyCookies)
             saveEnabledServices(settings.enabledServices)
             saveServiceOrder(settings.serviceOrder)
+            saveFavoriteServices(settings.favoriteServices)
         }
     }
 
@@ -211,6 +213,21 @@ class SettingsManager(context: Context) {
     private fun saveServiceOrder(order: List<String>) {
         val json = gson.toJson(order)
         sharedPref.edit { putString("serviceOrder", json) }
+    }
+
+    private fun loadFavoriteServices(): Set<String> {
+        val json = sharedPref.getString("favoriteServices", null)
+        return if (json.isNullOrEmpty()) {
+            emptySet()
+        } else {
+            val type = object : TypeToken<Set<String>>() {}.type
+            gson.fromJson(json, type)
+        }
+    }
+
+    private fun saveFavoriteServices(favorites: Set<String>) {
+        val json = gson.toJson(favorites)
+        sharedPref.edit { putString("favoriteServices", json) }
     }
 
     fun saveLastOpenedService(serviceId: String) {
