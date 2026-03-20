@@ -15,18 +15,10 @@ assignees: SilentCoderHere
 **Website / Chat URL:**
 https://...
 
-**Login Required:**
-Yes / No
-
 **Reason for Adding (short):**
 ...
 
-⚠️ **Eligibility Criteria:**
-
-* Must mainly work as a chatbot
-* Chat interface should be the main feature
-
 **Verification:**
 
-* [ ] This AI is a chatbot
-* [x] I have checked — this AI is not already listed
+* [ ] This AI is a chatbot (chat interface is the main feature)
+* [ ] This AI is not already listed
