@@ -1,4 +1,4 @@
-package com.foss.aihub.ui.theme
+package com.foss.aihub.ui.components
 
 import android.app.Activity
 import android.content.Context
@@ -59,6 +59,6 @@ fun AiHubTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme, typography = Typography, content = content
+        colorScheme = colorScheme, content = content
     )
 }

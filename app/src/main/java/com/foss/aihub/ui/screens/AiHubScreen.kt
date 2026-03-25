@@ -1,6 +1,7 @@
 package com.foss.aihub.ui.screens
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,8 +18,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.DrawerValue.Closed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -46,7 +47,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.foss.aihub.MainActivity
 import com.foss.aihub.R
 import com.foss.aihub.models.LinkData
@@ -66,16 +66,16 @@ import com.foss.aihub.utils.openInExternalBrowser
 import com.foss.aihub.utils.shareLink
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("LocalContextGetResourceValueCall", "UnrememberedMutableState")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiHubApp(activity: MainActivity) {
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val configuration = LocalConfiguration.current
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = rememberDrawerState(initialValue = Closed)
     val scope = rememberCoroutineScope()
 
     val settingsManager = remember { activity.settingsManager }

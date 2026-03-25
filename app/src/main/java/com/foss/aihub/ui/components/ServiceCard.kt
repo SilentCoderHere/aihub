@@ -139,7 +139,6 @@ fun Md3ServiceCard(
                                 WebViewState.LOADING -> stringResource(R.string.label_connecting)
                                 WebViewState.ERROR -> stringResource(R.string.label_connection_failed)
                                 WebViewState.SUCCESS -> stringResource(R.string.label_ready)
-                                else -> ""
                             }
 
                             else -> service.description
@@ -150,7 +149,6 @@ fun Md3ServiceCard(
                                 WebViewState.LOADING -> colorScheme.secondary
                                 WebViewState.ERROR -> colorScheme.error
                                 WebViewState.SUCCESS -> serviceColor
-                                else -> colorScheme.onSurfaceVariant
                             }
 
                             else -> colorScheme.onSurfaceVariant

@@ -34,7 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import com.foss.aihub.ui.screens.AiHubApp
 import com.foss.aihub.ui.screens.ErrorScreen
 import com.foss.aihub.ui.screens.InitialLoadingScreen
-import com.foss.aihub.ui.theme.AiHubTheme
+import com.foss.aihub.ui.components.AiHubTheme
 import com.foss.aihub.ui.webview.WebViewSecurity
 import com.foss.aihub.utils.ConfigUpdater
 import com.foss.aihub.utils.SettingsManager
