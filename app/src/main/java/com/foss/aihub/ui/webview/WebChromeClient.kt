@@ -3,6 +3,7 @@ package com.foss.aihub.ui.webview
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import android.webkit.JsResult
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -11,12 +12,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.foss.aihub.MainActivity
 
-open class ProgressTrackingWebChromeClient(
+open class CustomWebChromeClient(
+    private val context: MainActivity,
     private val onProgressUpdate: (Int) -> Unit,
-    private val activity: MainActivity,
+    private val onJsAlertRequest: (String?, JsResult?) -> Unit,
     private val mainWebView: WebView? = null
 ) : WebChromeClient() {
-
     private val activeWebViews = mutableListOf<WebView>()
 
     override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -29,15 +30,15 @@ open class ProgressTrackingWebChromeClient(
         filePathCallback: ValueCallback<Array<Uri>>,
         fileChooserParams: FileChooserParams?
     ): Boolean {
-        activity.launchFileChooser(filePathCallback, fileChooserParams)
+        context.launchFileChooser(filePathCallback, fileChooserParams)
         return true
     }
 
     override fun onPermissionRequest(request: PermissionRequest) {
         val resources = request.resources
         Log.d("AI_HUB", "WebView requesting permission for: ${resources.joinToString()}")
-        activity.runOnUiThread {
-            activity.requestWebViewPermissions(request)
+        context.runOnUiThread {
+            context.requestWebViewPermissions(request)
         }
     }
 
@@ -53,7 +54,7 @@ open class ProgressTrackingWebChromeClient(
 
         return if (mainWebView != null) {
             Log.d("AI_HUB", "Creating dummy WebView for window.open")
-            val dummyWebView = WebView(activity).apply {
+            val dummyWebView = WebView(context).apply {
                 settings.apply {
                     javaScriptEnabled = true
                     domStorageEnabled = true
@@ -101,5 +102,14 @@ open class ProgressTrackingWebChromeClient(
         super.onCloseWindow(window)
         window?.destroy()
         activeWebViews.remove(window)
+    }
+
+    override fun onJsAlert(
+        view: WebView?, url: String?, message: String?, result: JsResult?
+    ): Boolean {
+        context.runOnUiThread {
+            onJsAlertRequest(message, result)
+        }
+        return true
     }
 }

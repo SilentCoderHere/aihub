@@ -25,6 +25,7 @@
     <string name="action_more_options">More options</string>
     <string name="action_move_down">Move down</string>
     <string name="action_move_up">Move up</string>
+    <string name="action_ok">OK</string>
     <string name="action_open_in_browser">Open in browser</string>
     <string name="action_privacy_policy">Privacy Policy</string>
     <string name="action_reload">Reload</string>
@@ -59,6 +60,7 @@
     <!-- Labels -->
     <string name="hint_search_services">Search services…</string>
     <string name="label_active">Active</string>
+    <string name="label_alert">Alert</string>
     <string name="label_blocked_url">Blocked URL</string>
     <string name="label_connecting">Connecting…</string>
     <string name="label_connection_failed">Connection failed</string>
