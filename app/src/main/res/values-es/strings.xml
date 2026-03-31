@@ -1,10 +1,7 @@
 <resources>
     <!-- App Info -->
-    <string name="app_name" translatable="false">AI Hub</string>
-    <string name="app_author" translatable="false">Silent Coder</string>
-    <string name="matrix" translatable="false">Matrix</string>
     <string name="app_logo_description">AI Hub Logo</string>
-    <string name="app_tagline">Tu colección de compañeros IA</string>
+    <string name="app_tagline">Tu colección de asistentes IA</string>
 
     <!-- Actions -->
     <string name="action_back">Atrás</string>
@@ -84,8 +81,6 @@
     <string name="label_connecting">Conectando…</string>
     <string name="label_connection_failed">Conexión fallida</string>
     <string name="label_contributors">Contribuidores</string>
-    <string name="label_custom_css" translatable="false">CSS</string>
-    <string name="label_custom_js" translatable="false">JavaScript</string>
     <string name="label_default_ai">Por Defecto</string>
     <string name="label_details">Detalles</string>
     <string name="label_email">Correo electrónico</string>
