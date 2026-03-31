@@ -59,14 +59,21 @@ import com.foss.aihub.ui.components.ErrorType
 import com.foss.aihub.ui.components.LoadingOverlay
 import com.foss.aihub.ui.screens.dialogs.JsDialogHandler
 import com.foss.aihub.ui.screens.dialogs.LinkOptionsDialog
+import com.foss.aihub.ui.screens.dialogs.UpdateDialog
 import com.foss.aihub.ui.webview.createWebViewForService
 import com.foss.aihub.ui.webview.updateWebViewSettings
+import com.foss.aihub.utils.DetailedUpdateDetails
+import com.foss.aihub.utils.ServiceChanges
+import com.foss.aihub.utils.UpdateResult
 import com.foss.aihub.utils.aiServices
+import com.foss.aihub.utils.checkUpdate
 import com.foss.aihub.utils.copyLinkToClipboard
 import com.foss.aihub.utils.openInExternalBrowser
 import com.foss.aihub.utils.shareLink
 import kotlinx.coroutines.launch
 import java.io.File
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun AiHubApp(context: MainActivity) {
@@ -95,6 +102,7 @@ fun AiHubApp(context: MainActivity) {
     var selectedLink by remember { mutableStateOf<LinkData?>(null) }
     var showSettingsScreen by remember { mutableStateOf(false) }
     var showManageServices by remember { mutableStateOf(false) }
+    var showCustomInjectionScreen by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
 
     var previousEnabledServices by remember { mutableStateOf(settings.enabledServices) }
@@ -106,6 +114,21 @@ fun AiHubApp(context: MainActivity) {
     val webViews = remember { mutableStateMapOf<String, WebView>() }
     val loadedServices = remember { mutableStateSetOf<String>() }
     val serviceAccessOrder = remember { mutableListOf<String>() }
+
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    var updateResult by remember {
+        mutableStateOf(
+            UpdateResult(
+                null, DetailedUpdateDetails(
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList())
+                )
+            ),
+        )
+    }
 
     var jsDialog by remember { mutableStateOf<JsDialog?>(null) }
 
@@ -119,6 +142,10 @@ fun AiHubApp(context: MainActivity) {
         derivedStateOf {
             currentState.error?.let { ErrorType.shouldShowOverlay(it.first) } == true
         }
+    }
+
+    if (settingsManager.getLastUpdatedDate() == null) {
+        settingsManager.saveLastUpdatedDate()
     }
 
     fun updateServiceState(serviceId: String, update: (ServiceUiState) -> ServiceUiState) {
@@ -189,6 +216,34 @@ fun AiHubApp(context: MainActivity) {
         }
     }
 
+    UpdateDialog(
+        showDialog = showUpdateDialog,
+        updateResult = updateResult,
+        onDismiss = { showUpdateDialog = false },
+    )
+
+    LaunchedEffect(true) {
+        val updateFrequency = settings.updateFrequencyDays
+        if (updateFrequency != -1) {
+            val lastDate = settingsManager.getLastUpdatedDate()
+            val daysBetween = ChronoUnit.DAYS.between(lastDate, LocalDate.now())
+
+            if (daysBetween >= updateFrequency) {
+                scope.launch {
+                    try {
+                        updateResult = checkUpdate(context)
+                        if (updateResult.message != null) {
+                            showUpdateDialog = true
+                        }
+                        settingsManager.saveLastUpdatedDate()
+                    } catch (_: Exception) {
+                        // Silent fail
+                    }
+                }
+            }
+        }
+    }
+
     LaunchedEffect(configuration.orientation) {
         if (drawerState.isOpen) {
             drawerState.close()
@@ -205,29 +260,32 @@ fun AiHubApp(context: MainActivity) {
         serviceAccessOrder.remove(selectedService.id)
         serviceAccessOrder.add(0, selectedService.id)
 
-        updateServiceState(selectedService.id) { state ->
-            state.copy(
-                webViewState = WebViewState.LOADING, error = null
-            )
-        }
-
         val wv = webViews[selectedService.id]
         if (wv != null) {
             val isActuallyLoading = wv.progress < 100
-
+            val currentError = serviceStates[selectedService.id]?.error
             updateServiceState(selectedService.id) { state ->
                 state.copy(
-                    isLoading = isActuallyLoading,
-                    webViewState = if (isActuallyLoading) WebViewState.LOADING else WebViewState.SUCCESS,
-                    progress = wv.progress
+                    isLoading = isActuallyLoading, webViewState = when {
+                        currentError != null -> WebViewState.ERROR
+                        isActuallyLoading -> WebViewState.LOADING
+                        else -> WebViewState.SUCCESS
+                    }, progress = wv.progress
                 )
             }
-
             wv.bringToFront()
+        } else {
+            updateServiceState(selectedService.id) { state ->
+                state.copy(
+                    webViewState = WebViewState.LOADING,
+                    error = null,
+                    isLoading = true,
+                    progress = 0
+                )
+            }
         }
 
         loadedServices.add(selectedService.id)
-
         enforceWebViewLimit()
     }
 
@@ -267,7 +325,6 @@ fun AiHubApp(context: MainActivity) {
                         }
                     }
                 },
-                snackbarHostState = snackbarHostState
             )
         },
     ) {
@@ -397,7 +454,7 @@ fun AiHubApp(context: MainActivity) {
                     .background(MaterialTheme.colorScheme.background)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") AndroidView(
+                    AndroidView(
                         factory = { ctx ->
                         FrameLayout(ctx).apply {
                             webViews.values.forEach { wv ->
@@ -475,16 +532,6 @@ fun AiHubApp(context: MainActivity) {
                                 addView(newWebView)
                                 newWebView.visibility = View.VISIBLE
                                 newWebView.bringToFront()
-
-                                updateServiceState(currentService.id) { state ->
-                                    state.copy(
-                                        webViewState = WebViewState.LOADING,
-                                        isLoading = true,
-                                        progress = 0
-                                    )
-                                }
-
-                                newWebView.loadUrl(currentService.url)
                             } else {
                                 if (currentWebView.parent == null) {
                                     addView(currentWebView)
@@ -495,10 +542,6 @@ fun AiHubApp(context: MainActivity) {
                                     serviceStates[currentService.id]?.error == null
                                 currentWebView.visibility =
                                     if (shouldBeVisible) View.VISIBLE else View.GONE
-
-                                if (currentWebView.url.isNullOrEmpty() || currentWebView.url == "about:blank") {
-                                    currentWebView.loadUrl(currentService.url)
-                                }
                             }
                         }
                     }, update = { root ->
@@ -569,16 +612,6 @@ fun AiHubApp(context: MainActivity) {
                             root.addView(newWebView)
                             newWebView.visibility = View.VISIBLE
                             newWebView.bringToFront()
-
-                            updateServiceState(currentService.id) { state ->
-                                state.copy(
-                                    webViewState = WebViewState.LOADING,
-                                    isLoading = true,
-                                    progress = 0
-                                )
-                            }
-
-                            newWebView.loadUrl(currentService.url)
                         } else {
                             val currentWebView = webViews[currentService.id]!!
                             if (currentWebView.parent == null) {
@@ -589,10 +622,6 @@ fun AiHubApp(context: MainActivity) {
                             currentWebView.visibility =
                                 if (shouldBeVisible) View.VISIBLE else View.GONE
                             currentWebView.bringToFront()
-
-                            if (currentWebView.url.isNullOrEmpty() || currentWebView.url == "about:blank") {
-                                currentWebView.loadUrl(currentService.url)
-                            }
                         }
                     }, modifier = Modifier.fillMaxSize()
                     )
@@ -666,7 +695,7 @@ fun AiHubApp(context: MainActivity) {
                 } else {
                     backPressedTime = currentTime
                     Toast.makeText(
-                        context, "Press back again to exit", Toast.LENGTH_SHORT
+                        context, context.getString(R.string.msg_press_again), Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -689,7 +718,8 @@ fun AiHubApp(context: MainActivity) {
                 onShareLink = {
                     shareLink(context, linkData.url, linkData.title)
                     showLinkDialog = false
-                })
+                },
+            )
         }
     }
 
@@ -817,7 +847,8 @@ fun AiHubApp(context: MainActivity) {
                 enforceWebViewLimit()
             },
             settingsManager = settingsManager,
-            onManageServicesClick = { showManageServices = true },
+            onManageServices = { showManageServices = true },
+            onCustomInjection = { showCustomInjectionScreen = true },
             onClearCache = {
                 try {
                     context.cacheDir?.deleteRecursively()
@@ -873,6 +904,15 @@ fun AiHubApp(context: MainActivity) {
                     }
                 }
             },
+        )
+    }
+
+    if (showCustomInjectionScreen) {
+        BackHandler { showCustomInjectionScreen = false }
+        CustomInjectionScreen(
+            context = context,
+            onBack = { showCustomInjectionScreen = false },
+            settingsManager = settingsManager
         )
     }
 

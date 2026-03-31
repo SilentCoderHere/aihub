@@ -24,5 +24,8 @@ data class AppSettings(
     var desktopView: Boolean = false,
     var thirdPartyCookies: Boolean = false,
     var fontSize: String = "medium",
-    var blockUnnecessaryConnections: Boolean = true
+    var updateFrequencyDays: Int = 3,
+    var blockUnnecessaryConnections: Boolean = true,
+    var customCss: String = "",
+    var customJs: String = ""
 )

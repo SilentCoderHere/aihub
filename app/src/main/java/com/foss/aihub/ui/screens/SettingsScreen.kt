@@ -23,6 +23,8 @@ import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.CloudSync
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.Cookie
 import androidx.compose.material.icons.outlined.Delete
@@ -81,7 +83,8 @@ import java.util.Locale
 fun SettingsScreen(
     onBack: () -> Unit,
     settingsManager: SettingsManager,
-    onManageServicesClick: () -> Unit,
+    onManageServices: () -> Unit,
+    onCustomInjection: () -> Unit,
     onClearCache: () -> Unit,
     onClearData: () -> Unit,
 ) {
@@ -169,71 +172,71 @@ fun SettingsScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                SettingsCard {
-                    Column {
-                        SettingItem(
-                            title = stringResource(R.string.setting_theme),
-                            description = stringResource(R.string.setting_theme_description),
-                            icon = Icons.Outlined.Palette,
-                            iconColor = MaterialTheme.colorScheme.primary,
-                        )
-
-                        val themeOptions = listOf("auto", "light", "dark")
-
-                        var selectedTheme by remember { mutableStateOf(settings.theme) }
-
-                        LaunchedEffect(selectedTheme) {
-                            settingsManager.updateSettings { it.theme = selectedTheme }
-                        }
-
-                        LaunchedEffect(settings) {
-                            selectedTheme = settings.theme
-                        }
-
-                        SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
-                        ) {
-                            themeOptions.forEachIndexed { index, option ->
-                                SegmentedButton(
-                                    selected = selectedTheme == option,
-                                    onClick = { selectedTheme = option },
-                                    shape = SegmentedButtonDefaults.itemShape(
-                                        index = index, count = themeOptions.size
-                                    ),
-                                    colors = SegmentedButtonDefaults.colors(
-                                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    ),
-                                    enabled = false
-                                ) {
-                                    Text(
-                                        text = when (option) {
-                                        "auto" -> stringResource(R.string.theme_auto)
-                                        "light" -> stringResource(R.string.theme_light)
-                                        "dark" -> stringResource(R.string.theme_dark)
-                                        else -> option.replaceFirstChar {
-                                            if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
-                                        }
-                                    }, style = MaterialTheme.typography.labelLarge)
-                                }
-                            }
-                        }
-
-                        Text(
-                            text = stringResource(R.string.msg_theme_switch_disabled),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        )
-                    }
-                }
-            }
+//            item {
+//                SettingsCard {
+//                    Column {
+//                        SettingItem(
+//                            title = stringResource(R.string.setting_theme),
+//                            description = stringResource(R.string.setting_theme_description),
+//                            icon = Icons.Outlined.Palette,
+//                            iconColor = MaterialTheme.colorScheme.primary,
+//                        )
+//
+//                        val themeOptions = listOf("auto", "light", "dark")
+//
+//                        var selectedTheme by remember { mutableStateOf(settings.theme) }
+//
+//                        LaunchedEffect(selectedTheme) {
+//                            settingsManager.updateSettings { it.theme = selectedTheme }
+//                        }
+//
+//                        LaunchedEffect(settings) {
+//                            selectedTheme = settings.theme
+//                        }
+//
+//                        SingleChoiceSegmentedButtonRow(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(horizontal = 16.dp, vertical = 12.dp)
+//                        ) {
+//                            themeOptions.forEachIndexed { index, option ->
+//                                SegmentedButton(
+//                                    selected = selectedTheme == option,
+//                                    onClick = { selectedTheme = option },
+//                                    shape = SegmentedButtonDefaults.itemShape(
+//                                        index = index, count = themeOptions.size
+//                                    ),
+//                                    colors = SegmentedButtonDefaults.colors(
+//                                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+//                                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+//                                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+//                                    ),
+//                                    enabled = false
+//                                ) {
+//                                    Text(
+//                                        text = when (option) {
+//                                        "auto" -> stringResource(R.string.theme_auto)
+//                                        "light" -> stringResource(R.string.theme_light)
+//                                        "dark" -> stringResource(R.string.theme_dark)
+//                                        else -> option.replaceFirstChar {
+//                                            if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+//                                        }
+//                                    }, style = MaterialTheme.typography.labelLarge)
+//                                }
+//                            }
+//                        }
+//
+//                        Text(
+//                            text = stringResource(R.string.msg_theme_switch_disabled),
+//                            style = MaterialTheme.typography.bodyMedium,
+//                            color = MaterialTheme.colorScheme.error,
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(horizontal = 16.dp, vertical = 8.dp)
+//                        )
+//                    }
+//                }
+//            }
 
             item {
                 Text(
@@ -339,7 +342,7 @@ fun SettingsScreen(
                             description = stringResource(R.string.setting_manage_ai_services_description),
                             icon = Icons.Outlined.Apps,
                             iconColor = MaterialTheme.colorScheme.primary,
-                            onClick = onManageServicesClick,
+                            onClick = onManageServices,
                             trailingContent = {
                                 Icon(
                                     Icons.Outlined.ChevronRight,
@@ -516,6 +519,25 @@ fun SettingsScreen(
                         )
 
                         SettingItem(
+                            title = stringResource(R.string.setting_custom_injection),
+                            description = stringResource(R.string.setting_custom_injection_description),
+                            icon = Icons.Outlined.Code,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                            onClick = onCustomInjection,
+                            trailingContent = {
+                                Icon(
+                                    Icons.Outlined.ChevronRight,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            })
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
                             title = stringResource(R.string.setting_font_size),
                             description = stringResource(R.string.setting_font_size_description),
                             icon = Icons.Outlined.TextIncrease,
@@ -613,6 +635,135 @@ fun SettingsScreen(
                                 uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
                             )
                         )
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = stringResource(R.string.section_cloud_updates),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                SettingsCard {
+                    Column {
+                        val isCloudUpdatesEnabled = settings.updateFrequencyDays != -1
+                        var isEnabled by remember { mutableStateOf(isCloudUpdatesEnabled) }
+                        var frequencyDays by remember {
+                            mutableIntStateOf(if (isCloudUpdatesEnabled) settings.updateFrequencyDays else 1)
+                        }
+                        var showFrequencyOptions by remember { mutableStateOf(false) }
+
+                        LaunchedEffect(isEnabled, frequencyDays) {
+                            val days = if (isEnabled) frequencyDays else -1
+                            settingsManager.updateSettings { it.updateFrequencyDays = days }
+                        }
+
+                        SettingItem(
+                            title = stringResource(R.string.setting_enable_cloud_updates),
+                            description = stringResource(R.string.setting_enable_cloud_updates_description),
+                            icon = Icons.Outlined.CloudSync,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = isEnabled,
+                                onCheckedChange = { isEnabled = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            visible = isEnabled,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            Column {
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+
+                                SettingItem(
+                                    title = stringResource(R.string.setting_update_frequency),
+                                    description = stringResource(R.string.setting_update_frequency_description),
+                                    icon = Icons.Outlined.CloudSync,
+                                    iconColor = MaterialTheme.colorScheme.primary,
+                                    onClick = { showFrequencyOptions = !showFrequencyOptions }) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = when (frequencyDays) {
+                                                1 -> stringResource(R.string.label_frequency_1_day)
+                                                3 -> stringResource(R.string.label_frequency_3_days)
+                                                7 -> stringResource(R.string.label_frequency_1_week)
+                                                else -> stringResource(R.string.label_frequency_1_day)
+                                            },
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(end = 8.dp)
+                                        )
+                                        Icon(
+                                            if (showFrequencyOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                            null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+
+                                AnimatedVisibility(
+                                    visible = showFrequencyOptions,
+                                    enter = fadeIn() + expandVertically(),
+                                    exit = fadeOut() + shrinkVertically()
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            start = 56.dp, end = 16.dp, bottom = 12.dp
+                                        )
+                                    ) {
+                                        val frequencyOptions = listOf(1, 3, 7)
+                                        frequencyOptions.forEach { days ->
+                                            Row(modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    frequencyDays = days
+                                                    showFrequencyOptions = false
+                                                }
+                                                .padding(vertical = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    text = when (days) {
+                                                        1 -> stringResource(R.string.label_frequency_1_day)
+                                                        3 -> stringResource(R.string.label_frequency_3_days)
+                                                        7 -> stringResource(R.string.label_frequency_1_week)
+                                                        else -> ""
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                if (frequencyDays == days) {
+                                                    Icon(
+                                                        Icons.Outlined.CheckCircle,
+                                                        null,
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

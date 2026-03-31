@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.time.LocalDate
 
 class SettingsManager(context: Context) {
     private val sharedPref: SharedPreferences =
@@ -166,7 +167,13 @@ class SettingsManager(context: Context) {
             desktopView = sharedPref.getBoolean("desktopView", false),
             thirdPartyCookies = sharedPref.getBoolean("thirdPartyCookies", false),
             fontSize = sharedPref.getString("fontSize", "medium") ?: "medium",
-            blockUnnecessaryConnections = sharedPref.getBoolean("blockUnnecessaryConnections", true)
+            updateFrequencyDays = sharedPref.getInt("updateFrequencyDays", 3),
+            blockUnnecessaryConnections = sharedPref.getBoolean(
+                "blockUnnecessaryConnections",
+                true
+            ),
+            customCss = sharedPref.getString("customCss", "") ?: "",
+            customJs = sharedPref.getString("customJs", "") ?: ""
         )
     }
 
@@ -183,7 +190,10 @@ class SettingsManager(context: Context) {
             putBoolean("desktopView", settings.desktopView)
             putBoolean("thirdPartyCookies", settings.thirdPartyCookies)
             putString("fontSize", settings.fontSize)
+            putInt("updateFrequencyDays", settings.updateFrequencyDays)
             putBoolean("blockUnnecessaryConnections", settings.blockUnnecessaryConnections)
+            putString("customCss", settings.customCss)
+            putString("customJs", settings.customJs)
         }
     }
 
@@ -238,5 +248,18 @@ class SettingsManager(context: Context) {
 
     fun getLastOpenedService(): String? {
         return sharedPref.getString("lastOpenedService", null)
+    }
+
+    fun getLastUpdatedDate(): LocalDate? {
+        val lastUpdatedDate = sharedPref.getString("lastUpdatedDate", null)
+        if (lastUpdatedDate != null) {
+            return LocalDate.parse(lastUpdatedDate)
+        }
+        return null
+    }
+
+    fun saveLastUpdatedDate() {
+        val currentDate = LocalDate.now().toString()
+        sharedPref.edit { putString("lastUpdatedDate", currentDate) }
     }
 }

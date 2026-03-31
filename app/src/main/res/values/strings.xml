@@ -21,7 +21,9 @@
     <string name="action_copy">Copy</string>
     <string name="action_copy_link">Copy link</string>
     <string name="action_delete">Delete</string>
+    <string name="action_discard">Discard</string>
     <string name="action_filter">Filter</string>
+    <string name="action_later">Later</string>
     <string name="action_leave">Leave</string>
     <string name="action_more_options">More options</string>
     <string name="action_move_down">Move down</string>
@@ -33,6 +35,7 @@
     <string name="action_remove_service">Close service</string>
     <string name="action_restart">Restart</string>
     <string name="action_retry">Retry</string>
+    <string name="action_save">Save</string>
     <string name="action_search">Search</string>
     <string name="action_share">Share</string>
     <string name="action_share_link">Share link</string>
@@ -53,31 +56,51 @@
     <string name="error_desc_ssl_issue">Can\'t securely connect to %1$s. Possible certificate or security problem.</string>
     <string name="error_generic_message">An unexpected error occurred. Please try again.</string>
     <string name="error_generic_title">Something went wrong</string>
+    <string name="error_no_connection_message">Cannot connect to server. Check your internet connection.</string>
+    <string name="error_request_failed_message">Request failed. URL is invalid or malformed.</string>
+    <string name="error_seriliaziation_message">Received unexpected data from server. Please try again later.</string>
+    <string name="error_server_having_issue_message">Server is having issues. Try again later.</string>
     <string name="error_service_info_format">Service: %1$s • Code: %2$d</string>
+    <string name="error_something_went_wrong_message">Something went wrong. Please try again.</string>
+    <string name="error_timeout_message">Request timed out. Please check your internet and try again.</string>
     <string name="error_title_no_connection">No Connection</string>
     <string name="error_title_security_issue">Security Issue</string>
     <string name="error_title_server_error">Server Error</string>
+    <string name="error_unexpected_response">Unexpected server response. Please try again.</string>
     <string name="error_unknown">Unknown error</string>
 
     <!-- Labels -->
     <string name="hint_search_services">Search services…</string>
     <string name="label_active">Active</string>
+    <string name="label_added">Added</string>
+    <string name="label_ai_services">AI Services</string>
     <string name="label_alert">Alert</string>
+    <string name="label_always_blocked_domains">Always Blocked Domains</string>
     <string name="label_before_leave">Before Leave</string>
     <string name="label_blocked_url">Blocked URL</string>
+    <string name="label_changed">Changed</string>
+    <string name="label_changes_summary">%1$d changes across 5 categories</string>
+    <string name="label_collapse">Collapse</string>
+    <string name="label_common_auth_domains">Common Auth Domains</string>
     <string name="label_confirm">Confirm</string>
     <string name="label_connecting">Connecting…</string>
     <string name="label_connection_failed">Connection failed</string>
     <string name="label_contributors">Contributors</string>
+    <string name="label_custom_css" translatable="false">CSS</string>
+    <string name="label_custom_js" translatable="false">JavaScript</string>
     <string name="label_default_ai">Default</string>
     <string name="label_details">Details</string>
     <string name="label_email">Email</string>
     <string name="label_error">Error</string>
+    <string name="label_expand">Expand</string>
     <string name="label_font_size_large">Large</string>
     <string name="label_font_size_medium">Medium</string>
     <string name="label_font_size_small">Small</string>
     <string name="label_font_size_xlarge">Extra large</string>
     <string name="label_font_size_xsmall">Extra small</string>
+    <string name="label_frequency_1_day">Every day</string>
+    <string name="label_frequency_1_week">Every week</string>
+    <string name="label_frequency_3_days">Every 3 days</string>
     <string name="label_image">Image</string>
     <string name="label_image_link">Image link</string>
     <string name="label_just_a_moment">Just a moment…</string>
@@ -95,12 +118,18 @@
     <string name="label_prompt">Prompt</string>
     <string name="label_ready">Ready</string>
     <string name="label_refreshing">Refreshing…</string>
+    <string name="label_removed">Removed</string>
     <string name="label_select">Select</string>
     <string name="label_selected">Selected</string>
     <string name="label_service">Service</string>
+    <string name="label_service_domains">Service Domains</string>
     <string name="label_service_title">Service title</string>
     <string name="label_something_went_wrong">Something went wrong</string>
+    <string name="label_tracking_parameters">Tracking Parameters</string>
     <string name="label_unknown_error">Unknown error</string>
+    <string name="label_unsaved_changes">Unsaved Changes</string>
+    <string name="label_update_summary">Update summary</string>
+    <string name="label_update_title">Update Available</string>
     <string name="label_url">URL</string>
 
     <!-- Messages -->
@@ -111,10 +140,12 @@
     <string name="msg_cache_cleared">Cache cleared</string>
     <string name="msg_camera_and_microphone_enabled">Camera and microphone enabled</string>
     <string name="msg_camera_enabled">Camera enabled</string>
+    <string name="msg_changes_saved">Changes saved</string>
     <string name="msg_clear_all_cache_confirmation">Removes temporary web files.\nMay log you out of sites.</string>
     <string name="msg_clear_all_data_confirmation">Deletes cache, cookies, history, logins…\nThis cannot be undone.</string>
     <string name="msg_clear_site_data_warning">This will clear cookies, local storage, and session data only for %1$s.\nYou may be logged out of this site.\n\nOther services will not be affected.</string>
     <string name="msg_copy_description">Copy these details if you need to report this issue</string>
+    <string name="msg_custom_injection">Note: Changes apply after reload. Add custom JavaScript/CSS injected into every service.</string>
     <string name="msg_domain_update_success">Domain rules updated</string>
     <string name="msg_download_failed">Download failed</string>
     <string name="msg_dowload_complete">Download complete: %1$s</string>
@@ -127,6 +158,7 @@
     <string name="msg_no_ai_services_enabled">No AI services enabled</string>
     <string name="msg_page_blocked_description">This page can\'t load due to security settings.</string>
     <string name="msg_permission_denied">Permission denied</string>
+    <string name="msg_press_again">Press back again to exit</string>
     <string name="msg_processing_blob">Processing blob download…</string>
     <string name="msg_remove_from_fav">Remove from favorites</string>
     <string name="msg_saved">Saved: %1$s</string>
@@ -134,12 +166,16 @@
     <string name="msg_share_app">Check out %1$s — open-source collection of your favorite AI assistants!\n\nDownload app: %2$s</string>
     <string name="msg_site_data_cleared">Site data cleared for %1$s</string>
     <string name="msg_theme_switch_disabled">Theme switching is temporarily disabled (not working correctly)</string>
+    <string name="msg_unsaved_changes">You have unsaved changes. Do you want to save them before leaving?</string>
     <string name="msg_unsupported_scheme">Unsupported download scheme: %1$s</string>
     <string name="msg_update_all_success">Domain rules &amp; AI services updated</string>
     <string name="msg_update_failed">Update failed – check connection</string>
+    <string name="msg_write_css_here">Write your custom CSS here…</string>
+    <string name="msg_write_js_here">Write your custom JavaScript here…</string>
 
     <!-- Sections -->
     <string name="section_about">About</string>
+    <string name="section_cloud_updates">Cloud Updates</string>
     <string name="section_performance">Performance</string>
     <string name="section_preferences">Preferences</string>
     <string name="section_security_privacy">Security &amp; Privacy</string>
@@ -149,10 +185,14 @@
     <!-- Settings -->
     <string name="setting_block_trackers_ads">Block trackers &amp; ads</string>
     <string name="setting_block_trackers_ads_description">Recommended for privacy</string>
+    <string name="setting_custom_injection">Custom JS/CSS Injection</string>
+    <string name="setting_custom_injection_description">Inject custom JavaScript/CSS into every service</string>
     <string name="setting_default_ai">Default AI Assistant</string>
     <string name="setting_default_ai_description">Shown when app starts</string>
     <string name="setting_desktop_mode">Desktop mode</string>
     <string name="setting_desktop_mode_description">Request desktop versions of websites</string>
+    <string name="setting_enable_cloud_updates">Check for cloud updates</string>
+    <string name="setting_enable_cloud_updates_description">Automatically check for updates from the cloud data</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_description">Change text size</string>
     <string name="setting_manage_ai_services">Manage AI Services</string>
@@ -167,6 +207,8 @@
     <string name="setting_theme_description">Choose between system default, light or dark</string>
     <string name="setting_third_party_cookies">Allow third-party cookies</string>
     <string name="setting_third_party_cookies_description">May be required for some logins</string>
+    <string name="setting_update_frequency">Update frequency</string>
+    <string name="setting_update_frequency_description">How often to check for updates</string>
 
     <!-- Status & Tabs -->
     <string name="status_updating">Updating…</string>

@@ -147,6 +147,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         isInitialConfigReady -> {
+                            settingsManager.saveLastUpdatedDate()
                             AiHubApp(this@MainActivity)
                         }
 

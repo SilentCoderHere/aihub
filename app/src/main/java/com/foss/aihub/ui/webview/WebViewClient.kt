@@ -41,6 +41,8 @@ class CustomWebViewClient(
             if (view != null) {
                 injectBlobInterceptor(view)
                 injectShareInterceptor(view)
+                injectCustomJs(view)
+                injectCustomCss(view)
             }
 
             Log.d("AI_HUB", "Page finished: ${service.name} - $url")
@@ -131,6 +133,24 @@ class CustomWebViewClient(
         val script = context.readAssetsFile("webSharePolyfill.txt").trimIndent()
         view.evaluateJavascript(script) { result ->
             Log.d("WebView", "Share injection result: $result")
+        }
+    }
+
+    private fun injectCustomJs(view: WebView) {
+        val script = context.settingsManager.settingsFlow.value.customJs.trimIndent()
+        if (script.isNotEmpty()) {
+            view.evaluateJavascript(script) { result ->
+                Log.d("WebView", "Custom js injection result: $result")
+            }
+        }
+    }
+
+    private fun injectCustomCss(view: WebView) {
+        val css = context.settingsManager.settingsFlow.value.customCss.trimIndent()
+        if (css.isNotEmpty()) {
+            val escapedCss = css.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n")
+            val script = context.readAssetsFile("customCss.txt").replace("{{CSS}}", escapedCss)
+            view.evaluateJavascript(script, null)
         }
     }
 }
