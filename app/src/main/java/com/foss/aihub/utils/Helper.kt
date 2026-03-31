@@ -1,7 +1,6 @@
 package com.foss.aihub.utils
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.foss.aihub.models.AiService
 
@@ -10,7 +9,6 @@ private fun generateId(name: String): String {
 }
 
 fun loadAiServices(rawList: List<List<String>>) {
-    Log.d("AI_HUB", "Loading AI services... $rawList")
     aiServices = rawList.mapNotNull { row ->
         if (row.size < 5) return@mapNotNull null
 
@@ -19,15 +17,15 @@ fun loadAiServices(rawList: List<List<String>>) {
 
         val id = generateId(name)
         val url = row[1].trim()
-        val category = row.getOrNull(2)?.trim() ?: "General"
-        val description = row.getOrNull(3)?.trim() ?: ""
+        val category = row.getOrNull(2)?.trim() ?: "Unknown"
+        val description = row.getOrNull(3)?.trim() ?: "Unknown"
         val hex = row[4].trim().removePrefix("#").uppercase()
 
         val accentColor = try {
             val colorHex = when (hex.length) {
-                6 -> "FF$hex"      // add full opacity
+                6 -> "FF$hex"
                 8 -> hex
-                else -> "FF6366F1" // fallback indigo
+                else -> "FF6366F1"
             }
             Color(colorHex.toLong(16))
         } catch (_: Exception) {
