@@ -1,7 +1,7 @@
 package com.foss.aihub.ui.components
 
 import android.content.Context
-import android.content.Intent
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -47,9 +47,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -72,10 +70,14 @@ import androidx.compose.ui.unit.sp
 import com.foss.aihub.R
 import com.foss.aihub.models.AiService
 import com.foss.aihub.models.WebViewState
-import com.foss.aihub.utils.ConfigUpdater
+import com.foss.aihub.ui.screens.dialogs.UpdateDialog
+import com.foss.aihub.utils.DetailedUpdateDetails
+import com.foss.aihub.utils.ServiceChanges
+import com.foss.aihub.utils.UpdateResult
 import com.foss.aihub.utils.aiServices
+import com.foss.aihub.utils.checkUpdate
 import kotlinx.coroutines.launch
-import kotlin.system.exitProcess
+import kotlinx.serialization.SerializationException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,15 +91,29 @@ fun DrawerContent(
     enabledServices: Set<String>,
     serviceOrder: List<String>,
     favoriteServices: Set<String>,
-    onToggleFavorite: (String) -> Unit,
-    snackbarHostState: SnackbarHostState
+    onToggleFavorite: (String) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
+    val appContext = LocalContext.current
     var isUpdatingDomainRules by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var showFilters by remember { mutableStateOf(false) }
     var selectedCategories by remember { mutableStateOf(emptySet<String>()) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    var updateResult by remember {
+        mutableStateOf(
+            UpdateResult(
+                null, DetailedUpdateDetails(
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList()),
+                    ServiceChanges(emptyList(), emptyList(), emptyList())
+                )
+            ),
+        )
+    }
 
     val orderedEnabledServices = remember(enabledServices, serviceOrder, aiServices.toList()) {
         serviceOrder.filter { it in enabledServices }
@@ -121,6 +137,12 @@ fun DrawerContent(
             }
         }
     }
+
+    UpdateDialog(
+        showDialog = showUpdateDialog,
+        updateResult = updateResult,
+        onDismiss = { showUpdateDialog = false },
+    )
 
     Surface(
         modifier = modifier
@@ -459,63 +481,62 @@ fun DrawerContent(
                             scope.launch {
                                 isUpdatingDomainRules = true
                                 try {
-                                    val (domainUpdated, aiUpdated) = ConfigUpdater.updateBothIfNeeded(
-                                        context
-                                    )
-
-                                    val message: String
-                                    var showRestartAction = true
-
-                                    when {
-                                        domainUpdated && aiUpdated -> {
-                                            message =
-                                                context.getString(R.string.msg_update_all_success)
+                                    updateResult = checkUpdate(context)
+                                    if (updateResult.message != null) {
+                                        showUpdateDialog = true
+                                    } else {
+                                        Toast.makeText(
+                                            appContext,
+                                            context.getString(R.string.msg_already_up_to_date),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                } catch (error: Exception) {
+                                    when (error) {
+                                        is io.ktor.client.network.sockets.SocketTimeoutException -> {
+                                            Toast.makeText(
+                                                appContext,
+                                                context.getString(R.string.error_timeout_message),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
 
-                                        domainUpdated -> {
-                                            message =
-                                                context.getString(R.string.msg_domain_update_success)
+                                        is SerializationException -> {
+                                            Toast.makeText(
+                                                appContext,
+                                                context.getString(R.string.error_seriliaziation_message),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
 
-                                        aiUpdated -> {
-                                            message =
-                                                context.getString(R.string.msg_ai_update_success)
+                                        is io.ktor.client.plugins.ResponseException -> {
+                                            val statusCode = error.response.status.value
+                                            val message = when (statusCode) {
+                                                in 400..499 -> context.getString(R.string.error_request_failed_message)
+                                                in 500..599 -> context.getString(R.string.error_server_having_issue_message)
+                                                else -> context.getString(R.string.error_unexpected_response)
+                                            }
+
+                                            Toast.makeText(
+                                                appContext, message, Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+
+                                        is java.nio.channels.UnresolvedAddressException -> {
+                                            Toast.makeText(
+                                                appContext,
+                                                context.getString(R.string.error_no_connection_message),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
 
                                         else -> {
-                                            message =
-                                                context.getString(R.string.msg_already_up_to_date)
-                                            showRestartAction = false
+                                            Toast.makeText(
+                                                appContext,
+                                                context.getString(R.string.error_something_went_wrong_message),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
-                                    }
-
-                                    launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = message,
-                                            actionLabel = if (showRestartAction) context.getString(R.string.action_restart) else null,
-                                            withDismissAction = true,
-                                            duration = SnackbarDuration.Long
-                                        ).let { result ->
-                                            if (result == SnackbarResult.ActionPerformed && showRestartAction) {
-                                                val packageManager = context.packageManager
-                                                val intent =
-                                                    packageManager.getLaunchIntentForPackage(context.packageName)
-                                                val componentName = intent?.component
-                                                val mainIntent =
-                                                    Intent.makeRestartActivityTask(componentName)
-                                                context.startActivity(mainIntent)
-                                                exitProcess(0)
-                                            }
-                                        }
-                                    }
-
-                                } catch (_: Exception) {
-                                    launch {
-                                        snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.msg_update_failed),
-                                            withDismissAction = true,
-                                            duration = SnackbarDuration.Short
-                                        )
                                     }
                                 } finally {
                                     isUpdatingDomainRules = false
