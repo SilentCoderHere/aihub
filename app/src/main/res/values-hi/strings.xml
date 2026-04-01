@@ -1,4 +1,5 @@
 <resources>
+    <!-- Actions -->
     <string name="action_back">वापस</string>
     <string name="action_cancel">रद्द करें</string>
     <string name="action_clear">साफ़ करें</string>
@@ -13,39 +14,66 @@
     <string name="action_copy">कॉपी करें</string>
     <string name="action_copy_link">लिंक कॉपी करें</string>
     <string name="action_delete">हटाएं</string>
-    <string name="action_filter">फ़िल्टर करें</string>
+    <string name="action_discard">त्यागें</string>
+    <string name="action_filter">फ़िल्टर</string>
+    <string name="action_later">बाद में</string>
+    <string name="action_leave">छोड़ें</string>
     <string name="action_more_options">अधिक विकल्प</string>
     <string name="action_move_down">नीचे ले जाएं</string>
     <string name="action_move_up">ऊपर ले जाएं</string>
+    <string name="action_ok">ठीक है</string>
     <string name="action_open_in_browser">ब्राउज़र में खोलें</string>
     <string name="action_privacy_policy">गोपनीयता नीति</string>
     <string name="action_reload">पुनः लोड करें</string>
     <string name="action_remove_service">सेवा बंद करें</string>
     <string name="action_restart">पुनः प्रारंभ करें</string>
     <string name="action_retry">पुनः प्रयास करें</string>
+    <string name="action_save">सहेजें</string>
     <string name="action_search">खोजें</string>
     <string name="action_share">साझा करें</string>
     <string name="action_share_link">लिंक साझा करें</string>
-    <string name="action_source_code">सोर्स कोड</string>
-    <string name="action_star">सितारा</string>
+    <string name="action_source_code">स्रोत कोड</string>
+    <string name="action_star">स्टार</string>
+    <string name="action_stay">रुकें</string>
     <string name="action_update">अपडेट करें</string>
     <string name="action_update_services">AI और सेवाएं अपडेट करें</string>
-    <string name="app_logo_description">AI हब लोगो</string>
-    <string name="app_tagline">आपका AI साथी संग्रह</string>
-    <string name="copy_link_description">लिंक को क्लिपबोर्ड पर कॉपी करें</string>
+
+    <!-- Copy & Share Descriptions -->
+    <string name="copy_link_description">लिंक क्लिपबोर्ड पर कॉपी करें</string>
+    <string name="open_in_browser_description">बाहरी ब्राउज़र में खोलें</string>
+    <string name="share_link_description">अन्य ऐप्स के माध्यम से साझा करें</string>
+
+    <!-- Error Messages -->
     <string name="error_desc_http_error">%1$s ने त्रुटि %2$d लौटाई</string>
-    <string name="error_desc_no_connection">%1$s से कनेक्ट नहीं हो सकता। अपना इंटरनेट कनेक्शन जांचें।</string>
-    <string name="error_desc_ssl_issue">%1$s से सुरक्षित रूप से कनेक्ट नहीं हो सकता। संभावित प्रमाणपत्र या सुरक्षा समस्या।</string>
+    <string name="error_desc_no_connection">%1$s से कनेक्ट नहीं हो सकते। अपना इंटरनेट कनेक्शन जांचें।</string>
+    <string name="error_desc_ssl_issue">%1$s से सुरक्षित रूप से कनेक्ट नहीं हो सकते। संभावित प्रमाणपत्र या सुरक्षा समस्या।</string>
     <string name="error_generic_message">एक अप्रत्याशित त्रुटि हुई। कृपया पुनः प्रयास करें।</string>
     <string name="error_generic_title">कुछ गड़बड़ हो गई</string>
+    <string name="error_no_connection_message">सर्वर से कनेक्ट नहीं हो सकता। अपना इंटरनेट कनेक्शन जांचें।</string>
+    <string name="error_request_failed_message">अनुरोध विफल। HTTP त्रुटि %1$d</string>
+    <string name="error_seriliaziation_message">सर्वर से अप्रत्याशित डेटा प्राप्त हुआ। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="error_service_info_format">सेवा: %1$s • कोड: %2$d</string>
+    <string name="error_something_went_wrong_message">कुछ गड़बड़ हो गई। कृपया पुनः प्रयास करें।</string>
+    <string name="error_timeout_message">अनुरोध समय सीमा समाप्त। कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।</string>
     <string name="error_title_no_connection">कोई कनेक्शन नहीं</string>
     <string name="error_title_security_issue">सुरक्षा मुद्दा</string>
     <string name="error_title_server_error">सर्वर त्रुटि</string>
     <string name="error_unknown">अज्ञात त्रुटि</string>
+
+    <!-- Labels -->
     <string name="hint_search_services">सेवाएं खोजें…</string>
     <string name="label_active">सक्रिय</string>
+    <string name="label_added">जोड़ा गया</string>
+    <string name="label_ai_services">AI सेवाएं</string>
+    <string name="label_alert">सतर्कता</string>
+    <string name="label_always_blocked_domains">हमेशा अवरुद्ध डोमेन</string>
+    <string name="label_before_leave">छोड़ने से पहले</string>
     <string name="label_blocked_url">अवरुद्ध URL</string>
+    <string name="label_changed">बदला गया</string>
+    <string name="label_changes_summary">5 श्रेणियों में %1$d परिवर्तन</string>
+    <string name="label_collapse">संक्षिप्त करें</string>
+    <string name="label_common_auth_domains">सामान्य प्रमाणीकरण डोमेन</string>
+    <string name="label_confirm">पुष्टि करें</string>
     <string name="label_connecting">कनेक्ट हो रहा है…</string>
     <string name="label_connection_failed">कनेक्शन विफल</string>
     <string name="label_contributors">योगदानकर्ता</string>
@@ -53,14 +81,18 @@
     <string name="label_details">विवरण</string>
     <string name="label_email">ईमेल</string>
     <string name="label_error">त्रुटि</string>
+    <string name="label_expand">विस्तृत करें</string>
     <string name="label_font_size_large">बड़ा</string>
     <string name="label_font_size_medium">मध्यम</string>
     <string name="label_font_size_small">छोटा</string>
     <string name="label_font_size_xlarge">अतिरिक्त बड़ा</string>
     <string name="label_font_size_xsmall">अतिरिक्त छोटा</string>
+    <string name="label_frequency_1_day">हर दिन</string>
+    <string name="label_frequency_1_week">हर सप्ताह</string>
+    <string name="label_frequency_3_days">हर 3 दिन</string>
     <string name="label_image">छवि</string>
     <string name="label_image_link">छवि लिंक</string>
-    <string name="label_just_a_moment">बस एक पल…</string>
+    <string name="label_just_a_moment">बस एक क्षण…</string>
     <string name="label_last_enabled">अंतिम सक्रिय</string>
     <string name="label_license">लाइसेंस</string>
     <string name="label_license_type">GNU GPLv3</string>
@@ -72,75 +104,112 @@
     <string name="label_page_blocked">पृष्ठ अवरुद्ध</string>
     <string name="label_phone">फ़ोन</string>
     <string name="label_privacy_policy_summary">कोई ट्रैकिंग नहीं, कोई टेलीमेट्री नहीं</string>
+    <string name="label_prompt">प्रॉम्प्ट</string>
     <string name="label_ready">तैयार</string>
-    <string name="label_refreshing">रिफ्रेश हो रहा है…</string>
+    <string name="label_refreshing">ताज़ा हो रहा है…</string>
+    <string name="label_removed">हटाया गया</string>
     <string name="label_select">चुनें</string>
     <string name="label_selected">चयनित</string>
     <string name="label_service">सेवा</string>
+    <string name="label_service_domains">सेवा डोमेन</string>
     <string name="label_service_title">सेवा शीर्षक</string>
     <string name="label_something_went_wrong">कुछ गड़बड़ हो गई</string>
+    <string name="label_tracking_parameters">ट्रैकिंग पैरामीटर</string>
     <string name="label_unknown_error">अज्ञात त्रुटि</string>
+    <string name="label_unsaved_changes">असुरक्षित परिवर्तन</string>
+    <string name="label_update_summary">अपडेट सारांश</string>
+    <string name="label_update_title">अपडेट उपलब्ध</string>
     <string name="label_url">URL</string>
+
+    <!-- Messages -->
     <string name="msg_add_to_fav">पसंदीदा में जोड़ें</string>
-    <string name="msg_ai_update_success">AI सेवाएं अपडेट हो गईं</string>
-    <string name="msg_all_data_cleared">सभी डेटा साफ़ हो गए</string>
-    <string name="msg_already_up_to_date">पहले से ही नवीनतम संस्करण है</string>
-    <string name="msg_cache_cleared">कैश साफ़ हो गया</string>
-    <string name="msg_camera_and_microphone_enabled">कैमरा और माइक्रोफ़ोन सक्षम हो गए</string>
-    <string name="msg_camera_enabled">कैमरा सक्षम हो गया</string>
-    <string name="msg_clear_all_cache_confirmation">अस्थायी वेब फ़ाइलें हटाता है।\nहो सकता है आप साइटों से लॉग आउट हो जाएं।</string>
+    <string name="msg_ai_update_success">AI सेवाएं अपडेट हुईं</string>
+    <string name="msg_all_data_cleared">सभी डेटा साफ़ कर दिया गया</string>
+    <string name="msg_already_up_to_date">पहले से अप-टू-डेट है</string>
+    <string name="msg_cache_cleared">कैश साफ़ किया गया</string>
+    <string name="msg_camera_and_microphone_enabled">कैमरा और माइक्रोफ़ोन सक्षम किया गया</string>
+    <string name="msg_camera_enabled">कैमरा सक्षम किया गया</string>
+    <string name="msg_changes_saved">परिवर्तन सहेजे गए</string>
+    <string name="msg_clear_all_cache_confirmation">अस्थायी वेब फ़ाइलें हटाता है।\nसाइटों से आपका लॉगआउट हो सकता है।</string>
     <string name="msg_clear_all_data_confirmation">कैश, कुकीज़, इतिहास, लॉगिन हटाता है…\nइसे पूर्ववत नहीं किया जा सकता।</string>
-    <string name="msg_clear_site_data_warning">यह केवल %1$s के लिए कुकीज़, लोकल स्टोरेज और सत्र डेटा साफ़ करेगा।\nहो सकता है आप इस साइट से लॉग आउट हो जाएं।\n\nअन्य सेवाएं प्रभावित नहीं होंगी।</string>
-    <string name="msg_copy_description">यदि आपको यह समस्या रिपोर्ट करनी है तो इन विवरणों को कॉपी करें</string>
-    <string name="msg_domain_update_success">डोमेन नियम अपडेट हो गए</string>
+    <string name="msg_clear_site_data_warning">यह केवल %1$s के लिए कुकीज़, लोकल स्टोरेज और सत्र डेटा साफ़ करेगा।\nआप इस साइट से लॉगआउट हो सकते हैं।\n\nअन्य सेवाएं प्रभावित नहीं होंगी।</string>
+    <string name="msg_copy_description">यदि आपको इस समस्या की रिपोर्ट करनी है तो इन विवरणों को कॉपी करें</string>
+    <string name="msg_custom_injection">नोट: परिवर्तन रीलोड के बाद लागू होते हैं। प्रत्येक सेवा में इंजेक्ट की गई कस्टम JavaScript/CSS जोड़ें।</string>
+    <string name="msg_domain_update_success">डोमेन नियम अपडेट हुए</string>
+    <string name="msg_download_failed">डाउनलोड विफल</string>
+    <string name="msg_dowload_complete">डाउनलोड पूर्ण: %1$s</string>
+    <string name="msg_downloading">डाउनलोड हो रहा है: %1$s</string>
     <string name="msg_fail_to_load_config">कॉन्फ़िगरेशन लोड करने में विफल। कृपया अपना इंटरनेट कनेक्शन जांचें।</string>
+    <string name="msg_fail_to_save_blob">ब्लॉब सहेजने में विफल</string>
     <string name="msg_fail_to_start">ऐप प्रारंभ करने में विफल\n%1$s</string>
     <string name="msg_loading">AI सहायक और सुरक्षा नियम लोड हो रहे हैं</string>
-    <string name="msg_microphone_enabled">माइक्रोफ़ोन सक्षम हो गया</string>
+    <string name="msg_microphone_enabled">माइक्रोफ़ोन सक्षम किया गया</string>
     <string name="msg_no_ai_services_enabled">कोई AI सेवा सक्षम नहीं है</string>
     <string name="msg_page_blocked_description">सुरक्षा सेटिंग्स के कारण यह पृष्ठ लोड नहीं हो सकता।</string>
     <string name="msg_permission_denied">अनुमति अस्वीकृत</string>
+    <string name="msg_press_again">बाहर निकलने के लिए फिर से बैक दबाएं</string>
+    <string name="msg_processing_blob">ब्लॉब डाउनलोड संसाधित किया जा रहा है…</string>
     <string name="msg_remove_from_fav">पसंदीदा से हटाएं</string>
-    <string name="msg_service_killed">%s बंद कर दिया गया</string>
+    <string name="msg_saved">सहेजा गया: %1$s</string>
+    <string name="msg_service_killed">%s बंद किया गया</string>
     <string name="msg_share_app">%1$s देखें — आपके पसंदीदा AI सहायकों का ओपन-सोर्स संग्रह!\n\nऐप डाउनलोड करें: %2$s</string>
-    <string name="msg_site_data_cleared">%1$s के लिए साइट डेटा साफ़ हो गया</string>
-    <string name="msg_theme_switch_disabled">थीम स्विचिंग अस्थायी रूप से अक्षम है (सही ढंग से काम नहीं कर रही है)</string>
-    <string name="msg_update_all_success">डोमेन नियम और AI सेवाएं अपडेट हो गईं</string>
+    <string name="msg_site_data_cleared">%1$s के लिए साइट डेटा साफ़ किया गया</string>
+    <string name="msg_theme_switch_disabled">थीम स्विचिंग अस्थायी रूप से अक्षम है (सही ढंग से काम नहीं कर रहा है)</string>
+    <string name="msg_unsaved_changes">आपके पास असुरक्षित परिवर्तन हैं। क्या आप छोड़ने से पहले उन्हें सहेजना चाहते हैं?</string>
+    <string name="msg_unsupported_scheme">असमर्थित डाउनलोड स्कीम: %1$s</string>
+    <string name="msg_update_all_success">डोमेन नियम और AI सेवाएं अपडेट हुईं</string>
     <string name="msg_update_failed">अपडेट विफल – कनेक्शन जांचें</string>
-    <string name="open_in_browser_description">बाहरी ब्राउज़र में खोलें</string>
+    <string name="msg_write_css_here">अपना कस्टम CSS यहां लिखें…</string>
+    <string name="msg_write_js_here">अपना कस्टम JavaScript यहां लिखें…</string>
+
+    <!-- Sections -->
     <string name="section_about">के बारे में</string>
+    <string name="section_cloud_updates">क्लाउड अपडेट</string>
     <string name="section_performance">प्रदर्शन</string>
     <string name="section_preferences">प्राथमिकताएँ</string>
     <string name="section_security_privacy">सुरक्षा और गोपनीयता</string>
-    <string name="section_storage">स्टोरेज</string>
+    <string name="section_storage">संग्रहण</string>
     <string name="section_webview">WebView</string>
+
+    <!-- Settings -->
     <string name="setting_block_trackers_ads">ट्रैकर और विज्ञापन ब्लॉक करें</string>
     <string name="setting_block_trackers_ads_description">गोपनीयता के लिए अनुशंसित</string>
+    <string name="setting_custom_injection">कस्टम JS/CSS इंजेक्शन</string>
+    <string name="setting_custom_injection_description">प्रत्येक सेवा में कस्टम JavaScript/CSS इंजेक्ट करें</string>
     <string name="setting_default_ai">डिफ़ॉल्ट AI सहायक</string>
-    <string name="setting_default_ai_description">ऐप शुरू होने पर दिखाया जाता है</string>
+    <string name="setting_default_ai_description">ऐप शुरू होने पर दिखाया गया</string>
     <string name="setting_desktop_mode">डेस्कटॉप मोड</string>
     <string name="setting_desktop_mode_description">वेबसाइटों के डेस्कटॉप संस्करण का अनुरोध करें</string>
-    <string name="setting_font_size">फ़ॉन्ट का आकार</string>
-    <string name="setting_font_size_description">टेक्स्ट का आकार बदलें</string>
+    <string name="setting_enable_cloud_updates">क्लाउड अपडेट जांचें</string>
+    <string name="setting_enable_cloud_updates_description">क्लाउड डेटा से अपडेट स्वचालित रूप से जांचें</string>
+    <string name="setting_font_size">फ़ॉन्ट आकार</string>
+    <string name="setting_font_size_description">टेक्स्ट आकार बदलें</string>
     <string name="setting_manage_ai_services">AI सेवाएं प्रबंधित करें</string>
-    <string name="setting_manage_ai_services_description">AI सेवाओं को सक्षम, अक्षम और पुनः क्रमबद्ध करें</string>
+    <string name="setting_manage_ai_services_description">AI सेवाओं को सक्षम, अक्षम और पुनः क्रमित करें</string>
     <string name="setting_memory_management">मेमोरी प्रबंधन</string>
     <string name="setting_memory_management_description">एक साथ AI लोडिंग को नियंत्रित करें</string>
-    <string name="setting_pinch_to_zoom">चुटकी से ज़ूम करें</string>
+    <string name="setting_pinch_to_zoom">पिंच टू जूम</string>
     <string name="setting_pinch_to_zoom_description">वेब पेजों पर ज़ूम इन और आउट करें</string>
     <string name="setting_restore_last_ai">अंतिम खोला गया AI लोड करें</string>
-    <string name="setting_restore_last_ai_description">लॉन्च पर अंतिम उपयोग किए गए सहायक को पुनः खोलें</string>
+    <string name="setting_restore_last_ai_description">लॉन्च पर अंतिम उपयोग किए गए सहायक को फिर से खोलें</string>
     <string name="setting_theme">थीम</string>
-    <string name="setting_theme_description">सिस्टम डिफ़ॉल्ट, लाइट या डार्क में से चुनें</string>
+    <string name="setting_theme_description">सिस्टम डिफ़ॉल्ट, हल्का या गहरा चुनें</string>
     <string name="setting_third_party_cookies">तृतीय-पक्ष कुकीज़ की अनुमति दें</string>
     <string name="setting_third_party_cookies_description">कुछ लॉगिन के लिए आवश्यक हो सकता है</string>
-    <string name="share_link_description">अन्य ऐप्स के माध्यम से साझा करें</string>
+    <string name="setting_update_frequency">अपडेट आवृत्ति</string>
+    <string name="setting_update_frequency_description">अपडेट कितनी बार जांचें</string>
+
+    <!-- Status & Tabs -->
     <string name="status_updating">अपडेट हो रहा है…</string>
     <string name="tab_all_services">सभी सेवाएं</string>
     <string name="tab_favorites">पसंदीदा</string>
-    <string name="theme_auto">ऑटो</string>
-    <string name="theme_dark">डार्क</string>
-    <string name="theme_light">लाइट</string>
+
+    <!-- Theme Options -->
+    <string name="theme_auto">स्वचालित</string>
+    <string name="theme_dark">गहरा</string>
+    <string name="theme_light">हल्का</string>
+
+    <!-- Titles -->
     <string name="title_active_ai_services">सक्रिय AI सेवाएं</string>
     <string name="title_ai_assistants">AI सहायक</string>
     <string name="title_settings">सेटिंग्स</string>
