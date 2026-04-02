@@ -1,5 +1,6 @@
 package com.foss.aihub.ui.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -84,6 +85,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import java.io.IOException
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawerContent(
@@ -125,21 +127,17 @@ fun DrawerContent(
             .mapNotNull { id -> aiServices.find { it.id == id } }
     }
 
-    val availableCategories by remember {
-        derivedStateOf {
-            orderedEnabledServices.map { it.category }.distinct().sorted()
-        }
+    val availableCategories by derivedStateOf {
+        orderedEnabledServices.map { it.category }.distinct().sorted()
     }
 
-    val filteredServices by remember {
-        derivedStateOf {
-            orderedEnabledServices.filter { service ->
-                val matchesSearch =
-                    searchQuery.isBlank() || service.name.contains(searchQuery, ignoreCase = true)
-                val matchesCategory =
-                    selectedCategories.isEmpty() || service.category in selectedCategories
-                matchesSearch && matchesCategory
-            }
+    val filteredServices by derivedStateOf {
+        orderedEnabledServices.filter { service ->
+            val matchesSearch =
+                searchQuery.isBlank() || service.name.contains(searchQuery, ignoreCase = true)
+            val matchesCategory =
+                selectedCategories.isEmpty() || service.category in selectedCategories
+            matchesSearch && matchesCategory
         }
     }
 
@@ -346,16 +344,12 @@ fun DrawerContent(
                     }
                 }
 
-                val favoriteFilteredServices by remember {
-                    derivedStateOf {
-                        filteredServices.filter { it.id in favoriteServices }
-                    }
+                val favoriteFilteredServices by derivedStateOf {
+                    filteredServices.filter { it.id in favoriteServices }
                 }
 
-                val nonFavoriteFilteredServices by remember {
-                    derivedStateOf {
-                        filteredServices.filter { it.id !in favoriteServices }
-                    }
+                val nonFavoriteFilteredServices by derivedStateOf {
+                    filteredServices.filter { it.id !in favoriteServices }
                 }
 
                 LazyColumn(
