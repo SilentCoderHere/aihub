@@ -34,7 +34,7 @@ open class CustomWebChromeClient(
         filePathCallback: ValueCallback<Array<Uri>>,
         fileChooserParams: FileChooserParams?
     ): Boolean {
-        context.launchFileChooser(filePathCallback, fileChooserParams)
+        context.launchFileChooser(filePathCallback)
         return true
     }
 

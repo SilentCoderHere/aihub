@@ -18,9 +18,9 @@ object WebViewSecurity {
         if (!settings.settingsFlow.value.blockUnnecessaryConnections) return true
         if (url.isBlank()) return false
 
-        if (url.startsWith("blob:") || url.startsWith("about:blank") || url.startsWith("data:") || url.startsWith(
-                "file:"
-            ) || url.startsWith("content:")
+        if (arrayOf("blob:", "about:blank", "data:", "file:", "content:").any(
+                url::startsWith
+            )
         ) {
             return true
         }
