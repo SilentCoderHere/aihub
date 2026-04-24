@@ -66,8 +66,11 @@
 
 <br>
 
-## Stargazers over time
-[![Stargazers over time](https://starchart.cc/SilentCoderHere/aihub.svg?variant=adaptive)](https://starchart.cc/SilentCoderHere/aihub)
+## Translations
+
+Help translate AI Hub Reader into your native language! [Weblate](https://hosted.weblate.org/engage/ai-hub/) is used to manage localization.
+
+[![Translation status](https://hosted.weblate.org/widget/ai-hub/multi-auto.svg)](https://hosted.weblate.org/engage/ai-hub/)
 
 ## 🙏 Special Thanks
 
