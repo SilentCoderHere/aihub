@@ -1,12 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Info -->
     <string name="app_logo_description">AI Hub Logo</string>
     <string name="app_tagline">Tu colección de asistentes IA</string>
-
     <!-- Actions -->
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
-    <string name="action_clear">Eliminar</string>
+    <string name="action_clear">Limpiar</string>
     <string name="action_clear_all_cache">Limpiar caché</string>
     <string name="action_clear_all_cache_description">Eliminar archivos temporales</string>
     <string name="action_clear_all_data">Restablecer todos los datos</string>
@@ -41,12 +41,10 @@
     <string name="action_stay">Quedarse</string>
     <string name="action_update">Actualizar</string>
     <string name="action_update_services">Actualizar servicios y listas de filtros</string>
-
     <!-- Copy & Share Descriptions -->
     <string name="copy_link_description">Copiar enlace al portapapeles</string>
     <string name="open_in_browser_description">Abrir en navegador externo</string>
     <string name="share_link_description">Compartir enlace mediante otra aplicación</string>
-
     <!-- Error Messages -->
     <string name="error_desc_http_error">%1$s devuelve error %2$d</string>
     <string name="error_desc_no_connection">No se pudo acceder a %1$s. Verifique su conexión a internet.</string>
@@ -63,7 +61,6 @@
     <string name="error_title_security_issue">Problema de seguridad</string>
     <string name="error_title_server_error">Error de servidor</string>
     <string name="error_unknown">Error desconocido</string>
-
     <!-- Labels -->
     <string name="hint_search_services">Buscar servicios…</string>
     <string name="label_active">Activo</string>
@@ -124,7 +121,6 @@
     <string name="label_update_summary">Resumen de actualización</string>
     <string name="label_update_title">Actualización disponible</string>
     <string name="label_url">URL</string>
-
     <!-- Messages -->
     <string name="msg_add_to_fav">Añadir a favoritos</string>
     <string name="msg_ai_update_success">Servicios IA actualizados</string>
@@ -136,7 +132,7 @@
     <string name="msg_changes_saved">Cambios guardados</string>
     <string name="msg_clear_all_cache_confirmation">Eliminar datos web temporales.\nEsto podría cerrar sesión en los sitios.</string>
     <string name="msg_clear_all_data_confirmation">Eliminar caché, cookies, historial y datos de sesión…\nEsto no se puede revertir.</string>
-    <string name="msg_clear_site_data_warning">Eliminará cookies, almacenamiento local y datos de sesión solo para %1$s. Puede cerrar sesión en este sitio.\nOtros sitios no se verán afectados.</string>
+    <string name="msg_clear_site_data_warning">Eliminará cookies, almacenamiento local y datos de sesión solo para %1$s. \nPuede cerrar sesión en este sitio.\n\nOtros sitios no se verán afectados.</string>
     <string name="msg_copy_description">Copia estos detalles si necesitas reportar este problema</string>
     <string name="msg_custom_injection">Nota: Los cambios se aplicarán al recargar. Añade o inyecta JavaScript/CSS personalizado en cada servicio.</string>
     <string name="msg_domain_update_success">Reglas de dominio actualizadas</string>
@@ -165,7 +161,6 @@
     <string name="msg_update_failed">Actualización fallida – verifique conexión</string>
     <string name="msg_write_css_here">Escribe tu CSS personalizado aquí…</string>
     <string name="msg_write_js_here">Escribe tu JavaScript personalizado aquí…</string>
-
     <!-- Sections -->
     <string name="section_about">Acerca de</string>
     <string name="section_cloud_updates">Actualizaciones en la nube</string>
@@ -174,7 +169,6 @@
     <string name="section_security_privacy">Seguridad y Privacidad</string>
     <string name="section_storage">Almacenamiento</string>
     <string name="section_webview">WebView</string>
-
     <!-- Configuración -->
     <string name="setting_block_trackers_ads">Bloquear rastreadores y anuncios</string>
     <string name="setting_block_trackers_ads_description">Recomendado para privacidad</string>
@@ -195,24 +189,21 @@
     <string name="setting_pinch_to_zoom">Zoom con pinching</string>
     <string name="setting_pinch_to_zoom_description">Permite acercarse y alejarse de las páginas web con el gesto de pinching</string>
     <string name="setting_restore_last_ai">Cargar la última IA abierta</string>
-    <string name="setting_restore_last_ai_description">Abre el último servicio de IA utilizado al iniciar la aplicación</string>
+    <string name="setting_restore_last_ai_description">Abre el último asistente utilizado al iniciar la aplicación</string>
     <string name="setting_theme">Tema</string>
     <string name="setting_theme_description">Elige entre el Tema por Defecto del Sistema, Tema Claro o Tema Oscuro</string>
     <string name="setting_third_party_cookies">Permitir cookies de terceros</string>
     <string name="setting_third_party_cookies_description">Puede ser necesario para algunos procesos de inicio de sesión</string>
     <string name="setting_update_frequency">Frecuencia de actualización</string>
     <string name="setting_update_frequency_description">Define cómo se deben verificar las actualizaciones</string>
-
     <!-- Status & Tabs -->
     <string name="status_updating">Actualizando…</string>
     <string name="tab_all_services">Todos los servicios</string>
     <string name="tab_favorites">Favoritos</string>
-
     <!-- Theme Options -->
     <string name="theme_auto">Automático</string>
     <string name="theme_dark">Oscuro</string>
     <string name="theme_light">Claro</string>
-
     <!-- Titles -->
     <string name="title_active_ai_services">Servicios IA activos</string>
     <string name="title_ai_assistants">Asistentes IA</string>
