@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Actions -->
     <string name="action_back">वापस</string>
@@ -37,12 +38,10 @@
     <string name="action_stay">रुकें</string>
     <string name="action_update">अपडेट करें</string>
     <string name="action_update_services">AI और सेवाएं अपडेट करें</string>
-
     <!-- Copy & Share Descriptions -->
     <string name="copy_link_description">लिंक क्लिपबोर्ड पर कॉपी करें</string>
     <string name="open_in_browser_description">बाहरी ब्राउज़र में खोलें</string>
     <string name="share_link_description">अन्य ऐप्स के माध्यम से साझा करें</string>
-
     <!-- Error Messages -->
     <string name="error_desc_http_error">%1$s ने त्रुटि %2$d लौटाई</string>
     <string name="error_desc_no_connection">%1$s से कनेक्ट नहीं हो सकते। अपना इंटरनेट कनेक्शन जांचें।</string>
@@ -59,7 +58,6 @@
     <string name="error_title_security_issue">सुरक्षा मुद्दा</string>
     <string name="error_title_server_error">सर्वर त्रुटि</string>
     <string name="error_unknown">अज्ञात त्रुटि</string>
-
     <!-- Labels -->
     <string name="hint_search_services">सेवाएं खोजें…</string>
     <string name="label_active">सक्रिय</string>
@@ -120,7 +118,6 @@
     <string name="label_update_summary">अपडेट सारांश</string>
     <string name="label_update_title">अपडेट उपलब्ध</string>
     <string name="label_url">URL</string>
-
     <!-- Messages -->
     <string name="msg_add_to_fav">पसंदीदा में जोड़ें</string>
     <string name="msg_ai_update_success">AI सेवाएं अपडेट हुईं</string>
@@ -161,7 +158,6 @@
     <string name="msg_update_failed">अपडेट विफल – कनेक्शन जांचें</string>
     <string name="msg_write_css_here">अपना कस्टम CSS यहां लिखें…</string>
     <string name="msg_write_js_here">अपना कस्टम JavaScript यहां लिखें…</string>
-
     <!-- Sections -->
     <string name="section_about">के बारे में</string>
     <string name="section_cloud_updates">क्लाउड अपडेट</string>
@@ -170,7 +166,6 @@
     <string name="section_security_privacy">सुरक्षा और गोपनीयता</string>
     <string name="section_storage">संग्रहण</string>
     <string name="section_webview">WebView</string>
-
     <!-- Settings -->
     <string name="setting_block_trackers_ads">ट्रैकर और विज्ञापन ब्लॉक करें</string>
     <string name="setting_block_trackers_ads_description">गोपनीयता के लिए अनुशंसित</string>
@@ -198,19 +193,18 @@
     <string name="setting_third_party_cookies_description">कुछ लॉगिन के लिए आवश्यक हो सकता है</string>
     <string name="setting_update_frequency">अपडेट आवृत्ति</string>
     <string name="setting_update_frequency_description">अपडेट कितनी बार जांचें</string>
-
     <!-- Status & Tabs -->
     <string name="status_updating">अपडेट हो रहा है…</string>
     <string name="tab_all_services">सभी सेवाएं</string>
     <string name="tab_favorites">पसंदीदा</string>
-
     <!-- Theme Options -->
     <string name="theme_auto">स्वचालित</string>
     <string name="theme_dark">गहरा</string>
     <string name="theme_light">हल्का</string>
-
     <!-- Titles -->
     <string name="title_active_ai_services">सक्रिय AI सेवाएं</string>
     <string name="title_ai_assistants">AI सहायक</string>
     <string name="title_settings">सेटिंग्स</string>
+    <string name="app_logo_description">एआई हब लोगो</string>
+    <string name="app_tagline">आपका एआई साथी संग्रह</string>
 </resources>
