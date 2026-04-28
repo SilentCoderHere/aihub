@@ -118,7 +118,7 @@
     <string name="msg_custom_injection">Uwaga: Zmiany zostaną wprowadzone po ponownym załadowaniu. Dodaj niestandardowy kod JavaScript/CSS wstrzykiwany do każdej usługi.</string>
     <string name="msg_domain_update_success">Zaktualizowano zasady domeny</string>
     <string name="msg_download_failed">Błąd pobierania</string>
-    <string name="msg_dowload_complete">Pobieranie ukończone: %1$s</string>
+    <string name="msg_download_complete">Pobieranie ukończone: %1$s</string>
     <string name="msg_downloading">Pobieranie: %1$s</string>
     <string name="msg_fail_to_load_config">Nie udało się załadować konfiguracji. Sprawdź połączenie internetowe.</string>
     <string name="msg_fail_to_save_blob">Nie udało się zapisać blobu</string>

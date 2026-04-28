@@ -134,7 +134,7 @@
     <string name="msg_custom_injection">नोट: परिवर्तन रीलोड के बाद लागू होते हैं। प्रत्येक सेवा में इंजेक्ट की गई कस्टम JavaScript/CSS जोड़ें।</string>
     <string name="msg_domain_update_success">डोमेन नियम अपडेट हुए</string>
     <string name="msg_download_failed">डाउनलोड विफल</string>
-    <string name="msg_dowload_complete">डाउनलोड पूर्ण: %1$s</string>
+    <string name="msg_download_complete">डाउनलोड पूर्ण: %1$s</string>
     <string name="msg_downloading">डाउनलोड हो रहा है: %1$s</string>
     <string name="msg_fail_to_load_config">कॉन्फ़िगरेशन लोड करने में विफल। कृपया अपना इंटरनेट कनेक्शन जांचें।</string>
     <string name="msg_fail_to_save_blob">ब्लॉब सहेजने में विफल</string>

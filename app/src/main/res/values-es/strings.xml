@@ -137,7 +137,7 @@
     <string name="msg_custom_injection">Nota: Los cambios se aplicarán al recargar. Añade o inyecta JavaScript/CSS personalizado en cada servicio.</string>
     <string name="msg_domain_update_success">Reglas de dominio actualizadas</string>
     <string name="msg_download_failed">Descarga fallida</string>
-    <string name="msg_dowload_complete">Descarga completada: %1$s</string>
+    <string name="msg_download_complete">Descarga completada: %1$s</string>
     <string name="msg_downloading">Descargando: %1$s</string>
     <string name="msg_fail_to_load_config">Fallo al cargar las configuraciones. Por favor verifique su conexión a internet.</string>
     <string name="msg_fail_to_save_blob">Fallo al guardar blob</string>
