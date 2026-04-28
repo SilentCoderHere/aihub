@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.foss.aihub"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.foss.aihub"
