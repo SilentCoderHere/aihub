@@ -1,46 +1,49 @@
 package com.foss.aihub.ui.screens.dialogs
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.foss.aihub.R
 import com.foss.aihub.models.LinkData
-import com.foss.aihub.models.LinkType
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,198 +54,159 @@ fun LinkOptionsDialog(
     onCopyLink: () -> Unit,
     onShareLink: () -> Unit
 ) {
-    Dialog(
-        onDismissRequest = onDismiss, properties = DialogProperties(
-            usePlatformDefaultWidth = false, decorFitsSystemWindows = true
-        )
-    ) {
-        ElevatedCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
-        ) {
+    var isContentVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isContentVisible = true
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(32.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 12.dp,
+        title = null,
+        text = {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = stringResource(R.string.label_link),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(top = 24.dp)
-                            .align(Alignment.Center)
-                    )
-
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(top = 8.dp, end = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.action_close),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-
-                Surface(
-                    onClick = onCopyLink,
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.12f),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-
-                        Surface(
-                            shape = MaterialTheme.shapes.small,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = when (linkData.type) {
-                                        LinkType.IMAGE -> Icons.Default.Image
-                                        LinkType.EMAIL -> Icons.Default.Email
-                                        LinkType.PHONE -> Icons.Default.Phone
-                                        else -> Icons.Default.Link
-                                    },
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Text(
-                                text = linkData.title,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = linkData.url,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-
-                        Icon(
-                            imageVector = Icons.Default.ContentCopy,
-                            contentDescription = stringResource(R.string.action_copy),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-
-                HorizontalDivider(
-                    thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant
+                UrlDisplayContainer(
+                    url = linkData.url, visible = isContentVisible
                 )
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    LinkActionButton(
-                        icon = Icons.AutoMirrored.Filled.OpenInNew,
-                        label = stringResource(R.string.action_open_in_browser),
-                        description = stringResource(R.string.open_in_browser_description),
-                        onClick = { onOpenLinkInExternalBrowser(linkData.url) })
+                ActionButtonRow(
+                    visible = isContentVisible,
+                    delay = 100,
+                    onClick = { onOpenLinkInExternalBrowser(linkData.url) },
+                    icon = Icons.AutoMirrored.Filled.OpenInNew,
+                    text = stringResource(R.string.action_open_in_browser),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
 
-                    LinkActionButton(
-                        icon = Icons.Default.ContentCopy,
-                        label = stringResource(R.string.action_copy_link),
-                        description = stringResource(R.string.copy_link_description),
-                        onClick = onCopyLink
-                    )
+                ActionButtonRow(
+                    visible = isContentVisible,
+                    delay = 150,
+                    onClick = onCopyLink,
+                    icon = Icons.Default.ContentCopy,
+                    text = stringResource(R.string.action_copy_link),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
 
-                    LinkActionButton(
-                        icon = Icons.Default.Share,
-                        label = stringResource(R.string.action_share_link),
-                        description = stringResource(R.string.share_link_description),
-                        onClick = onShareLink
-                    )
-                }
+                ActionButtonRow(
+                    visible = isContentVisible,
+                    delay = 200,
+                    onClick = onShareLink,
+                    icon = Icons.Default.Share,
+                    text = stringResource(R.string.action_share_link),
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
+        },
+        confirmButton = {},
+        dismissButton = {},
+    )
+}
 
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_cancel),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+@Composable
+private fun UrlDisplayContainer(
+    url: String, visible: Boolean
+) {
+    AnimatedVisibility(
+        visible = visible, enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = 300, delayMillis = 50
+            )
+        ) + slideInVertically(
+            initialOffsetY = { it / 3 },
+            animationSpec = tween(durationMillis = 300, delayMillis = 50)
+        ), exit = fadeOut(animationSpec = tween(durationMillis = 200)) + slideOutVertically(
+            targetOffsetY = { it / 3 }, animationSpec = tween(durationMillis = 200)
+        )
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .clip(RoundedCornerShape(18.dp)),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+            shape = RoundedCornerShape(18.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Link,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Text(
+                    text = url,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun LinkActionButton(
-    icon: ImageVector, label: String, description: String, onClick: () -> Unit
+private fun ActionButtonRow(
+    visible: Boolean,
+    delay: Int,
+    onClick: () -> Unit,
+    icon: ImageVector,
+    text: String,
+    containerColor: Color,
+    contentColor: Color
 ) {
-    FilledTonalButton(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = MaterialTheme.shapes.large,
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    AnimatedVisibility(
+        visible = visible, enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = 300, delayMillis = delay
+            )
+        ) + slideInVertically(
+            initialOffsetY = { it / 3 },
+            animationSpec = tween(durationMillis = 300, delayMillis = delay)
+        ), exit = fadeOut(animationSpec = tween(durationMillis = 200)) + slideOutVertically(
+            targetOffsetY = { it / 3 }, animationSpec = tween(durationMillis = 200)
         )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Icon(
-                imageVector = icon, contentDescription = null, modifier = Modifier.size(22.dp)
+        FilledTonalButton(
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = containerColor, contentColor = contentColor
             )
-            Column(
-                modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                Icon(
+                    imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp)
                 )
                 Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }

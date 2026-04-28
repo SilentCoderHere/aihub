@@ -5,8 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import androidx.compose.ui.res.stringResource
+import android.widget.Toast
 import androidx.core.net.toUri
 import com.foss.aihub.R
 
@@ -71,10 +70,17 @@ fun openInExternalBrowser(
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         context.startActivity(intent)
-        Log.d("AI_HUB", "Opening in external browser: $url")
-    } catch (e: ActivityNotFoundException) {
-        Log.e("AI_HUB", "No browser app found to handle URL: $url", e)
-    } catch (e: Exception) {
-        Log.e("AI_HUB", "Error opening URL in browser: $url", e)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.msg_no_suitable_app_found),
+            Toast.LENGTH_SHORT,
+        ).show()
+    } catch (_: Exception) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.error_generic_title),
+            Toast.LENGTH_SHORT,
+        ).show()
     }
 }
