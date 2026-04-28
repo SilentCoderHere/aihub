@@ -1,5 +1,6 @@
 package com.foss.aihub.ui.screens
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -35,16 +37,18 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.TextIncrease
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -64,6 +68,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -75,10 +80,12 @@ import com.foss.aihub.R
 import com.foss.aihub.ui.components.Md3TopAppBar
 import com.foss.aihub.utils.SettingsManager
 import com.foss.aihub.utils.aiServices
+import kotlinx.coroutines.flow.drop
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
+    context: Context,
     onBack: () -> Unit,
     settingsManager: SettingsManager,
     onManageServices: () -> Unit,
@@ -92,8 +99,10 @@ fun SettingsScreen(
 
     var showFontSizeOptions by remember { mutableStateOf(false) }
     var loadLastAi by remember { mutableStateOf(settings.loadLastOpenedAI) }
+    var multipleDefaultAi by remember { mutableStateOf(settings.multipleDefaultAi) }
     var selectedFontSize by remember { mutableStateOf(settings.fontSize) }
     var defaultServiceId by remember { mutableStateOf(settings.defaultServiceId) }
+    var defaultServiceIds by remember { mutableStateOf(settings.defaultServiceIds) }
     var enabledServices by remember { mutableStateOf(settings.enabledServices) }
     var enableZoom by remember { mutableStateOf(settings.enableZoom) }
     var limitSimultaneousAIs by remember { mutableStateOf(settings.maxKeepAlive != Int.MAX_VALUE) }
@@ -108,6 +117,25 @@ fun SettingsScreen(
         mutableStateOf(settings.blockUnnecessaryConnections)
     }
 
+    var proxyOption by remember {
+        mutableStateOf(if (settings.isProxy) settings.proxyType else "none")
+    }
+    var proxyHost by remember { mutableStateOf(settings.proxyHost) }
+    var proxyPort by remember { mutableStateOf(settings.proxyPort) }
+
+    LaunchedEffect(proxyOption) {
+        settingsManager.updateSettings {
+            it.isProxy = proxyOption != "none"
+            if (proxyOption != "none") it.proxyType = proxyOption
+        }
+    }
+    LaunchedEffect(proxyHost) {
+        settingsManager.updateSettings { it.proxyHost = proxyHost }
+    }
+    LaunchedEffect(proxyPort) {
+        settingsManager.updateSettings { it.proxyPort = proxyPort }
+    }
+
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
 
@@ -118,12 +146,46 @@ fun SettingsScreen(
             .mapNotNull { id -> aiServices.find { it.id == id } }
     }
 
+    val defaultSwitchTheme = SwitchDefaults.colors(
+        checkedThumbColor = MaterialTheme.colorScheme.primary,
+        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+        uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+        uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
+    )
+
+    LaunchedEffect(defaultServiceIds) {
+        settingsManager.updateSettings { it.defaultServiceIds = defaultServiceIds }
+    }
+
     LaunchedEffect(loadLastAi) {
         settingsManager.updateSettings { it.loadLastOpenedAI = loadLastAi }
     }
 
     LaunchedEffect(defaultServiceId) {
         settingsManager.updateSettings { it.defaultServiceId = defaultServiceId }
+        if (!multipleDefaultAi) {
+            settingsManager.updateSettings { it.defaultServiceIds = setOf(defaultServiceId) }
+        }
+    }
+
+    LaunchedEffect(multipleDefaultAi) {
+        settingsManager.updateSettings { it.multipleDefaultAi = multipleDefaultAi }
+        if (multipleDefaultAi && defaultServiceIds.isEmpty()) {
+            settingsManager.updateSettings { it.defaultServiceIds = setOf(defaultServiceId) }
+        }
+    }
+
+    LaunchedEffect(limitSimultaneousAIs, maxKeepAlive) {
+        val value = if (limitSimultaneousAIs) maxKeepAlive else 5
+        settingsManager.updateSettings { it.maxKeepAlive = value }
+
+        if (limitSimultaneousAIs && defaultServiceIds.size > maxKeepAlive) {
+            val trimmedIds =
+                orderedServices.filter { it.id in defaultServiceIds }.take(maxKeepAlive)
+                    .map { it.id }.toSet()
+
+            defaultServiceIds = trimmedIds
+        }
     }
 
     LaunchedEffect(enabledServices) {
@@ -258,12 +320,7 @@ fun SettingsScreen(
                             Switch(
                                 checked = loadLastAi,
                                 onCheckedChange = { loadLastAi = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                colors = defaultSwitchTheme
                             )
                         }
 
@@ -273,6 +330,24 @@ fun SettingsScreen(
                             exit = fadeOut() + shrinkVertically()
                         ) {
                             Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                                SettingItem(
+                                    title = "Multiple default AIs",
+                                    description = "Open all default AI when app start",
+                                    icon = Icons.Outlined.Computer,
+                                    iconColor = MaterialTheme.colorScheme.primary
+                                ) {
+                                    Switch(
+                                        checked = multipleDefaultAi,
+                                        onCheckedChange = { multipleDefaultAi = it },
+                                        colors = defaultSwitchTheme
+                                    )
+                                }
+
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+
                                 ListItem(
                                     headlineContent = {
                                         Text(
@@ -293,7 +368,6 @@ fun SettingsScreen(
                                         )
                                     },
                                 )
-
                                 FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     modifier = Modifier
@@ -301,9 +375,35 @@ fun SettingsScreen(
                                         .padding(horizontal = 16.dp, vertical = 8.dp)
                                 ) {
                                     orderedServices.forEach { service ->
-                                        ElevatedFilterChip(
-                                            selected = defaultServiceId == service.id,
-                                            onClick = { defaultServiceId = service.id },
+                                        val isSelected = if (multipleDefaultAi) {
+                                            service.id in defaultServiceIds
+                                        } else {
+                                            service.id == defaultServiceId
+                                        }
+
+                                        FilterChip(
+                                            selected = isSelected,
+                                            onClick = {
+                                                if (multipleDefaultAi) {
+                                                    defaultServiceIds = if (isSelected) {
+                                                        defaultServiceIds - service.id
+                                                    } else {
+                                                        if (defaultServiceIds.size < maxKeepAlive) {
+                                                            defaultServiceIds + service.id
+                                                        } else {
+                                                            defaultServiceIds
+                                                        }
+                                                    }
+                                                    if (defaultServiceIds.isNotEmpty()) {
+                                                        defaultServiceId = defaultServiceIds.first()
+                                                    } else {
+                                                        defaultServiceId = ""
+                                                    }
+                                                } else {
+                                                    defaultServiceId = service.id
+                                                    defaultServiceIds = setOf(service.id)
+                                                }
+                                            },
                                             label = {
                                                 Text(
                                                     service.name,
@@ -311,11 +411,17 @@ fun SettingsScreen(
                                                     maxLines = 1
                                                 )
                                             },
-                                            colors = FilterChipDefaults.elevatedFilterChipColors(
-                                                containerColor = service.accentColor.copy(alpha = 0.08f),
-                                                labelColor = service.accentColor
-                                            )
-                                        )
+                                            leadingIcon = if (isSelected) {
+                                                {
+                                                    Icon(
+                                                        Icons.Default.Check,
+                                                        contentDescription = stringResource(R.string.label_selected),
+                                                        modifier = Modifier.size(18.dp),
+                                                        tint = service.accentColor
+                                                    )
+                                                }
+                                            } else null,
+                                            colors = FilterChipDefaults.filterChipColors())
                                     }
 
                                     if (orderedServices.isEmpty()) {
@@ -374,12 +480,7 @@ fun SettingsScreen(
                             Switch(
                                 checked = limitSimultaneousAIs,
                                 onCheckedChange = { limitSimultaneousAIs = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                colors = defaultSwitchTheme
                             )
                         }
 
@@ -409,12 +510,12 @@ fun SettingsScreen(
                                     ) {
                                         (1..5).forEach { value ->
                                             SegmentedButton(
-                                                selected = maxKeepAlive == value,
-                                                onClick = { maxKeepAlive = value },
-                                                shape = SegmentedButtonDefaults.itemShape(
+                                                selected = maxKeepAlive == value, onClick = {
+                                                    maxKeepAlive = value
+
+                                                }, shape = SegmentedButtonDefaults.itemShape(
                                                     index = value - 1, count = 5
-                                                ),
-                                                colors = SegmentedButtonDefaults.colors(
+                                                ), colors = SegmentedButtonDefaults.colors(
                                                     activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
                                                     activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                                 )
@@ -456,12 +557,7 @@ fun SettingsScreen(
                             Switch(
                                 checked = enableZoom,
                                 onCheckedChange = { enableZoom = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                colors = defaultSwitchTheme
                             )
                         }
 
@@ -479,12 +575,7 @@ fun SettingsScreen(
                             Switch(
                                 checked = desktopView,
                                 onCheckedChange = { desktopView = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                colors = defaultSwitchTheme
                             )
                         }
 
@@ -502,12 +593,7 @@ fun SettingsScreen(
                             Switch(
                                 checked = thirdPartyCookies,
                                 onCheckedChange = { thirdPartyCookies = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                colors = defaultSwitchTheme
                             )
                         }
 
@@ -626,13 +712,116 @@ fun SettingsScreen(
                                 settingsManager.updateSettings { settings ->
                                     settings.blockUnnecessaryConnections = it
                                 }
-                            }, colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                            )
+                            }, colors = defaultSwitchTheme
                         )
+                    }
+                }
+
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                SettingsCard {
+                    var showProxyOptions by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(Unit) {
+                        snapshotFlow {
+                            Triple(
+                                proxyOption, proxyHost, proxyPort
+                            )
+                        }.drop(1).collect {
+                            snackbarHostState.showSnackbar(context.getString(R.string.msg_restart_required))
+                        }
+                    }
+
+                    SettingItem(
+                        title = stringResource(R.string.label_proxy),
+                        description = stringResource(R.string.msg_set_proxy),
+                        icon = Icons.Outlined.Wifi,
+                        iconColor = MaterialTheme.colorScheme.primary,
+                        onClick = { showProxyOptions = !showProxyOptions }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = when (proxyOption) {
+                                    "none" -> stringResource(R.string.label_no_proxy)
+                                    "http" -> stringResource(R.string.label_http)
+                                    "socks" -> stringResource(R.string.label_socks)
+                                    else -> proxyOption
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Icon(
+                                if (showProxyOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = showProxyOptions,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(
+                                start = 56.dp, end = 16.dp, bottom = 12.dp
+                            )
+                        ) {
+                            SingleChoiceSegmentedButtonRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                            ) {
+                                listOf(
+                                    "none" to stringResource(R.string.label_none),
+                                    "http" to stringResource(R.string.label_http),
+                                    "socks" to stringResource(R.string.label_socks)
+                                ).forEachIndexed { index, (type, label) ->
+                                    SegmentedButton(
+                                        selected = proxyOption == type,
+                                        onClick = { proxyOption = type },
+                                        shape = SegmentedButtonDefaults.itemShape(
+                                            index = index, count = 3
+                                        ),
+                                        colors = SegmentedButtonDefaults.colors(
+                                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    ) {
+                                        Text(label)
+                                    }
+                                }
+                            }
+
+                            AnimatedVisibility(
+                                visible = proxyOption != "none",
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                Column(modifier = Modifier.padding(top = 8.dp)) {
+                                    OutlinedTextField(
+                                        value = proxyHost,
+                                        onValueChange = { proxyHost = it },
+                                        label = { Text(stringResource(R.string.label_host)) },
+                                        singleLine = true,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 8.dp)
+                                    )
+                                    OutlinedTextField(
+                                        value = proxyPort,
+                                        onValueChange = { proxyPort = it },
+                                        label = { Text(stringResource(R.string.label_port)) },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -671,12 +860,7 @@ fun SettingsScreen(
                             Switch(
                                 checked = isEnabled,
                                 onCheckedChange = { isEnabled = it },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
-                                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
-                                )
+                                colors = defaultSwitchTheme
                             )
                         }
 

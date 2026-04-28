@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -171,6 +172,9 @@ enum class ErrorType(
     NETWORK_ERROR(
         icon = Icons.Outlined.WifiOff, titleRes = R.string.error_title_no_connection
     ),
+    PROXY_ERROR(
+        icon = Icons.Outlined.Wifi, titleRes = R.string.error_title_proxy_error
+    ),
     HTTP_ERROR(
         icon = Icons.Outlined.ErrorOutline, titleRes = R.string.error_title_server_error
     ),
@@ -186,6 +190,8 @@ enum class ErrorType(
             R.string.error_desc_no_connection, serviceName
         )
 
+        PROXY_ERROR -> stringResource(R.string.error_desc_proxy_error)
+
         HTTP_ERROR -> stringResource(
             R.string.error_desc_http_error, serviceName, errorCode
         )
@@ -198,7 +204,7 @@ enum class ErrorType(
     companion object {
         fun shouldShowOverlay(errorCode: Int): Boolean = when (errorCode) {
             in 500..599 -> false
-            -2, -4, -6, -7, -8, -10, -11 -> true
+            -2, -4, -5, -6, -7, -8, -10, -11 -> true
             -3 -> true
             in 400..499 -> true
             else -> false
@@ -207,6 +213,7 @@ enum class ErrorType(
         fun fromErrorCode(errorCode: Int): ErrorType = when (errorCode) {
             -2, -4, -6, -7, -8, -10, -11 -> NETWORK_ERROR
             -3 -> SSL_ERROR
+            -5 -> PROXY_ERROR
             in 400..499 -> HTTP_ERROR
             else -> NETWORK_ERROR
         }

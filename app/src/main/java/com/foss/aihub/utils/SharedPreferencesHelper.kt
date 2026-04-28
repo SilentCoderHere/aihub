@@ -158,7 +158,10 @@ class SettingsManager(context: Context) {
         return AppSettings(
             theme = sharedPref.getString("theme", "auto") ?: "auto",
             loadLastOpenedAI = sharedPref.getBoolean("loadLastOpenedAI", true),
+            multipleDefaultAi = sharedPref.getBoolean("multipleDefaultAi", false),
             defaultServiceId = sharedPref.getString("defaultServiceId", "chatgpt") ?: "chatgpt",
+            defaultServiceIds = sharedPref.getStringSet("defaultServiceIds", emptySet())
+                ?: emptySet(),
             serviceOrder = loadServiceOrder(),
             enabledServices = loadEnabledServices(),
             favoriteServices = loadFavoriteServices(),
@@ -169,9 +172,12 @@ class SettingsManager(context: Context) {
             fontSize = sharedPref.getString("fontSize", "medium") ?: "medium",
             updateFrequencyDays = sharedPref.getInt("updateFrequencyDays", 3),
             blockUnnecessaryConnections = sharedPref.getBoolean(
-                "blockUnnecessaryConnections",
-                true
+                "blockUnnecessaryConnections", true,
             ),
+            isProxy = sharedPref.getBoolean("isProxy", false),
+            proxyType = sharedPref.getString("proxyType", "http") ?: "http",
+            proxyHost = sharedPref.getString("proxyHost", "localhost") ?: "localhost",
+            proxyPort = sharedPref.getString("proxyPort", "9050") ?: "9050",
             customCss = sharedPref.getString("customCss", "") ?: "",
             customJs = sharedPref.getString("customJs", "") ?: ""
         )
@@ -181,7 +187,9 @@ class SettingsManager(context: Context) {
         sharedPref.edit {
             putString("theme", settings.theme)
             putBoolean("loadLastOpenedAI", settings.loadLastOpenedAI)
+            putBoolean("multipleDefaultAi", settings.multipleDefaultAi)
             putString("defaultServiceId", settings.defaultServiceId)
+            putStringSet("defaultServiceIds", settings.defaultServiceIds)
             saveServiceOrder(settings.serviceOrder)
             saveEnabledServices(settings.enabledServices)
             saveFavoriteServices(settings.favoriteServices)
@@ -192,6 +200,10 @@ class SettingsManager(context: Context) {
             putString("fontSize", settings.fontSize)
             putInt("updateFrequencyDays", settings.updateFrequencyDays)
             putBoolean("blockUnnecessaryConnections", settings.blockUnnecessaryConnections)
+            putBoolean("isProxy", settings.isProxy)
+            putString("proxyType", settings.proxyType)
+            putString("proxyHost", settings.proxyHost)
+            putString("proxyPort", settings.proxyPort)
             putString("customCss", settings.customCss)
             putString("customJs", settings.customJs)
         }
