@@ -28,7 +28,7 @@
     <string name="action_privacy_policy">Polityka prywatności</string>
     <string name="action_reload">Odśwież</string>
     <string name="action_remove_service">Zamknij usługę</string>
-    <string name="action_restart">Włącz ponownie</string>
+    <string name="action_restart">Restart</string>
     <string name="action_retry">Spróbuj ponownie</string>
     <string name="action_save">Zapisz</string>
     <string name="action_search">Wyszukaj</string>
@@ -172,7 +172,7 @@
     <string name="theme_auto">Auto</string>
     <string name="theme_dark">Ciemny</string>
     <string name="theme_light">Jasny</string>
-    <string name="title_active_ai_services">Wszystkie usługi</string>
+    <string name="title_active_ai_services">Aktywne usługi AI</string>
     <string name="title_ai_assistants">Asystenci AI</string>
     <string name="title_settings">Ustawienia</string>
     <string name="label_blocked_url">Zablokowany URL</string>
