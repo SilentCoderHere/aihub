@@ -138,6 +138,12 @@ fun ManageAiServicesScreen(
         )
     }, containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+        val displayedServices = remember(orderedServices, searchQuery) {
+            if (searchQuery.isEmpty()) orderedServices else orderedServices.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
+
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
@@ -147,7 +153,8 @@ fun ManageAiServicesScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(
-                items = currentOrder, key = { _, service -> service.id }) { index, service ->
+                items = displayedServices, key = { _, service -> service.id },
+            ) { index, service ->
                 val isEnabled = service.id in enabledServices
                 val isDefault = service.id == defaultServiceId
                 val isOnlyEnabled = enabledServices.size == 1 && isEnabled
