@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_logo_description">Siglă Hub AI</string>
+    <string name="app_tagline">Colecția ta de AI-uri de companie</string>
+    <string name="action_back">Înapoi</string>
+    <string name="action_cancel">Anulează</string>
+    <string name="action_clear_all_cache_description">Șterge fișierele temporare</string>
+    <string name="action_clear_all_data">Ștergeți toate datele</string>
+    <string name="action_clear_all_data_description">Șterge totul - folosiți cu grijă</string>
+    <string name="action_ok">OK</string>
+    <string name="action_open_in_browser">Deschideți în browser</string>
+    <string name="action_privacy_policy">Politica de Confidențialitate</string>
+    <string name="action_reload">Reîncărcați</string>
+    <string name="action_retry">Încercați din nou</string>
+    <string name="action_save">Salvați</string>
+    <string name="action_search">Căutați</string>
+    <string name="action_share">Partajați</string>
+    <string name="action_share_link">Partajați linkul</string>
+    <string name="action_stay">Stați</string>
+    <string name="action_update">Actualizați</string>
+    <string name="action_update_services">Actualizați AI &amp; servicii</string>
+    <string name="copy_link_description">Copiați în clipboard</string>
+    <string name="open_in_browser_description">Deschideți în browser extern</string>
+    <string name="error_generic_message">O eroare neașteptată a apărut. Vă rugăm să încercați din nou.</string>
+</resources>

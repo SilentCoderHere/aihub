@@ -193,7 +193,7 @@
     <string name="label_before_leave">Przed opuszczeniem</string>
     <string name="label_changed">Zmieniono</string>
     <string name="label_collapse">Zwiń</string>
-    <string name="section_storage">Miejsce na dysku</string>
+    <string name="section_storage">Dane</string>
     <string name="action_got_it">Rozumiem</string>
     <string name="action_submit_request">Wyślij prośbę</string>
     <string name="error_desc_proxy_error">Nie można podłączyć się do proxy</string>
@@ -227,6 +227,6 @@
     <string name="msg_short_desc">Czemu chcesz tą SI? Jakieś specjalne funkcje?</string>
     <string name="msg_tell_which_ai">Powiedz nam jaką SI byś chciał/chciała zobaczyć w AI Hub.</string>
     <string name="title_quick_reminder">Szybkie przypomnienie</string>
-    <string name="desc_email_method">Wyślemy ci link do przysłania przez e-mail</string>
+    <string name="desc_email_method">Wyślemy Ci bezpośredni link umożliwiający przesłanie zgłoszenia e-mailem</string>
     <string name="desc_github_issue">Otwórz issue w naszym repozytorium (potrzebne konto na Githubie)</string>
 </resources>
