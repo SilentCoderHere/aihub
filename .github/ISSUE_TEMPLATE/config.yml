@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Matrix
+    url: https://matrix.to/#/#aihub-silentcoder:matrix.org
+    about: Chat with us
+  - name: Discussions
+    url: https://github.com/SilentCoderHere/aihub/discussions
+    about: Ask questions and share ideas

@@ -1,0 +1,49 @@
+name: AI Bug
+description: Report a bug with a specific AI in the app
+title: "AI Bug: "
+labels: ["ai bug"]
+assignees: ["SilentCoderHere"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an AI bug! Please provide as much detail as possible.
+
+  - type: input
+    id: ai-name
+    attributes:
+      label: AI Name
+      description: The name of the AI.
+      placeholder: "e.g. ChatGPT, Claude"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What exactly is going wrong?
+      placeholder: "The chat input doesn't appear / buttons are missing / login doesn't work…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we see the problem?
+      placeholder: |
+        1. Open … AI
+        2. Tap on …
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Include screenshots if possible.
+      placeholder: "Drag and drop screenshots here..."
+    validations:
+      required: false

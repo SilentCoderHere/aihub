@@ -1,0 +1,75 @@
+name: Request New AI
+description: Request for a new AI to be added to the app
+title: "Request for new AI"
+labels: ["new ai"]
+assignees: [SilentCoderHere]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new AI! Please fill in the details below to help us evaluate it quickly.
+
+  - type: input
+    id: ai-name
+    attributes:
+      label: AI Name
+      description: The official name of the AI assistant / chatbot.
+      placeholder: "e.g. ChatGPT, Claude, Gemini"
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Website / Chat URL
+      description: The main website or direct chat interface link.
+      placeholder: "https://chat.openai.com"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: pricing
+    attributes:
+      label: Pricing
+      description: |
+        **Free** – Completely free, no paid features at all.  
+        **Freemium** – Offers both free and paid tiers / features.  
+        **Paid** – All features require payment (no free tier).
+      options:
+        - Free
+        - Freemium
+        - Paid
+    validations:
+      required: true
+
+  - type: dropdown
+    id: privacy
+    attributes:
+      label: Privacy
+      description: |
+        **Privacy Focused** – Chats stored locally on device, no / minimal data collection, strong privacy practices.  
+        **Privacy Friendly** – Some data collection but transparent and respectful of user privacy.  
+        **Not For Privacy** – Extensive data collection, not built with privacy in mind.
+      options:
+        - Privacy Focused
+        - Privacy Friendly
+        - Not For Privacy
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Details / Reason
+      description: Any other info that might help us decide (e.g., unique features, popularity, integration possibilities).
+      placeholder: "e.g. Huge user base, open-source API…"
+
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Verification
+      options:
+        - label: This AI is a chatbot (chat interface is the main feature)
+          required: true
+        - label: This AI is not already listed
+          required: true
