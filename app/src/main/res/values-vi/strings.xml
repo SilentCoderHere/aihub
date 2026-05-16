@@ -220,4 +220,13 @@
     <string name="status_updating">Đang cập nhật…</string>
     <string name="tab_all_services">Tất cả dịch vụ</string>
     <string name="tab_favorites">Yêu thích</string>
+    <string name="theme_auto">Tự động</string>
+    <string name="theme_dark">Tối</string>
+    <string name="theme_light">Sáng</string>
+    <string name="title_active_ai_services">Các dịch vụ AI đang hoạt động</string>
+    <string name="title_ai_assistants">Các trợ lý AI</string>
+    <string name="title_settings">Cài đặt</string>
+    <string name="label_privacy_policy_summary">Không theo dõi, không đo từ xa</string>
+    <string name="label_prompt">Yêu cầu</string>
+    <string name="label_proxy">Proxy</string>
 </resources>
