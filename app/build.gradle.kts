@@ -115,7 +115,6 @@ dependencies {
     implementation(libs.androidx.compose.adaptive.layout)
     implementation(libs.androidx.compose.adaptive.navigation)
     implementation(libs.material)
-    implementation(libs.jetbrains.kotlinx.serialization.json)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)

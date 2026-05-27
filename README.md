@@ -27,6 +27,17 @@
   </a>
 </div>
 
+> [!NOTE]
+> **Update in Progress:** I am currently migrating the app's architecture from **Necessary Connection** to **EasyList**.
+>
+> Since the app already supports over 90 AI services, continuing with the current method is no longer feasible. Therefore, **no new AI services will be added** until the migration is complete. Once the transition is finished, I will integrate all pending services.
+>
+> **Timeline:** While I cannot provide a specific deadline, expect the update to be completed **soon**.
+>
+> **Upcoming Feature:** I also plan to introduce **categories** for AI services to improve organization.
+>
+> Stay tuned!
+
 ## ✨ Features
 
 - 🎨 **Modern Material You design** – dynamic colors, auto dark/light mode
