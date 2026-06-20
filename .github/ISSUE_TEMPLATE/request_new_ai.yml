@@ -7,23 +7,23 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a new AI! Please fill in the details below to help us evaluate it quickly.
+        Thanks for suggesting a new AI! Fill in the details below.
 
   - type: input
-    id: ai-name
+    id: name
     attributes:
       label: AI Name
-      description: The official name of the AI assistant / chatbot.
-      placeholder: "e.g. ChatGPT, Claude, Gemini"
+      description: Official name of the AI.
+      placeholder: "e.g. Lumo, ChatGPT, Claude, Gemini"
     validations:
       required: true
 
   - type: input
-    id: url
+    id: website
     attributes:
-      label: Website / Chat URL
-      description: The main website or direct chat interface link.
-      placeholder: "https://chat.openai.com"
+      label: Website URL
+      description: Main homepage or direct chat link.
+      placeholder: "https://lumo.proton.me"
     validations:
       required: true
 
@@ -32,9 +32,9 @@ body:
     attributes:
       label: Pricing
       description: |
-        **Free** – Completely free, no paid features at all.  
-        **Freemium** – Offers both free and paid tiers / features.  
-        **Paid** – All features require payment (no free tier).
+        **Free** – Completely free, no paid tiers.  
+        **Freemium** – Free tier exists, but paid unlocks more.  
+        **Paid** – No free tier – payment required from the start.
       options:
         - Free
         - Freemium
@@ -47,29 +47,59 @@ body:
     attributes:
       label: Privacy
       description: |
-        **Privacy Focused** – Chats stored locally on device, no / minimal data collection, strong privacy practices.  
-        **Privacy Friendly** – Some data collection but transparent and respectful of user privacy.  
-        **Not For Privacy** – Extensive data collection, not built with privacy in mind.
+        **Friendly** – No training on your data by default, minimal retention, or fully local.  
+        **Neutral** – Standard policy, allows opt-out via settings.  
+        **Avoid** – Aggressive collection, uses your data for training by default.
       options:
-        - Privacy Focused
-        - Privacy Friendly
-        - Not For Privacy
+        - Friendly
+        - Neutral
+        - Avoid
     validations:
       required: true
 
-  - type: textarea
-    id: additional
+  - type: dropdown
+    id: login_required
     attributes:
-      label: Additional Details / Reason
-      description: Any other info that might help us decide (e.g., unique features, popularity, integration possibilities).
-      placeholder: "e.g. Huge user base, open-source API…"
-
-  - type: checkboxes
-    id: verification
-    attributes:
-      label: Verification
+      label: Login Required?
+      description: |
+        **True** – Must create an account to use.  
+        **False** – Can use without signing in (guest/anonymous).
       options:
-        - label: This AI is a chatbot (chat interface is the main feature)
-          required: true
-        - label: This AI is not already listed
-          required: true
+        - "True"
+        - "False"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ai_type
+    attributes:
+      label: AI Type
+      description: Primary function of the AI.
+      options:
+        - Chatbot
+        - Voice Generator
+        - Image Generator
+        - Video Generator
+        - Music Generator
+        - Writing Helper
+        - Translator
+        - Presentation Maker
+        - Research Assistant
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: other_type
+    attributes:
+      label: If "Other", please specify
+      placeholder: "e.g. Code Debugger, Data Analyst, etc."
+
+  - type: input
+    id: best_for
+    attributes:
+      label: Best For (optional, up to 3 tags)
+      description: Enter up to 3 comma‑separated tags that best describe what this AI is good for (e.g., "Coding, Research, Brainstorming").
+      placeholder: "e.g. Coding, Translation, Math"
+    validations:
+      required: false
