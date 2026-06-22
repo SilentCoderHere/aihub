@@ -1,22 +1,13 @@
 name: Request New AI
 description: Request for a new AI to be added to the app
 title: "Request for new AI"
-labels: ["new ai"]
-assignees: [SilentCoderHere]
+labels: [ "new ai" ]
+assignees: [ SilentCoderHere ]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a new AI! Fill in the details below.
-
-  - type: input
-    id: name
-    attributes:
-      label: AI Name
-      description: Official name of the AI.
-      placeholder: "e.g. Lumo, ChatGPT, Claude, Gemini"
-    validations:
-      required: true
+        Thanks for suggesting a new AI!
 
   - type: input
     id: website
@@ -26,80 +17,3 @@ body:
       placeholder: "https://lumo.proton.me"
     validations:
       required: true
-
-  - type: dropdown
-    id: pricing
-    attributes:
-      label: Pricing
-      description: |
-        **Free** – Completely free, no paid tiers.  
-        **Freemium** – Free tier exists, but paid unlocks more.  
-        **Paid** – No free tier – payment required from the start.
-      options:
-        - Free
-        - Freemium
-        - Paid
-    validations:
-      required: true
-
-  - type: dropdown
-    id: privacy
-    attributes:
-      label: Privacy
-      description: |
-        **Friendly** – No training on your data by default, minimal retention, or fully local.  
-        **Neutral** – Standard policy, allows opt-out via settings.  
-        **Avoid** – Aggressive collection, uses your data for training by default.
-      options:
-        - Friendly
-        - Neutral
-        - Avoid
-    validations:
-      required: true
-
-  - type: dropdown
-    id: login_required
-    attributes:
-      label: Login Required?
-      description: |
-        **True** – Must create an account to use.  
-        **False** – Can use without signing in (guest/anonymous).
-      options:
-        - "True"
-        - "False"
-    validations:
-      required: true
-
-  - type: dropdown
-    id: ai_type
-    attributes:
-      label: AI Type
-      description: Primary function of the AI.
-      options:
-        - Chatbot
-        - Voice Generator
-        - Image Generator
-        - Video Generator
-        - Music Generator
-        - Writing Helper
-        - Translator
-        - Presentation Maker
-        - Research Assistant
-        - Other
-    validations:
-      required: true
-
-  - type: input
-    id: other_type
-    attributes:
-      label: If "Other", please specify
-      placeholder: "e.g. Code Debugger, Data Analyst, etc."
-
-  - type: input
-    id: best_for
-    attributes:
-      label: Best For (optional, up to 3 tags)
-      description: Enter up to 3 comma‑separated tags that best describe what this AI is good for (e.g., "Coding, Research, Brainstorming").
-      placeholder: "e.g. Coding, Translation, Math"
-    validations:
-      required: false
