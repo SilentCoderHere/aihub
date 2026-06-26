@@ -1,8 +1,0 @@
-AI Name:
-{{AI_NAME}}
-
-Website / Chat URL:
-{{CHAT_URL}}
-
-Reason for Adding (short):
-{{REASON}}
