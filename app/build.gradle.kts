@@ -14,9 +14,10 @@ android {
     defaultConfig {
         applicationId = "com.foss.aihub"
         minSdk = 26
+        //noinspection OldTargetApi
         targetSdk = 36
-        versionCode = 12
-        versionName = "2.3.1"
+        versionCode = 13
+        versionName = "3.0.0"
     }
 
     compileOptions {
@@ -102,7 +103,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
@@ -120,4 +120,5 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jetbrains.kotlinx.serialization.json)
+    implementation(libs.androidx.core.splashscreen)
 }
