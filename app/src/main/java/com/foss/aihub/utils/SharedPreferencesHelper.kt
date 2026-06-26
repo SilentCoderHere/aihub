@@ -16,125 +16,167 @@ class SettingsManager(context: Context) {
         context.getSharedPreferences("aihub_settings", Context.MODE_PRIVATE)
     private val gson = Gson()
 
+    init {
+        val oldVersion = sharedPref.getInt(KEY_STORAGE_VERSION, 1)
+        if (oldVersion < CURRENT_VERSION) {
+            migrateToNewVersion()
+            sharedPref.edit { putInt(KEY_STORAGE_VERSION, CURRENT_VERSION) }
+        }
+    }
+
     private val _settingsFlow = MutableStateFlow(loadSettings())
     val settingsFlow: StateFlow<AppSettings> = _settingsFlow
 
     companion object {
-        private const val KEY_DOMAIN_CONFIG_VERSION = "domain_config_version"
-        private const val KEY_SERVICE_DOMAINS = "service_domains_json"
-        private const val KEY_ALWAYS_BLOCKED_DOMAINS = "always_blocked_domains_json"
-        private const val KEY_COMMON_AUTH_DOMAINS = "common_auth_domains_json"
-        private const val KEY_TRACKING_PARAMS = "tracking_params_json"
-        private const val KEY_AI_VERSION = "ai_version_json"
-        private const val KEY_AI_SERVICES = "ai_services_json"
+        private const val KEY_STORAGE_VERSION = "storageVersion"
+        private const val CURRENT_VERSION = 2
+
+        private const val KEY_DOMAINS_ETAG = "domainsETag"
+        private const val KEY_AI_SERVICES_ETAG = "aiServicesETag"
+
+        private const val KEY_ENABLED_SERVICES = "enabledServices"
+        private const val KEY_SERVICE_ORDER = "serviceOrder"
+        private const val KEY_FAVORITE_SERVICES = "favoriteServices"
+        private const val KEY_LAST_OPENED_SERVICE = "lastOpenedService"
+        private const val KEY_AI_SERVICES_LAST_UPDATED_DATE = "lastUpdatedDate"
+
+        private const val KEY_DOMAINS_LAST_UPDATED_DATE = "domainsLastUpdatedDate"
+
+        private const val KEY_CUSTOM_CSS = "customCss"
+        private const val KEY_CUSTOM_JS = "customJs"
+
+        private const val KEY_IS_PROXY = "isProxy"
+        private const val KEY_PROXY_TYPE = "proxyType"
+        private const val KEY_PROXY_HOST = "proxyHost"
+        private const val KEY_PROXY_PORT = "proxyPort"
+
+        private const val KEY_ENABLE_ZOOM = "enableZoom"
+        private const val KEY_DESKTOP_VIEW = "desktopView"
+        private const val KEY_THIRD_PARTY_COOKIES = "thirdPartyCookies"
+        private const val KEY_FONT_SIZE_PERCENT = "fontSizePercent"
+        private const val KEY_MAX_KEEP_ALIVE = "maxKeepAlive"
+        private const val KEY_UPDATE_FREQUENCY_DAYS = "updateFrequencyDays"
+        private const val KEY_BLOCK_ADS_TRACKERS = "blockAdsAndTrackers"
+
+        private const val KEY_LOAD_LAST_OPENED_AI = "loadLastOpenedAI"
+        private const val KEY_MULTIPLE_DEFAULT_AI = "multipleDefaultAI"
+        private const val KEY_DEFAULT_SERVICE_NAME = "defaultServiceId"
+        private const val KEY_DEFAULT_SERVICE_NAMES = "defaultServiceIds"
+
+        private const val KEY_THEME = "theme"
+
+        private const val KEY_FILTER_CATEGORIES = "filterCategories"
+        private const val KEY_FILTER_PRICES = "filterPrices"
+        private const val KEY_FILTER_PRIVACY = "filterPrivacy"
+        private const val KEY_FILTER_LOGIN_REQUIRED = "filterLoginRequired"
+
+        private const val KEY_ENABLE_NEW_SERVICES_BY_DEFAULT = "enableNewServicesByDefault"
+        private const val KEY_PREFERRED_CATEGORIES = "preferredCategories"
+        private const val KEY_PREFERRED_PRICES = "preferredPrices"
+        private const val KEY_PREFERRED_PRIVACY = "preferredPrivacy"
+        private const val KEY_PREFERRED_LOGIN_REQUIRED = "preferredLoginRequired"
+
+        private const val KEY_ONBOARDING_COMPLETED = "onboardingCompleted"
     }
 
-    fun getDomainConfigVersion(): String? {
-        return sharedPref.getString(KEY_DOMAIN_CONFIG_VERSION, null)
-    }
+    private fun migrateToNewVersion() {
+        val fontSize = sharedPref.getString("fontSize", "medium") ?: "medium"
 
-    fun getServiceDomains(): Map<String, List<String>> {
-        val json = sharedPref.getString(KEY_SERVICE_DOMAINS, null) ?: return emptyMap()
-        val type = object : TypeToken<Map<String, List<String>>>() {}.type
-        return gson.fromJson(json, type) ?: emptyMap()
-    }
-
-    fun getAlwaysBlockedDomains(): Map<String, List<String>> {
-        val json = sharedPref.getString(KEY_ALWAYS_BLOCKED_DOMAINS, null) ?: return emptyMap()
-        val type = object : TypeToken<Map<String, List<String>>>() {}.type
-        return gson.fromJson(json, type) ?: emptyMap()
-    }
-
-    fun getCommonAuthDomains(): List<String> {
-        val json = sharedPref.getString(KEY_COMMON_AUTH_DOMAINS, null) ?: return emptyList()
-        val type = object : TypeToken<List<String>>() {}.type
-        return gson.fromJson(json, type) ?: emptyList()
-    }
-
-    fun getTrackingParams(): List<String> {
-        val json = sharedPref.getString(KEY_TRACKING_PARAMS, null) ?: return emptyList()
-        val type = object : TypeToken<List<String>>() {}.type
-        return gson.fromJson(json, type) ?: emptyList()
-    }
-
-    fun hasDomainConfig(): Boolean {
-        return sharedPref.contains(KEY_DOMAIN_CONFIG_VERSION)
-    }
-
-    fun getAiServices(): List<List<String>> {
-        val json = sharedPref.getString(KEY_AI_SERVICES, null) ?: return emptyList()
-        val type = object : TypeToken<List<List<String>>>() {}.type
-        return gson.fromJson(json, type) ?: emptyList()
-    }
-
-    fun getAiVersion(): String? {
-        return sharedPref.getString(KEY_AI_VERSION, null)
-    }
-
-    fun saveDomainConfig(
-        version: String,
-        serviceDomains: Map<String, List<String>>,
-        alwaysBlockedDomains: Map<String, List<String>>,
-        commonAuthDomains: List<String>,
-        trackingParams: List<String>
-    ) {
         sharedPref.edit {
-            putString(KEY_DOMAIN_CONFIG_VERSION, version)
-            putString(KEY_SERVICE_DOMAINS, gson.toJson(serviceDomains))
-            putString(KEY_ALWAYS_BLOCKED_DOMAINS, gson.toJson(alwaysBlockedDomains))
-            putString(KEY_COMMON_AUTH_DOMAINS, gson.toJson(commonAuthDomains))
-            putString(KEY_TRACKING_PARAMS, gson.toJson(trackingParams))
+            putStringSet(KEY_ENABLED_SERVICES, emptySet())
+            putStringSet(KEY_FAVORITE_SERVICES, emptySet())
+            putString(KEY_LAST_OPENED_SERVICE, null)
+            putInt(
+                KEY_FONT_SIZE_PERCENT, when (fontSize) {
+                    "x-small" -> 80
+                    "small" -> 90
+                    "medium" -> 100
+                    "large" -> 110
+                    "x-large" -> 120
+                    else -> 100
+                }
+            )
+
+            remove("defaultServiceId")
+            remove("defaultServiceIds")
+            remove("blockUnnecessaryConnections")
         }
-        Log.i("SettingsManager", "Domain config saved - version: $version")
     }
 
-    fun cleanupAndFixServices(context: Context) {
-        refreshAiServicesFromSettings(context)
-        val currentServices = aiServices.map { it.id }.toSet()
+    private fun loadSettings(): AppSettings = AppSettings(
+        theme = sharedPref.getString(KEY_THEME, "auto") ?: "auto",
+        loadLastOpenedAI = sharedPref.getBoolean(KEY_LOAD_LAST_OPENED_AI, true),
+        multipleDefaultAi = sharedPref.getBoolean(KEY_MULTIPLE_DEFAULT_AI, false),
+        defaultServiceName = sharedPref.getString(KEY_DEFAULT_SERVICE_NAME, null),
+        defaultServiceNames = sharedPref.safeGetStringSet(KEY_DEFAULT_SERVICE_NAMES, emptySet())
+            ?: emptySet(),
+        serviceOrder = loadServiceOrder(),
+        enabledServices = loadEnabledServices(),
+        favoriteServices = loadFavoriteServices(),
+        maxKeepAlive = sharedPref.getInt(KEY_MAX_KEEP_ALIVE, 5),
+        enableZoom = sharedPref.getBoolean(KEY_ENABLE_ZOOM, true),
+        desktopView = sharedPref.getBoolean(KEY_DESKTOP_VIEW, false),
+        thirdPartyCookies = sharedPref.getBoolean(KEY_THIRD_PARTY_COOKIES, false),
+        fontSizePercentage = sharedPref.getInt(KEY_FONT_SIZE_PERCENT, 100),
+        updateFrequencyDays = sharedPref.getInt(KEY_UPDATE_FREQUENCY_DAYS, 3),
+        blockAdsAndTrackers = sharedPref.getBoolean(KEY_BLOCK_ADS_TRACKERS, true),
+        isProxy = sharedPref.getBoolean(KEY_IS_PROXY, false),
+        proxyType = sharedPref.getString(KEY_PROXY_TYPE, "http") ?: "http",
+        proxyHost = sharedPref.getString(KEY_PROXY_HOST, "localhost") ?: "localhost",
+        proxyPort = sharedPref.getString(KEY_PROXY_PORT, "9050") ?: "9050",
+        customCss = sharedPref.getString(KEY_CUSTOM_CSS, "") ?: "",
+        customJs = sharedPref.getString(KEY_CUSTOM_JS, "") ?: "",
+        filterCategories = sharedPref.safeGetStringSet(KEY_FILTER_CATEGORIES, emptySet())
+            ?: emptySet(),
+        filterPrices = sharedPref.safeGetStringSet(KEY_FILTER_PRICES, emptySet()) ?: emptySet(),
+        filterPrivacy = sharedPref.safeGetStringSet(KEY_FILTER_PRIVACY, emptySet()) ?: emptySet(),
+        filterLoginRequired = sharedPref.getString(KEY_FILTER_LOGIN_REQUIRED, null)
+            ?.toBooleanStrictOrNull(),
+        enableNewServicesByDefault = sharedPref.getBoolean(
+            KEY_ENABLE_NEW_SERVICES_BY_DEFAULT, false
+        ),
+        preferredCategories = sharedPref.safeGetStringSet(KEY_PREFERRED_CATEGORIES, emptySet())
+            ?: emptySet(),
+        preferredPrices = sharedPref.safeGetStringSet(KEY_PREFERRED_PRICES, emptySet())
+            ?: emptySet(),
+        preferredPrivacy = sharedPref.safeGetStringSet(KEY_PREFERRED_PRIVACY, emptySet())
+            ?: emptySet(),
+        preferredLoginRequired = sharedPref.getString(KEY_PREFERRED_LOGIN_REQUIRED, null)
+            ?.toBooleanStrictOrNull()
+    )
 
-        Log.d("AI_HUB", "cleanupAndFixServices - Current: ${currentServices.size} services")
-
-        val lastService = getLastOpenedService()
-        if (lastService != null && lastService !in currentServices) {
-            Log.w("AI_HUB", "Last service '$lastService' removed, clearing")
-            sharedPref.edit { remove("lastOpenedService") }
-        }
-
-        updateSettings { settings ->
-            val removedFromEnabled = settings.enabledServices.filter { it !in currentServices }
-            val removedFromOrder = settings.serviceOrder.filter { it !in currentServices }
-
-            if (removedFromEnabled.isNotEmpty() || removedFromOrder.isNotEmpty()) {
-                Log.d(
-                    "AI_HUB",
-                    "Cleaning removed services - enabled: ${removedFromEnabled.size}, order: ${removedFromOrder.size}"
-                )
-            }
-
-            val newEnabled =
-                settings.enabledServices.filter { it in currentServices }.toMutableSet()
-            val existingOrder = settings.serviceOrder.filter { it in currentServices }
-            val newServices = currentServices.filter { it !in existingOrder }
-            val newOrder = (existingOrder + newServices).toMutableList()
-
-            newEnabled.addAll(newServices)
-
-            settings.enabledServices = newEnabled
-            settings.serviceOrder = newOrder
-
-            if (settings.defaultServiceId !in currentServices) {
-                val newDefault =
-                    newEnabled.firstOrNull() ?: currentServices.firstOrNull() ?: "chatgpt"
-                Log.w(
-                    "AI_HUB", "Default changed from '${settings.defaultServiceId}' to '$newDefault'"
-                )
-                settings.defaultServiceId = newDefault
-            }
-
-            Log.d(
-                "AI_HUB",
-                "Completed - enabled: ${settings.enabledServices.size}, order: ${settings.serviceOrder.size}, default: ${settings.defaultServiceId}"
-            )
+    private fun saveSettings(settings: AppSettings) {
+        sharedPref.edit {
+            putString(KEY_THEME, settings.theme)
+            putBoolean(KEY_LOAD_LAST_OPENED_AI, settings.loadLastOpenedAI)
+            putBoolean(KEY_MULTIPLE_DEFAULT_AI, settings.multipleDefaultAi)
+            putString(KEY_DEFAULT_SERVICE_NAME, settings.defaultServiceName)
+            putStringSet(KEY_DEFAULT_SERVICE_NAMES, settings.defaultServiceNames)
+            saveServiceOrder(settings.serviceOrder)
+            saveEnabledServices(settings.enabledServices)
+            saveFavoriteServices(settings.favoriteServices)
+            putInt(KEY_MAX_KEEP_ALIVE, settings.maxKeepAlive)
+            putBoolean(KEY_ENABLE_ZOOM, settings.enableZoom)
+            putBoolean(KEY_DESKTOP_VIEW, settings.desktopView)
+            putBoolean(KEY_THIRD_PARTY_COOKIES, settings.thirdPartyCookies)
+            putInt(KEY_FONT_SIZE_PERCENT, settings.fontSizePercentage)
+            putInt(KEY_UPDATE_FREQUENCY_DAYS, settings.updateFrequencyDays)
+            putBoolean(KEY_BLOCK_ADS_TRACKERS, settings.blockAdsAndTrackers)
+            putBoolean(KEY_IS_PROXY, settings.isProxy)
+            putString(KEY_PROXY_TYPE, settings.proxyType)
+            putString(KEY_PROXY_HOST, settings.proxyHost)
+            putString(KEY_PROXY_PORT, settings.proxyPort)
+            putString(KEY_CUSTOM_CSS, settings.customCss)
+            putString(KEY_CUSTOM_JS, settings.customJs)
+            putStringSet(KEY_FILTER_CATEGORIES, settings.filterCategories)
+            putStringSet(KEY_FILTER_PRICES, settings.filterPrices)
+            putStringSet(KEY_FILTER_PRIVACY, settings.filterPrivacy)
+            putString(KEY_FILTER_LOGIN_REQUIRED, settings.filterLoginRequired?.toString())
+            putBoolean(KEY_ENABLE_NEW_SERVICES_BY_DEFAULT, settings.enableNewServicesByDefault)
+            putStringSet(KEY_PREFERRED_CATEGORIES, settings.preferredCategories)
+            putStringSet(KEY_PREFERRED_PRICES, settings.preferredPrices)
+            putStringSet(KEY_PREFERRED_PRIVACY, settings.preferredPrivacy)
+            putString(KEY_PREFERRED_LOGIN_REQUIRED, settings.preferredLoginRequired?.toString())
         }
     }
 
@@ -145,133 +187,91 @@ class SettingsManager(context: Context) {
         _settingsFlow.value = current
     }
 
-    fun saveAiServices(version: String, aiServices: List<List<String>>) {
-        sharedPref.edit {
-            putString(KEY_AI_VERSION, version)
-            putString(KEY_AI_SERVICES, gson.toJson(aiServices))
-        }
+    fun getDomainsEtag(): String? = sharedPref.getString(KEY_DOMAINS_ETAG, null)
 
-        Log.i("AI_HUB", "AI services saved - version: $version")
+    fun saveDomainsEtag(etag: String) {
+        sharedPref.edit { putString(KEY_DOMAINS_ETAG, etag) }
     }
 
-    private fun loadSettings(): AppSettings {
-        return AppSettings(
-            theme = sharedPref.getString("theme", "auto") ?: "auto",
-            loadLastOpenedAI = sharedPref.getBoolean("loadLastOpenedAI", true),
-            multipleDefaultAi = sharedPref.getBoolean("multipleDefaultAi", false),
-            defaultServiceId = sharedPref.getString("defaultServiceId", "chatgpt") ?: "chatgpt",
-            defaultServiceIds = sharedPref.getStringSet("defaultServiceIds", emptySet())
-                ?: emptySet(),
-            serviceOrder = loadServiceOrder(),
-            enabledServices = loadEnabledServices(),
-            favoriteServices = loadFavoriteServices(),
-            maxKeepAlive = sharedPref.getInt("maxKeepAlive", 5),
-            enableZoom = sharedPref.getBoolean("enableZoom", true),
-            desktopView = sharedPref.getBoolean("desktopView", false),
-            thirdPartyCookies = sharedPref.getBoolean("thirdPartyCookies", false),
-            fontSize = sharedPref.getString("fontSize", "medium") ?: "medium",
-            updateFrequencyDays = sharedPref.getInt("updateFrequencyDays", 3),
-            blockUnnecessaryConnections = sharedPref.getBoolean(
-                "blockUnnecessaryConnections", true,
-            ),
-            isProxy = sharedPref.getBoolean("isProxy", false),
-            proxyType = sharedPref.getString("proxyType", "http") ?: "http",
-            proxyHost = sharedPref.getString("proxyHost", "localhost") ?: "localhost",
-            proxyPort = sharedPref.getString("proxyPort", "9050") ?: "9050",
-            customCss = sharedPref.getString("customCss", "") ?: "",
-            customJs = sharedPref.getString("customJs", "") ?: ""
-        )
+    fun getAiServicesEtag(): String? = sharedPref.getString(KEY_AI_SERVICES_ETAG, null)
+
+    fun saveAiServicesEtag(etag: String) {
+        sharedPref.edit { putString(KEY_AI_SERVICES_ETAG, etag) }
     }
 
-    private fun saveSettings(settings: AppSettings) {
-        sharedPref.edit {
-            putString("theme", settings.theme)
-            putBoolean("loadLastOpenedAI", settings.loadLastOpenedAI)
-            putBoolean("multipleDefaultAi", settings.multipleDefaultAi)
-            putString("defaultServiceId", settings.defaultServiceId)
-            putStringSet("defaultServiceIds", settings.defaultServiceIds)
-            saveServiceOrder(settings.serviceOrder)
-            saveEnabledServices(settings.enabledServices)
-            saveFavoriteServices(settings.favoriteServices)
-            putInt("maxKeepAlive", settings.maxKeepAlive)
-            putBoolean("enableZoom", settings.enableZoom)
-            putBoolean("desktopView", settings.desktopView)
-            putBoolean("thirdPartyCookies", settings.thirdPartyCookies)
-            putString("fontSize", settings.fontSize)
-            putInt("updateFrequencyDays", settings.updateFrequencyDays)
-            putBoolean("blockUnnecessaryConnections", settings.blockUnnecessaryConnections)
-            putBoolean("isProxy", settings.isProxy)
-            putString("proxyType", settings.proxyType)
-            putString("proxyHost", settings.proxyHost)
-            putString("proxyPort", settings.proxyPort)
-            putString("customCss", settings.customCss)
-            putString("customJs", settings.customJs)
-        }
+    fun loadEnabledServices(): Set<String> {
+        return sharedPref.safeGetStringSet(KEY_ENABLED_SERVICES, emptySet()) ?: emptySet()
     }
 
-    private fun loadEnabledServices(): Set<String> {
-        val json = sharedPref.getString("enabledServices", null)
-        return if (json.isNullOrEmpty()) {
-            aiServices.map { it.id }.toSet()
-        } else {
-            val type = object : TypeToken<Set<String>>() {}.type
-            gson.fromJson(json, type)
-        }
+    fun saveEnabledServices(services: Set<String>) {
+        sharedPref.edit { putStringSet(KEY_ENABLED_SERVICES, services) }
     }
 
-    private fun saveEnabledServices(services: Set<String>) {
-        val json = gson.toJson(services)
-        sharedPref.edit { putString("enabledServices", json) }
+    fun domainsLastUpdatedDate(): LocalDate? {
+        val dateString = sharedPref.getString(KEY_DOMAINS_LAST_UPDATED_DATE, null)
+        return dateString?.let { LocalDate.parse(it) }
     }
 
-    private fun loadServiceOrder(): List<String> {
-        val json = sharedPref.getString("serviceOrder", null)
-        return if (json.isNullOrEmpty()) {
-            aiServices.map { it.id }
-        } else {
+    fun saveDomainsLastUpdatedDate() {
+        sharedPref.edit { putString(KEY_DOMAINS_LAST_UPDATED_DATE, LocalDate.now().toString()) }
+    }
+
+    fun loadServiceOrder(): List<String> {
+        val json = sharedPref.getString(KEY_SERVICE_ORDER, null)
+        return if (!json.isNullOrEmpty()) {
             val type = object : TypeToken<List<String>>() {}.type
             gson.fromJson(json, type)
-        }
-    }
-
-    private fun saveServiceOrder(order: List<String>) {
-        val json = gson.toJson(order)
-        sharedPref.edit { putString("serviceOrder", json) }
-    }
-
-    private fun loadFavoriteServices(): Set<String> {
-        val json = sharedPref.getString("favoriteServices", null)
-        return if (json.isNullOrEmpty()) {
-            emptySet()
         } else {
-            val type = object : TypeToken<Set<String>>() {}.type
-            gson.fromJson(json, type)
+            emptyList()
         }
     }
 
-    private fun saveFavoriteServices(favorites: Set<String>) {
-        val json = gson.toJson(favorites)
-        sharedPref.edit { putString("favoriteServices", json) }
+    fun saveServiceOrder(order: List<String>) {
+        val json = gson.toJson(order)
+        sharedPref.edit { putString(KEY_SERVICE_ORDER, json) }
     }
 
-    fun saveLastOpenedService(serviceId: String) {
-        sharedPref.edit { putString("lastOpenedService", serviceId) }
+    fun loadFavoriteServices(): Set<String> {
+        return sharedPref.safeGetStringSet(KEY_FAVORITE_SERVICES, emptySet()) ?: emptySet()
     }
 
-    fun getLastOpenedService(): String? {
-        return sharedPref.getString("lastOpenedService", null)
+    fun saveFavoriteServices(favorites: Set<String>) {
+        sharedPref.edit { putStringSet(KEY_FAVORITE_SERVICES, favorites) }
     }
 
-    fun getLastUpdatedDate(): LocalDate? {
-        val lastUpdatedDate = sharedPref.getString("lastUpdatedDate", null)
-        if (lastUpdatedDate != null) {
-            return LocalDate.parse(lastUpdatedDate)
-        }
-        return null
+    fun saveLastOpenedService(serviceName: String) {
+        sharedPref.edit { putString(KEY_LAST_OPENED_SERVICE, serviceName) }
+    }
+
+    fun getLastOpenedService(): String? = sharedPref.getString(KEY_LAST_OPENED_SERVICE, null)
+
+    fun getAiServicesLastUpdatedDate(): LocalDate? {
+        val dateString = sharedPref.getString(KEY_AI_SERVICES_LAST_UPDATED_DATE, null)
+        return dateString?.let { LocalDate.parse(it) }
     }
 
     fun saveLastUpdatedDate() {
-        val currentDate = LocalDate.now().toString()
-        sharedPref.edit { putString("lastUpdatedDate", currentDate) }
+        sharedPref.edit { putString(KEY_AI_SERVICES_LAST_UPDATED_DATE, LocalDate.now().toString()) }
+    }
+
+    private fun SharedPreferences.safeGetStringSet(
+        key: String, defValue: Set<String>?
+    ): Set<String>? {
+        return try {
+            getStringSet(key, defValue)
+        } catch (e: ClassCastException) {
+            Log.e("SettingsManager", "Type mismatch for key $key, returning default", e)
+            defValue
+        }
+    }
+
+    fun getDefaultService(): String? {
+        return sharedPref.getString(KEY_DEFAULT_SERVICE_NAME, null)
+    }
+
+    fun isOnboardingCompleted(): Boolean = sharedPref.getBoolean(KEY_ONBOARDING_COMPLETED, false)
+
+    fun setOnboardingCompleted(completed: Boolean = true) {
+        sharedPref.edit { putBoolean(KEY_ONBOARDING_COMPLETED, completed) }
     }
 }

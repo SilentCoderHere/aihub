@@ -19,8 +19,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -33,6 +36,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.Restore
@@ -40,6 +44,8 @@ import androidx.compose.material.icons.outlined.TextIncrease
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -53,6 +59,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -77,15 +85,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.foss.aihub.R
+import com.foss.aihub.models.AiService
 import com.foss.aihub.ui.components.Md3TopAppBar
 import com.foss.aihub.utils.SettingsManager
-import com.foss.aihub.utils.aiServices
+import com.foss.aihub.utils.capitalizeFirstLetter
 import kotlinx.coroutines.flow.drop
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     context: Context,
+    aiServices: List<AiService>,
     onBack: () -> Unit,
     settingsManager: SettingsManager,
     onManageServices: () -> Unit,
@@ -94,56 +105,55 @@ fun SettingsScreen(
     onClearData: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-
     val settings by settingsManager.settingsFlow.collectAsState()
 
-    var showFontSizeOptions by remember { mutableStateOf(false) }
     var loadLastAi by remember { mutableStateOf(settings.loadLastOpenedAI) }
     var multipleDefaultAi by remember { mutableStateOf(settings.multipleDefaultAi) }
-    var selectedFontSize by remember { mutableStateOf(settings.fontSize) }
-    var defaultServiceId by remember { mutableStateOf(settings.defaultServiceId) }
-    var defaultServiceIds by remember { mutableStateOf(settings.defaultServiceIds) }
+    var defaultServiceName by remember {
+        mutableStateOf(settingsManager.getDefaultService() ?: aiServices.first().name)
+    }
+    var defaultServiceNames by remember { mutableStateOf(settings.defaultServiceNames) }
     var enabledServices by remember { mutableStateOf(settings.enabledServices) }
-    var enableZoom by remember { mutableStateOf(settings.enableZoom) }
-    var limitSimultaneousAIs by remember { mutableStateOf(settings.maxKeepAlive != Int.MAX_VALUE) }
-    var maxKeepAlive by remember {
-        mutableIntStateOf(
-            if (settings.maxKeepAlive == Int.MAX_VALUE) 5 else settings.maxKeepAlive
+    var enableNewServices by remember { mutableStateOf(settings.enableNewServicesByDefault) }
+    var selectedCategories by remember { mutableStateOf(settings.preferredCategories) }
+    var selectedPricing by remember { mutableStateOf(settings.preferredPrices) }
+    var selectedPrivacy by remember { mutableStateOf(settings.preferredPrivacy) }
+    var selectedLoginRequired by remember {
+        mutableStateOf(
+            when (settings.preferredLoginRequired) {
+                true -> setOf("Required")
+                false -> setOf("Not Required")
+                else -> emptySet()
+            }
         )
     }
+    var showSelectionPreferencesDialog by remember { mutableStateOf(false) }
+
+    val categories = aiServices.map { it.category }.distinct().sorted()
+    val pricings = aiServices.map { it.pricing }.distinct().sorted()
+    val privacies = aiServices.map { it.privacy }.distinct().sorted()
+
+    var limitSimultaneousAIs by remember { mutableStateOf(settings.maxKeepAlive != Int.MAX_VALUE) }
+    var maxKeepAlive by remember {
+        mutableIntStateOf(if (settings.maxKeepAlive == Int.MAX_VALUE) 5 else settings.maxKeepAlive)
+    }
+
+    var enableZoom by remember { mutableStateOf(settings.enableZoom) }
     var desktopView by remember { mutableStateOf(settings.desktopView) }
     var thirdPartyCookies by remember { mutableStateOf(settings.thirdPartyCookies) }
-    var blockUnnecessaryConnections by remember {
-        mutableStateOf(settings.blockUnnecessaryConnections)
-    }
+    var selectedFontSizePercent by remember { mutableIntStateOf(settings.fontSizePercentage) }
 
-    var proxyOption by remember {
-        mutableStateOf(if (settings.isProxy) settings.proxyType else "none")
-    }
+    var blockUnnecessaryConnections by remember { mutableStateOf(settings.blockAdsAndTrackers) }
+    var proxyOption by remember { mutableStateOf(if (settings.isProxy) settings.proxyType else "none") }
     var proxyHost by remember { mutableStateOf(settings.proxyHost) }
     var proxyPort by remember { mutableStateOf(settings.proxyPort) }
-
-    LaunchedEffect(proxyOption) {
-        settingsManager.updateSettings {
-            it.isProxy = proxyOption != "none"
-            if (proxyOption != "none") it.proxyType = proxyOption
-        }
-    }
-    LaunchedEffect(proxyHost) {
-        settingsManager.updateSettings { it.proxyHost = proxyHost }
-    }
-    LaunchedEffect(proxyPort) {
-        settingsManager.updateSettings { it.proxyPort = proxyPort }
-    }
 
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
 
-    val fontSizeOptions = listOf("x-small", "small", "medium", "large", "x-large")
-
-    val orderedServices = remember(settings) {
-        settings.serviceOrder.filter { it in settings.enabledServices }
-            .mapNotNull { id -> aiServices.find { it.id == id } }
+    val orderedServices = remember(settings, aiServices) {
+        settingsManager.loadServiceOrder().filter { it in settingsManager.loadEnabledServices() }
+            .mapNotNull { name -> aiServices.find { it.name == name } }
     }
 
     val defaultSwitchTheme = SwitchDefaults.colors(
@@ -153,77 +163,89 @@ fun SettingsScreen(
         uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant
     )
 
-    LaunchedEffect(defaultServiceIds) {
-        settingsManager.updateSettings { it.defaultServiceIds = defaultServiceIds }
+    LaunchedEffect(selectedCategories) {
+        settingsManager.updateSettings { it.preferredCategories = selectedCategories }
     }
-
+    LaunchedEffect(selectedPricing) {
+        settingsManager.updateSettings { it.preferredPrices = selectedPricing }
+    }
+    LaunchedEffect(selectedPrivacy) {
+        settingsManager.updateSettings { it.preferredPrivacy = selectedPrivacy }
+    }
+    LaunchedEffect(selectedLoginRequired) {
+        val loginPref = when {
+            selectedLoginRequired.contains("Required") -> true
+            selectedLoginRequired.contains("Not Required") -> false
+            else -> null
+        }
+        settingsManager.updateSettings { it.preferredLoginRequired = loginPref }
+    }
+    LaunchedEffect(enableNewServices) {
+        settingsManager.updateSettings { it.enableNewServicesByDefault = enableNewServices }
+    }
+    LaunchedEffect(defaultServiceNames) {
+        settingsManager.updateSettings { it.defaultServiceNames = defaultServiceNames }
+    }
     LaunchedEffect(loadLastAi) {
         settingsManager.updateSettings { it.loadLastOpenedAI = loadLastAi }
     }
-
-    LaunchedEffect(defaultServiceId) {
-        settingsManager.updateSettings { it.defaultServiceId = defaultServiceId }
+    LaunchedEffect(defaultServiceName) {
+        settingsManager.updateSettings { it.defaultServiceName = defaultServiceName }
         if (!multipleDefaultAi) {
-            settingsManager.updateSettings { it.defaultServiceIds = setOf(defaultServiceId) }
+            settingsManager.updateSettings { it.defaultServiceNames = setOf(defaultServiceName) }
         }
     }
-
     LaunchedEffect(multipleDefaultAi) {
         settingsManager.updateSettings { it.multipleDefaultAi = multipleDefaultAi }
-        if (multipleDefaultAi && defaultServiceIds.isEmpty()) {
-            settingsManager.updateSettings { it.defaultServiceIds = setOf(defaultServiceId) }
+        if (multipleDefaultAi && defaultServiceNames.isEmpty()) {
+            settingsManager.updateSettings { it.defaultServiceNames = setOf(defaultServiceName) }
         }
     }
-
-    LaunchedEffect(limitSimultaneousAIs, maxKeepAlive) {
-        val value = if (limitSimultaneousAIs) maxKeepAlive else 5
-        settingsManager.updateSettings { it.maxKeepAlive = value }
-
-        if (limitSimultaneousAIs && defaultServiceIds.size > maxKeepAlive) {
-            val trimmedIds =
-                orderedServices.filter { it.id in defaultServiceIds }.take(maxKeepAlive)
-                    .map { it.id }.toSet()
-
-            defaultServiceIds = trimmedIds
-        }
-    }
-
     LaunchedEffect(enabledServices) {
         settingsManager.updateSettings { it.enabledServices = enabledServices }
-        if (defaultServiceId !in enabledServices && enabledServices.isNotEmpty()) {
-            defaultServiceId = enabledServices.first()
+        if (defaultServiceName !in enabledServices && enabledServices.isNotEmpty()) {
+            defaultServiceName = enabledServices.first()
         }
-    }
-
-    LaunchedEffect(selectedFontSize) {
-        settingsManager.updateSettings { it.fontSize = selectedFontSize }
-    }
-
-    LaunchedEffect(enableZoom) {
-        settingsManager.updateSettings { it.enableZoom = enableZoom }
     }
 
     LaunchedEffect(limitSimultaneousAIs, maxKeepAlive) {
         val value = if (limitSimultaneousAIs) maxKeepAlive else Int.MAX_VALUE
         settingsManager.updateSettings { it.maxKeepAlive = value }
+        if (limitSimultaneousAIs && defaultServiceNames.size > maxKeepAlive) {
+            val trimmedNames =
+                orderedServices.filter { it.name in defaultServiceNames }.take(maxKeepAlive)
+                    .map { it.name }.toSet()
+            defaultServiceNames = trimmedNames
+        }
     }
 
+    LaunchedEffect(selectedFontSizePercent) {
+        settingsManager.updateSettings { it.fontSizePercentage = selectedFontSizePercent }
+    }
+    LaunchedEffect(enableZoom) {
+        settingsManager.updateSettings { it.enableZoom = enableZoom }
+    }
     LaunchedEffect(desktopView) {
         settingsManager.updateSettings { it.desktopView = desktopView }
     }
-
     LaunchedEffect(thirdPartyCookies) {
         settingsManager.updateSettings { it.thirdPartyCookies = thirdPartyCookies }
     }
 
+    LaunchedEffect(proxyOption) {
+        settingsManager.updateSettings {
+            it.isProxy = proxyOption != "none"
+            if (proxyOption != "none") it.proxyType = proxyOption
+        }
+    }
+    LaunchedEffect(proxyHost) { settingsManager.updateSettings { it.proxyHost = proxyHost } }
+    LaunchedEffect(proxyPort) { settingsManager.updateSettings { it.proxyPort = proxyPort } }
+
     Scaffold(
-        modifier = Modifier.fillMaxSize(), topBar = {
-        Md3TopAppBar(
-            title = stringResource(R.string.title_settings), onBack = onBack
-        )
-    }, snackbarHost = {
-        SnackbarHost(hostState = snackbarHostState)
-    }, containerColor = MaterialTheme.colorScheme.surface
+        modifier = Modifier.fillMaxSize(),
+        topBar = { Md3TopAppBar(title = stringResource(R.string.title_settings), onBack = onBack) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.surface
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -232,72 +254,6 @@ fun SettingsScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-//            item {
-//                SettingsCard {
-//                    Column {
-//                        SettingItem(
-//                            title = stringResource(R.string.setting_theme),
-//                            description = stringResource(R.string.setting_theme_description),
-//                            icon = Icons.Outlined.Palette,
-//                            iconColor = MaterialTheme.colorScheme.primary,
-//                        )
-//
-//                        val themeOptions = listOf("auto", "light", "dark")
-//
-//                        var selectedTheme by remember { mutableStateOf(settings.theme) }
-//
-//                        LaunchedEffect(selectedTheme) {
-//                            settingsManager.updateSettings { it.theme = selectedTheme }
-//                        }
-//
-//                        LaunchedEffect(settings) {
-//                            selectedTheme = settings.theme
-//                        }
-//
-//                        SingleChoiceSegmentedButtonRow(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(horizontal = 16.dp, vertical = 12.dp)
-//                        ) {
-//                            themeOptions.forEachIndexed { index, option ->
-//                                SegmentedButton(
-//                                    selected = selectedTheme == option,
-//                                    onClick = { selectedTheme = option },
-//                                    shape = SegmentedButtonDefaults.itemShape(
-//                                        index = index, count = themeOptions.size
-//                                    ),
-//                                    colors = SegmentedButtonDefaults.colors(
-//                                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-//                                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-//                                        inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-//                                    ),
-//                                    enabled = false
-//                                ) {
-//                                    Text(
-//                                        text = when (option) {
-//                                        "auto" -> stringResource(R.string.theme_auto)
-//                                        "light" -> stringResource(R.string.theme_light)
-//                                        "dark" -> stringResource(R.string.theme_dark)
-//                                        else -> option.replaceFirstChar {
-//                                            if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
-//                                        }
-//                                    }, style = MaterialTheme.typography.labelLarge)
-//                                }
-//                            }
-//                        }
-//
-//                        Text(
-//                            text = stringResource(R.string.msg_theme_switch_disabled),
-//                            style = MaterialTheme.typography.bodyMedium,
-//                            color = MaterialTheme.colorScheme.error,
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(horizontal = 16.dp, vertical = 8.dp)
-//                        )
-//                    }
-//                }
-//            }
-
             item {
                 Text(
                     text = stringResource(R.string.section_preferences),
@@ -331,8 +287,8 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.padding(bottom = 8.dp)) {
                                 SettingItem(
-                                    title = "Multiple default AIs",
-                                    description = "Open all default AI when app start",
+                                    title = stringResource(R.string.setting_multiple_default_ai),
+                                    description = stringResource(R.string.setting_multiple_default_ai_description),
                                     icon = Icons.Outlined.Computer,
                                     iconColor = MaterialTheme.colorScheme.primary
                                 ) {
@@ -376,32 +332,33 @@ fun SettingsScreen(
                                 ) {
                                     orderedServices.forEach { service ->
                                         val isSelected = if (multipleDefaultAi) {
-                                            service.id in defaultServiceIds
+                                            service.name in defaultServiceNames
                                         } else {
-                                            service.id == defaultServiceId
+                                            service.name == defaultServiceName
                                         }
 
                                         FilterChip(
                                             selected = isSelected,
                                             onClick = {
                                                 if (multipleDefaultAi) {
-                                                    defaultServiceIds = if (isSelected) {
-                                                        defaultServiceIds - service.id
+                                                    defaultServiceNames = if (isSelected) {
+                                                        defaultServiceNames - service.name
                                                     } else {
-                                                        if (defaultServiceIds.size < maxKeepAlive) {
-                                                            defaultServiceIds + service.id
+                                                        if (defaultServiceNames.size < maxKeepAlive) {
+                                                            defaultServiceNames + service.name
                                                         } else {
-                                                            defaultServiceIds
+                                                            defaultServiceNames
                                                         }
                                                     }
-                                                    if (defaultServiceIds.isNotEmpty()) {
-                                                        defaultServiceId = defaultServiceIds.first()
-                                                    } else {
-                                                        defaultServiceId = ""
-                                                    }
+                                                    defaultServiceName =
+                                                        if (defaultServiceNames.isNotEmpty()) {
+                                                            defaultServiceNames.first()
+                                                        } else {
+                                                            ""
+                                                        }
                                                 } else {
-                                                    defaultServiceId = service.id
-                                                    defaultServiceIds = setOf(service.id)
+                                                    defaultServiceName = service.name
+                                                    defaultServiceNames = setOf(service.name)
                                                 }
                                             },
                                             label = {
@@ -453,244 +410,14 @@ fun SettingsScreen(
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                            },
-                        )
-                    }
-                }
-            }
-
-            item {
-                Text(
-                    text = stringResource(R.string.section_performance),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            item {
-                SettingsCard {
-                    Column {
-                        SettingItem(
-                            title = stringResource(R.string.setting_memory_management),
-                            description = stringResource(R.string.setting_memory_management_description),
-                            icon = Icons.Outlined.Layers,
-                            iconColor = MaterialTheme.colorScheme.primary
-                        ) {
-                            Switch(
-                                checked = limitSimultaneousAIs,
-                                onCheckedChange = { limitSimultaneousAIs = it },
-                                colors = defaultSwitchTheme
-                            )
-                        }
-
-                        AnimatedVisibility(
-                            visible = limitSimultaneousAIs,
-                            enter = fadeIn() + expandVertically(),
-                            exit = fadeOut() + shrinkVertically()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(
-                                    start = 56.dp, end = 16.dp, bottom = 8.dp
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    Text(
-                                        "${stringResource(R.string.label_max)}:",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.padding(bottom = 4.dp)
-                                    )
-                                    SingleChoiceSegmentedButtonRow(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        (1..5).forEach { value ->
-                                            SegmentedButton(
-                                                selected = maxKeepAlive == value, onClick = {
-                                                    maxKeepAlive = value
-
-                                                }, shape = SegmentedButtonDefaults.itemShape(
-                                                    index = value - 1, count = 5
-                                                ), colors = SegmentedButtonDefaults.colors(
-                                                    activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                    activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                                )
-                                            ) {
-                                                Text(
-                                                    "$value",
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    fontWeight = FontWeight.Medium
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            item {
-                Text(
-                    text = stringResource(R.string.section_webview),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
-                )
-            }
-
-            item {
-                SettingsCard {
-                    Column {
-                        SettingItem(
-                            title = stringResource(R.string.setting_pinch_to_zoom),
-                            description = stringResource(R.string.setting_pinch_to_zoom_description),
-                            icon = Icons.Outlined.ZoomIn,
-                            iconColor = MaterialTheme.colorScheme.primary
-                        ) {
-                            Switch(
-                                checked = enableZoom,
-                                onCheckedChange = { enableZoom = it },
-                                colors = defaultSwitchTheme
-                            )
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-
-                        SettingItem(
-                            title = stringResource(R.string.setting_desktop_mode),
-                            description = stringResource(R.string.setting_desktop_mode_description),
-                            icon = Icons.Outlined.Computer,
-                            iconColor = MaterialTheme.colorScheme.primary
-                        ) {
-                            Switch(
-                                checked = desktopView,
-                                onCheckedChange = { desktopView = it },
-                                colors = defaultSwitchTheme
-                            )
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-
-                        SettingItem(
-                            title = stringResource(R.string.setting_third_party_cookies),
-                            description = stringResource(R.string.setting_third_party_cookies_description),
-                            icon = Icons.Outlined.Cookie,
-                            iconColor = MaterialTheme.colorScheme.primary
-                        ) {
-                            Switch(
-                                checked = thirdPartyCookies,
-                                onCheckedChange = { thirdPartyCookies = it },
-                                colors = defaultSwitchTheme
-                            )
-                        }
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-
-                        SettingItem(
-                            title = stringResource(R.string.setting_custom_injection),
-                            description = stringResource(R.string.setting_custom_injection_description),
-                            icon = Icons.Outlined.Code,
-                            iconColor = MaterialTheme.colorScheme.primary,
-                            onClick = onCustomInjection,
-                            trailingContent = {
-                                Icon(
-                                    Icons.Outlined.ChevronRight,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
                             })
-
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-
-                        SettingItem(
-                            title = stringResource(R.string.setting_font_size),
-                            description = stringResource(R.string.setting_font_size_description),
-                            icon = Icons.Outlined.TextIncrease,
-                            iconColor = MaterialTheme.colorScheme.primary,
-                            onClick = { showFontSizeOptions = !showFontSizeOptions }) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    selectedFontSize.replaceFirstChar { it.uppercase() },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(end = 8.dp)
-                                )
-                                Icon(
-                                    if (showFontSizeOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                                    null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        AnimatedVisibility(
-                            visible = showFontSizeOptions,
-                            enter = fadeIn() + expandVertically(),
-                            exit = fadeOut() + shrinkVertically()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(
-                                    start = 56.dp, end = 16.dp, bottom = 12.dp
-                                )
-                            ) {
-                                fontSizeOptions.forEach { option ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { selectedFontSize = option }
-                                            .padding(vertical = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            text = when (option) {
-                                                "x-small" -> stringResource(R.string.label_font_size_xsmall)
-                                                "small" -> stringResource(R.string.label_font_size_small)
-                                                "medium" -> stringResource(R.string.label_font_size_medium)
-                                                "large" -> stringResource(R.string.label_font_size_large)
-                                                "x-large" -> stringResource(R.string.label_font_size_xlarge)
-                                                else -> option
-                                            },
-                                            modifier = Modifier.weight(1f),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        if (selectedFontSize == option) {
-                                            Icon(
-                                                Icons.Outlined.CheckCircle,
-                                                null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
 
             item {
                 Text(
-                    text = stringResource(R.string.section_security_privacy),
+                    text = stringResource(R.string.setting_auto_enable_services),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -702,125 +429,43 @@ fun SettingsScreen(
                 SettingsCard {
                     Column {
                         SettingItem(
-                            title = stringResource(R.string.setting_block_trackers_ads),
-                            description = stringResource(R.string.setting_block_trackers_ads_description),
-                            icon = Icons.Outlined.Block,
+                            title = stringResource(R.string.setting_auto_enable_services),
+                            description = stringResource(R.string.setting_auto_enable_services_description),
+                            icon = Icons.Outlined.Add,
                             iconColor = MaterialTheme.colorScheme.primary
                         ) {
                             Switch(
-                                checked = blockUnnecessaryConnections, onCheckedChange = {
-                                    blockUnnecessaryConnections = it
-                                    settingsManager.updateSettings { settings ->
-                                        settings.blockUnnecessaryConnections = it
-                                    }
-                                }, colors = defaultSwitchTheme
+                                checked = enableNewServices,
+                                onCheckedChange = { enableNewServices = it },
+                                colors = defaultSwitchTheme
                             )
                         }
-                    }
 
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-
-                    var showProxyOptions by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(Unit) {
-                        snapshotFlow {
-                            Triple(
-                                proxyOption, proxyHost, proxyPort
-                            )
-                        }.drop(1).collect {
-                            snackbarHostState.showSnackbar(context.getString(R.string.msg_restart_required))
-                        }
-                    }
-
-                    SettingItem(
-                        title = stringResource(R.string.label_proxy),
-                        description = stringResource(R.string.msg_set_proxy),
-                        icon = Icons.Outlined.Wifi,
-                        iconColor = MaterialTheme.colorScheme.primary,
-                        onClick = { showProxyOptions = !showProxyOptions },
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = when (proxyOption) {
-                                    "none" -> stringResource(R.string.label_no_proxy)
-                                    "http" -> stringResource(R.string.label_http)
-                                    "socks" -> stringResource(R.string.label_socks)
-                                    else -> proxyOption
-                                },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Icon(
-                                if (showProxyOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                                null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    AnimatedVisibility(
-                        visible = showProxyOptions,
-                        enter = fadeIn() + expandVertically(),
-                        exit = fadeOut() + shrinkVertically()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(
-                                start = 56.dp, end = 16.dp, bottom = 12.dp
-                            )
+                        AnimatedVisibility(
+                            visible = enableNewServices,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
                         ) {
-                            SingleChoiceSegmentedButtonRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                listOf(
-                                    "none" to stringResource(R.string.label_none),
-                                    "http" to stringResource(R.string.label_http),
-                                    "socks" to stringResource(R.string.label_socks)
-                                ).forEachIndexed { index, (type, label) ->
-                                    SegmentedButton(
-                                        selected = proxyOption == type,
-                                        onClick = { proxyOption = type },
-                                        shape = SegmentedButtonDefaults.itemShape(
-                                            index = index, count = 3
-                                        ),
-                                        colors = SegmentedButtonDefaults.colors(
-                                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                    ) {
-                                        Text(label)
-                                    }
-                                }
-                            }
+                            Column {
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
 
-                            AnimatedVisibility(
-                                visible = proxyOption != "none",
-                                enter = fadeIn() + expandVertically(),
-                                exit = fadeOut() + shrinkVertically()
-                            ) {
-                                Column(modifier = Modifier.padding(top = 8.dp)) {
-                                    OutlinedTextField(
-                                        value = proxyHost,
-                                        onValueChange = { proxyHost = it },
-                                        label = { Text(stringResource(R.string.label_host)) },
-                                        singleLine = true,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 8.dp)
-                                    )
-                                    OutlinedTextField(
-                                        value = proxyPort,
-                                        onValueChange = { proxyPort = it },
-                                        label = { Text(stringResource(R.string.label_port)) },
-                                        singleLine = true,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                                SettingItem(
+                                    title = stringResource(R.string.title_selection_preferences),
+                                    description = stringResource(R.string.selection_preferences_description),
+                                    icon = Icons.Outlined.FilterList,
+                                    iconColor = MaterialTheme.colorScheme.primary,
+                                    onClick = { showSelectionPreferencesDialog = true },
+                                    trailingContent = {
+                                        Icon(
+                                            Icons.Outlined.ChevronRight,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    },
+                                )
                             }
                         }
                     }
@@ -953,6 +598,368 @@ fun SettingsScreen(
 
             item {
                 Text(
+                    text = stringResource(R.string.section_performance),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                SettingsCard {
+                    Column {
+                        SettingItem(
+                            title = stringResource(R.string.setting_memory_management),
+                            description = stringResource(R.string.setting_memory_management_description),
+                            icon = Icons.Outlined.Layers,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = limitSimultaneousAIs,
+                                onCheckedChange = { limitSimultaneousAIs = it },
+                                colors = defaultSwitchTheme
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            visible = limitSimultaneousAIs,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(
+                                    start = 56.dp, end = 16.dp, bottom = 8.dp
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Text(
+                                        "${stringResource(R.string.label_max)}:",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(bottom = 4.dp)
+                                    )
+                                    SingleChoiceSegmentedButtonRow(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        (1..5).forEach { value ->
+                                            SegmentedButton(
+                                                selected = maxKeepAlive == value,
+                                                onClick = { maxKeepAlive = value },
+                                                shape = SegmentedButtonDefaults.itemShape(
+                                                    index = value - 1, count = 5
+                                                ),
+                                                colors = SegmentedButtonDefaults.colors(
+                                                    activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                    activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                )
+                                            ) {
+                                                Text(
+                                                    "$value",
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = stringResource(R.string.section_webview),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                SettingsCard {
+                    Column {
+                        SettingItem(
+                            title = stringResource(R.string.setting_pinch_to_zoom),
+                            description = stringResource(R.string.setting_pinch_to_zoom_description),
+                            icon = Icons.Outlined.ZoomIn,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = enableZoom,
+                                onCheckedChange = { enableZoom = it },
+                                colors = defaultSwitchTheme
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
+                            title = stringResource(R.string.setting_desktop_mode),
+                            description = stringResource(R.string.setting_desktop_mode_description),
+                            icon = Icons.Outlined.Computer,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = desktopView,
+                                onCheckedChange = { desktopView = it },
+                                colors = defaultSwitchTheme
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
+                            title = stringResource(R.string.setting_third_party_cookies),
+                            description = stringResource(R.string.setting_third_party_cookies_description),
+                            icon = Icons.Outlined.Cookie,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = thirdPartyCookies,
+                                onCheckedChange = { thirdPartyCookies = it },
+                                colors = defaultSwitchTheme
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
+                            title = stringResource(R.string.setting_custom_injection),
+                            description = stringResource(R.string.setting_custom_injection_description),
+                            icon = Icons.Outlined.Code,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                            onClick = onCustomInjection,
+                            trailingContent = {
+                                Icon(
+                                    Icons.Outlined.ChevronRight,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            })
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        SettingItem(
+                            title = stringResource(R.string.setting_font_size),
+                            description = stringResource(R.string.setting_font_size_description),
+                            icon = Icons.Outlined.TextIncrease,
+                            iconColor = MaterialTheme.colorScheme.primary,
+                        ) {
+                            Text(
+                                text = "$selectedFontSizePercent%",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 56.dp, end = 16.dp, bottom = 12.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        stringResource(R.string.label_font_size_small),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        stringResource(R.string.label_font_size_medium),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        stringResource(R.string.label_font_size_large),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                Slider(
+                                    value = selectedFontSizePercent.toFloat(),
+                                    onValueChange = { newValue ->
+                                        selectedFontSizePercent = newValue.roundToInt()
+                                    },
+                                    valueRange = 80f..120f,
+                                    steps = 7,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = MaterialTheme.colorScheme.primary,
+                                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                                        inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = stringResource(R.string.section_security_privacy),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                SettingsCard {
+                    Column {
+                        SettingItem(
+                            title = stringResource(R.string.setting_block_trackers_ads),
+                            description = stringResource(R.string.setting_block_trackers_ads_description),
+                            icon = Icons.Outlined.Block,
+                            iconColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Switch(
+                                checked = blockUnnecessaryConnections, onCheckedChange = {
+                                    blockUnnecessaryConnections = it
+                                    settingsManager.updateSettings { settings ->
+                                        settings.blockAdsAndTrackers = it
+                                    }
+                                }, colors = defaultSwitchTheme
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    var showProxyOptions by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(Unit) {
+                        snapshotFlow { Triple(proxyOption, proxyHost, proxyPort) }.drop(1).collect {
+                            snackbarHostState.showSnackbar(
+                                context.getString(R.string.msg_restart_required)
+                            )
+                        }
+                    }
+
+                    SettingItem(
+                        title = stringResource(R.string.label_proxy),
+                        description = stringResource(R.string.msg_set_proxy),
+                        icon = Icons.Outlined.Wifi,
+                        iconColor = MaterialTheme.colorScheme.primary,
+                        onClick = { showProxyOptions = !showProxyOptions }) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = when (proxyOption) {
+                                    "none" -> stringResource(R.string.label_no_proxy)
+                                    "http" -> stringResource(R.string.label_http)
+                                    "socks" -> stringResource(R.string.label_socks)
+                                    else -> proxyOption
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Icon(
+                                if (showProxyOptions) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    AnimatedVisibility(
+                        visible = showProxyOptions,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(start = 56.dp, end = 16.dp, bottom = 12.dp)
+                        ) {
+                            SingleChoiceSegmentedButtonRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                            ) {
+                                listOf(
+                                    "none" to stringResource(R.string.label_none),
+                                    "http" to stringResource(R.string.label_http),
+                                    "socks" to stringResource(R.string.label_socks)
+                                ).forEachIndexed { index, (type, label) ->
+                                    SegmentedButton(
+                                        selected = proxyOption == type,
+                                        onClick = { proxyOption = type },
+                                        shape = SegmentedButtonDefaults.itemShape(
+                                            index = index, count = 3
+                                        ),
+                                        colors = SegmentedButtonDefaults.colors(
+                                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    ) {
+                                        Text(label)
+                                    }
+                                }
+                            }
+
+                            AnimatedVisibility(
+                                visible = proxyOption != "none",
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                Column(modifier = Modifier.padding(top = 8.dp)) {
+                                    OutlinedTextField(
+                                        value = proxyHost,
+                                        onValueChange = { proxyHost = it },
+                                        label = { Text(stringResource(R.string.label_host)) },
+                                        singleLine = true,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 8.dp)
+                                    )
+                                    OutlinedTextField(
+                                        value = proxyPort,
+                                        onValueChange = { proxyPort = it },
+                                        label = { Text(stringResource(R.string.label_port)) },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
                     text = stringResource(R.string.section_storage),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
@@ -972,8 +979,7 @@ fun SettingsScreen(
                             onClick = { showClearCacheDialog = true },
                             trailingContent = {
                                 Icon(Icons.Outlined.ChevronRight, null)
-                            },
-                        )
+                            })
 
                         HorizontalDivider(
                             color = MaterialTheme.colorScheme.outlineVariant,
@@ -992,27 +998,36 @@ fun SettingsScreen(
                                     null,
                                     tint = MaterialTheme.colorScheme.error
                                 )
-                            },
-                        )
+                            })
                     }
                 }
             }
         }
     }
 
+    if (showSelectionPreferencesDialog) {
+        SelectionPreferencesDialog(
+            categories = categories,
+            pricings = pricings,
+            privacies = privacies,
+            selectedCategories = selectedCategories,
+            selectedPricing = selectedPricing,
+            selectedPrivacy = selectedPrivacy,
+            selectedLoginRequired = selectedLoginRequired,
+            onCategoriesChange = { selectedCategories = it },
+            onPricingChange = { selectedPricing = it },
+            onPrivacyChange = { selectedPrivacy = it },
+            onLoginRequiredChange = { selectedLoginRequired = it },
+            onDismiss = { showSelectionPreferencesDialog = false })
+    }
+
     if (showClearCacheDialog) {
         AlertDialog(
             onDismissRequest = { showClearCacheDialog = false },
             title = { Text(stringResource(R.string.action_clear_cache)) },
-
             text = { Text(stringResource(R.string.msg_clear_all_cache_confirmation)) },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        onClearCache()
-                        showClearCacheDialog = false
-                    },
-                ) {
+                TextButton(onClick = { onClearCache(); showClearCacheDialog = false }) {
                     Text(stringResource(R.string.action_clear))
                 }
             },
@@ -1020,8 +1035,7 @@ fun SettingsScreen(
                 TextButton(onClick = { showClearCacheDialog = false }) {
                     Text(stringResource(R.string.action_cancel))
                 }
-            },
-        )
+            })
     }
 
     if (showClearDataDialog) {
@@ -1034,18 +1048,9 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.error
                 )
             },
-            text = {
-                Text(
-                    stringResource(R.string.msg_clear_all_data_confirmation)
-                )
-            },
+            text = { Text(stringResource(R.string.msg_clear_all_data_confirmation)) },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        onClearData()
-                        showClearDataDialog = false
-                    },
-                ) {
+                TextButton(onClick = { onClearData(); showClearDataDialog = false }) {
                     Text(
                         stringResource(R.string.action_clear_everything),
                         color = MaterialTheme.colorScheme.error
@@ -1056,8 +1061,213 @@ fun SettingsScreen(
                 TextButton(onClick = { showClearDataDialog = false }) {
                     Text(stringResource(R.string.action_cancel))
                 }
-            },
+            })
+    }
+}
+
+@Composable
+private fun SelectionPreferencesDialog(
+    categories: List<String>,
+    pricings: List<String>,
+    privacies: List<String>,
+    selectedCategories: Set<String>,
+    selectedPricing: Set<String>,
+    selectedPrivacy: Set<String>,
+    selectedLoginRequired: Set<String>,
+    onCategoriesChange: (Set<String>) -> Unit,
+    onPricingChange: (Set<String>) -> Unit,
+    onPrivacyChange: (Set<String>) -> Unit,
+    onLoginRequiredChange: (Set<String>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss, title = {
+        Text(
+            text = stringResource(R.string.title_selection_preferences),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold
         )
+    }, text = {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FilterCard(
+                title = stringResource(R.string.filter_category),
+                items = categories,
+                selectedItems = selectedCategories,
+                onToggle = { category ->
+                    if (selectedCategories.size == 1 && selectedCategories.contains(category)) return@FilterCard
+                    onCategoriesChange(
+                        if (category in selectedCategories) selectedCategories - category
+                        else selectedCategories + category
+                    )
+                },
+                hintText = if (selectedCategories.size == 1) stringResource(R.string.filter_keep_one_hint) else null
+            )
+
+            FilterCard(
+                title = stringResource(R.string.filter_price),
+                items = pricings,
+                selectedItems = selectedPricing,
+                onToggle = { pricing ->
+                    if (selectedPricing.size == 1 && selectedPricing.contains(pricing)) return@FilterCard
+                    onPricingChange(
+                        if (pricing in selectedPricing) selectedPricing - pricing
+                        else selectedPricing + pricing
+                    )
+                },
+                hintText = if (selectedPricing.size == 1) stringResource(R.string.filter_keep_one_hint) else null
+            )
+
+            FilterCard(
+                title = stringResource(R.string.filter_privacy),
+                items = privacies,
+                selectedItems = selectedPrivacy,
+                onToggle = { privacy ->
+                    if (selectedPrivacy.size == 1 && selectedPrivacy.contains(privacy)) return@FilterCard
+                    onPrivacyChange(
+                        if (privacy in selectedPrivacy) selectedPrivacy - privacy
+                        else selectedPrivacy + privacy
+                    )
+                },
+                hintText = if (selectedPrivacy.size == 1) stringResource(R.string.filter_keep_one_hint) else null
+            )
+
+            LoginFilterCard(
+                title = stringResource(R.string.filter_login_required),
+                selectedLoginRequired = selectedLoginRequired,
+                onLoginToggle = { option ->
+                    onLoginRequiredChange(
+                        if (option in selectedLoginRequired) emptySet()
+                        else setOf(option)
+                    )
+                },
+                hintText = if (selectedLoginRequired.isEmpty()) stringResource(R.string.filter_no_filter_hint) else null
+            )
+        }
+    }, confirmButton = {
+        TextButton(onClick = onDismiss) {
+            Text(stringResource(R.string.action_ok), fontWeight = FontWeight.Medium)
+        }
+    }, containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    )
+}
+
+@Composable
+private fun FilterCard(
+    title: String,
+    items: List<String>,
+    selectedItems: Set<String>,
+    onToggle: (String) -> Unit,
+    hintText: String? = null
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items.forEach { item ->
+                    val isSelected = item in selectedItems
+                    FilterChip(
+                        selected = isSelected, onClick = { onToggle(item) }, label = {
+                        Text(
+                            item.capitalizeFirstLetter(),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }, colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        labelColor = MaterialTheme.colorScheme.onSurface
+                    ), border = null, shape = MaterialTheme.shapes.small
+                    )
+                }
+            }
+            hintText?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoginFilterCard(
+    title: String,
+    selectedLoginRequired: Set<String>,
+    onLoginToggle: (String) -> Unit,
+    hintText: String? = null
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("Required", "Not Required").forEach { option ->
+                    val isSelected = option in selectedLoginRequired
+                    FilterChip(
+                        selected = isSelected, onClick = { onLoginToggle(option) }, label = {
+                        Text(
+                            option.capitalizeFirstLetter(),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }, colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        labelColor = MaterialTheme.colorScheme.onSurface
+                    ), border = null, shape = MaterialTheme.shapes.small
+                    )
+                }
+            }
+            hintText?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
     }
 }
 
@@ -1072,21 +1282,13 @@ private fun SettingItem(
 ) {
     ListItem(
         headlineContent = {
-            Text(
-                title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium
-            )
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
         },
         supportingContent = description?.let {
-            {
-                Text(
-                    it, style = MaterialTheme.typography.bodySmall
-                )
-            }
+            { Text(it, style = MaterialTheme.typography.bodySmall) }
         },
         leadingContent = {
-            Icon(
-                icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp)
-            )
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
         },
         trailingContent = trailingContent,
         modifier = Modifier
