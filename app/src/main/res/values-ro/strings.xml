@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_logo_description">Siglă Hub AI</string>
-    <string name="app_tagline">Colecția ta de AI-uri de companie</string>
     <string name="action_back">Înapoi</string>
     <string name="action_cancel">Anulează</string>
     <string name="action_clear_all_cache_description">Șterge fișierele temporare</string>

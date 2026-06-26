@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_logo_description">Logo AI Hub</string>
-    <string name="app_tagline">Koleksi Pendamping AI Anda</string>
     <string name="action_back">Kembali</string>
     <string name="action_cancel">Batal</string>
     <string name="action_clear">Hapus</string>
@@ -68,7 +67,6 @@
     <string name="label_alert">Peringatan</string>
     <string name="label_always_blocked_domains">Domain yang Selalu Diblokir</string>
     <string name="label_before_leave">Sebelum Keluar</string>
-    <string name="label_blocked_url">URL yang Diblokir</string>
     <string name="label_changed">Diubah</string>
     <string name="label_changes_summary">%1$d perubahan di 5 kategori</string>
     <string name="label_chatbot_interface">Ini adalah chatbot dengan antarmuka obrolan langsung</string>
@@ -88,8 +86,6 @@
     <string name="label_font_size_large">Besar</string>
     <string name="label_font_size_medium">Sedang</string>
     <string name="label_font_size_small">Kecil</string>
-    <string name="label_font_size_xlarge">Sangat besar</string>
-    <string name="label_font_size_xsmall">Sangat kecil</string>
     <string name="label_frequency_1_day">Setiap hari</string>
     <string name="label_frequency_1_week">Setiap minggu</string>
     <string name="label_frequency_3_days">Setiap 3 hari</string>
@@ -149,7 +145,6 @@
     <string name="msg_clear_all_cache_confirmation">Menghapus file web sementara.\nMungkin akan mengeluarkan Anda dari situs.</string>
     <string name="msg_clear_all_data_confirmation">Menghapus cache, cookie, riwayat, login…\nTindakan ini tidak dapat dibatalkan.</string>
     <string name="msg_clear_site_data_warning">Ini akan menghapus cookie, penyimpanan lokal, dan data sesi hanya untuk %1$s.\nAnda mungkin akan keluar dari situs ini.\n\nLayanan lain tidak akan terpengaruh.</string>
-    <string name="msg_copy_description">Salin detail ini jika Anda perlu melaporkan masalah ini</string>
     <string name="msg_custom_injection">Catatan: Perubahan berlaku setelah dimuat ulang. Tambahkan JavaScript/CSS kustom yang disuntikkan ke setiap layanan.</string>
     <string name="msg_disable_record_mode">Nonaktifkan mode rekam</string>
     <string name="msg_domain_update_success">Aturan domain diperbarui</string>
@@ -164,7 +159,6 @@
     <string name="msg_microphone_enabled">Mikrofon diaktifkan</string>
     <string name="msg_no_ai_services_enabled">Tidak ada layanan AI yang diaktifkan</string>
     <string name="msg_no_suitable_app_found">Tidak ada aplikasi yang sesuai ditemukan</string>
-    <string name="msg_page_blocked_description">Halaman ini tidak dapat dimuat karena pengaturan keamanan.</string>
     <string name="msg_permission_denied">Izin ditolak</string>
     <string name="msg_press_again">Tekan kembali lagi untuk keluar</string>
     <string name="msg_processing_blob">Memproses unduhan blob…</string>

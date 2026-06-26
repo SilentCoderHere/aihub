@@ -1,12 +1,5 @@
 <resources>
-    <!-- App Info -->
-    <string name="app_name" translatable="false">AI Hub</string>
-    <string name="app_author" translatable="false">Silent Coder</string>
-    <string name="matrix" translatable="false">Matrix</string>
-    <string name="app_logo_description">AI Hub Logo</string>
-    <string name="app_tagline">Your AI Companion Collection</string>
-
-    <!-- Actions -->
+    <string name="action_apply">Apply</string>
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_clear">Clear</string>
@@ -16,14 +9,18 @@
     <string name="action_clear_all_data_description">Resets everything - use carefully</string>
     <string name="action_clear_cache">Clear cache</string>
     <string name="action_clear_everything">Clear everything</string>
+    <string name="action_clear_filters">Clear filters</string>
     <string name="action_clear_site_data">Clear site data</string>
     <string name="action_close">Close</string>
     <string name="action_copy">Copy</string>
     <string name="action_copy_link">Copy link</string>
     <string name="action_delete">Delete</string>
     <string name="action_discard">Discard</string>
+    <string name="action_done">Done</string>
+    <string name="action_favorite">Favorite</string>
     <string name="action_filter">Filter</string>
     <string name="action_got_it">Got it</string>
+    <string name="action_hide_filters">Hide filters</string>
     <string name="action_later">Later</string>
     <string name="action_leave">Leave</string>
     <string name="action_more_options">More options</string>
@@ -34,25 +31,28 @@
     <string name="action_privacy_policy">Privacy Policy</string>
     <string name="action_reload">Reload</string>
     <string name="action_remove_service">Close service</string>
+    <string name="action_reset_filters">Reset filters</string>
     <string name="action_restart">Restart</string>
     <string name="action_retry">Retry</string>
     <string name="action_save">Save</string>
     <string name="action_search">Search</string>
     <string name="action_share">Share</string>
     <string name="action_share_link">Share link</string>
+    <string name="action_show_filters">Show filters</string>
     <string name="action_source_code">Source code</string>
     <string name="action_star">Star</string>
     <string name="action_stay">Stay</string>
     <string name="action_submit_request">Submit Request</string>
+    <string name="action_unfavorite">Unfavorite</string>
     <string name="action_update">Update</string>
     <string name="action_update_services">Update AI &amp; services</string>
-
-    <!-- Copy & Share Descriptions -->
+    <string name="action_view_details">Details</string>
+    <string name="app_author" translatable="false">Silent Coder</string>
+    <string name="app_logo_description">AI Hub Logo</string>
+    <string name="app_name" translatable="false">AI Hub</string>
     <string name="copy_link_description">Copy link to clipboard</string>
-    <string name="open_in_browser_description">Open in external browser</string>
-    <string name="share_link_description">Share via other apps</string>
-
-    <!-- Error Messages -->
+    <string name="desc_email_method">We\'ll send you a direct link to submit via email</string>
+    <string name="desc_github_issue">Open an issue on our repository (requires GitHub account)</string>
     <string name="error_desc_http_error">%1$s returned error %2$d</string>
     <string name="error_desc_no_connection">Can\'t reach %1$s. Check your internet connection.</string>
     <string name="error_desc_proxy_error">Unable to connect to the proxy</string>
@@ -70,16 +70,25 @@
     <string name="error_title_security_issue">Security Issue</string>
     <string name="error_title_server_error">Server Error</string>
     <string name="error_unknown">Unknown error</string>
-
-    <!-- Labels -->
+    <string name="filter_all_services">All services</string>
+    <string name="filter_category">Category</string>
+    <string name="filter_favorites">Favorites</string>
+    <string name="filter_favorites_only">Favorites only</string>
+    <string name="filter_keep_one_hint">Keep at least one option selected.</string>
+    <string name="filter_login_required">Login Required</string>
+    <string name="filter_no_filter_hint">No filter applied (optional).</string>
+    <string name="filter_price">Price</string>
+    <string name="filter_privacy">Privacy</string>
     <string name="hint_search_services">Search services…</string>
+    <string name="info">Info</string>
     <string name="label_active">Active</string>
     <string name="label_added">Added</string>
     <string name="label_ai_services">AI Services</string>
     <string name="label_alert">Alert</string>
     <string name="label_always_blocked_domains">Always Blocked Domains</string>
     <string name="label_before_leave">Before Leave</string>
-    <string name="label_blocked_url">Blocked URL</string>
+    <string name="label_best_for">Best for</string>
+    <string name="label_category">Category</string>
     <string name="label_changed">Changed</string>
     <string name="label_changes_summary">%1$d changes across 5 categories</string>
     <string name="label_chatbot_interface">This is a chatbot with a direct chat interface</string>
@@ -101,8 +110,6 @@
     <string name="label_font_size_large">Large</string>
     <string name="label_font_size_medium">Medium</string>
     <string name="label_font_size_small">Small</string>
-    <string name="label_font_size_xlarge">Extra large</string>
-    <string name="label_font_size_xsmall">Extra small</string>
     <string name="label_frequency_1_day">Every day</string>
     <string name="label_frequency_1_week">Every week</string>
     <string name="label_frequency_3_days">Every 3 days</string>
@@ -116,16 +123,23 @@
     <string name="label_last_enabled">Last enabled</string>
     <string name="label_link">Link</string>
     <string name="label_loading">Loading…</string>
+    <string name="label_login_not_required">No login</string>
+    <string name="label_login_not_required_short">No login</string>
+    <string name="label_login_required">Login required</string>
+    <string name="label_login_required_short">Login</string>
     <string name="label_made_with_love">Made with ❤️ by</string>
     <string name="label_max">Max</string>
     <string name="label_menu">Menu</string>
     <string name="label_name">Name</string>
+    <string name="label_no">No</string>
     <string name="label_no_proxy">No Proxy</string>
     <string name="label_none">None</string>
     <string name="label_optional">Optional</string>
     <string name="label_page_blocked">Page blocked</string>
     <string name="label_phone">Phone</string>
     <string name="label_port">Port</string>
+    <string name="label_pricing">Pricing</string>
+    <string name="label_privacy">Privacy</string>
     <string name="label_privacy_policy_summary">No tracking, no telemetry</string>
     <string name="label_prompt">Prompt</string>
     <string name="label_proxy">Proxy</string>
@@ -138,6 +152,7 @@
     <string name="label_service">Service</string>
     <string name="label_service_domains">Service Domains</string>
     <string name="label_service_link">Chat / Website Link</string>
+    <string name="label_service_name">Service Name</string>
     <string name="label_service_title">Service title</string>
     <string name="label_short_desc">Short Description</string>
     <string name="label_socks">SOCKS</string>
@@ -150,8 +165,9 @@
     <string name="label_update_summary">Update summary</string>
     <string name="label_update_title">Update Available</string>
     <string name="label_url">URL</string>
-
-    <!-- Messages -->
+    <string name="label_website">Website</string>
+    <string name="label_yes">Yes</string>
+    <string name="matrix" translatable="false">Matrix</string>
     <string name="msg_add_to_fav">Add to favorites</string>
     <string name="msg_ai_update_success">AI services updated</string>
     <string name="msg_all_data_cleared">All data cleared</string>
@@ -164,7 +180,6 @@
     <string name="msg_clear_all_cache_confirmation">Removes temporary web files.\nMay log you out of sites.</string>
     <string name="msg_clear_all_data_confirmation">Deletes cache, cookies, history, logins…\nThis cannot be undone.</string>
     <string name="msg_clear_site_data_warning">This will clear cookies, local storage, and session data only for %1$s.\nYou may be logged out of this site.\n\nOther services will not be affected.</string>
-    <string name="msg_copy_description">Copy these details if you need to report this issue</string>
     <string name="msg_custom_injection">Note: Changes apply after reload. Add custom JavaScript/CSS injected into every service.</string>
     <string name="msg_disable_record_mode">Disable record mode</string>
     <string name="msg_domain_update_success">Domain rules updated</string>
@@ -172,20 +187,24 @@
     <string name="msg_download_failed">Download failed</string>
     <string name="msg_downloading">Downloading: %1$s</string>
     <string name="msg_enable_record_mode">Enable record mode</string>
+    <string name="msg_error_clearing_cache">Error clearing cache</string>
     <string name="msg_fail_to_load_config">Failed to load configurations. Please check your internet connection.</string>
     <string name="msg_fail_to_save_blob">Failed to save blob</string>
     <string name="msg_fail_to_start">App failed to start\n%1$s</string>
+    <string name="msg_fix_errors_before_submit">Please fix the errors above before submitting.</string>
     <string name="msg_loading">Loading AI assistants &amp; security rules</string>
     <string name="msg_microphone_enabled">Microphone enabled</string>
     <string name="msg_no_ai_services_enabled">No AI services enabled</string>
+    <string name="msg_no_services_found">No services match your filters</string>
     <string name="msg_no_suitable_app_found">No suitable app found</string>
-    <string name="msg_page_blocked_description">This page can\'t load due to security settings.</string>
     <string name="msg_permission_denied">Permission denied</string>
     <string name="msg_press_again">Press back again to exit</string>
     <string name="msg_processing_blob">Processing blob download…</string>
     <string name="msg_remove_from_fav">Remove from favorites</string>
     <string name="msg_restart_required">Restart required for changes to take effect.</string>
     <string name="msg_saved">Saved: %1$s</string>
+    <string name="msg_select_service_to_move">Select a service to move</string>
+    <string name="msg_service_already_exists">A service with this name or website already exists. Please check your input.</string>
     <string name="msg_service_killed">%s closed</string>
     <string name="msg_set_proxy">Set proxy (This feature is experimental, might be unstable)</string>
     <string name="msg_share_app">Check out %1$s — open-source collection of your favorite AI assistants!\n\nDownload app: %2$s</string>
@@ -199,8 +218,70 @@
     <string name="msg_update_failed">Update failed – check connection</string>
     <string name="msg_write_css_here">Write your custom CSS here…</string>
     <string name="msg_write_js_here">Write your custom JavaScript here…</string>
-
-    <!-- Sections -->
+    <string name="msg_your_request_matters">Your request helps us grow the collection.</string>
+    <string name="onboarding_auto_enable_desc">Future services matching your filters will be added automatically.</string>
+    <string name="onboarding_auto_enable_label">Auto‑enable new services</string>
+    <string name="onboarding_button_continue">Continue</string>
+    <string name="onboarding_button_next">Next</string>
+    <string name="onboarding_dialog_got_it">Got it</string>
+    <string name="onboarding_dialog_login_note">Note – </string>
+    <string name="onboarding_dialog_login_note_desc">Selecting one option filters services accordingly. Leaving it blank includes both.</string>
+    <string name="onboarding_dialog_login_not_required">Not Required – </string>
+    <string name="onboarding_dialog_login_not_required_desc">You can use the service without logging in.</string>
+    <string name="onboarding_dialog_login_required">Required – </string>
+    <string name="onboarding_dialog_login_required_desc">You need an account to use this service.</string>
+    <string name="onboarding_dialog_login_title">Login Required</string>
+    <string name="onboarding_dialog_pricing_free">Free – </string>
+    <string name="onboarding_dialog_pricing_free_desc">No cost, fully accessible.</string>
+    <string name="onboarding_dialog_pricing_freemium">Freemium – </string>
+    <string name="onboarding_dialog_pricing_freemium_desc">Basic features free, premium features require payment.</string>
+    <string name="onboarding_dialog_pricing_paid">Paid – </string>
+    <string name="onboarding_dialog_pricing_paid_desc">Requires a subscription or one-time purchase.</string>
+    <string name="onboarding_dialog_pricing_title">Pricing Options</string>
+    <string name="onboarding_dialog_privacy_avoid">Avoid – </string>
+    <string name="onboarding_dialog_privacy_avoid_desc">Services that may collect or share your data.</string>
+    <string name="onboarding_dialog_privacy_friendly">Friendly – </string>
+    <string name="onboarding_dialog_privacy_friendly_desc">Services committed to user privacy and data protection.</string>
+    <string name="onboarding_dialog_privacy_neutral">Neutral – </string>
+    <string name="onboarding_dialog_privacy_neutral_desc">Services with standard privacy policies.</string>
+    <string name="onboarding_dialog_privacy_title">Privacy Options</string>
+    <string name="onboarding_download_complete">All set!</string>
+    <string name="onboarding_download_complete_sub">You can now personalise your AI experience.</string>
+    <string name="onboarding_download_complete_title">Download complete!</string>
+    <string name="onboarding_download_downloading">Downloading configuration…</string>
+    <string name="onboarding_download_error">Something went wrong.</string>
+    <string name="onboarding_download_failed">Failed to download: %s</string>
+    <string name="onboarding_download_fetching">Fetching the latest AI services</string>
+    <string name="onboarding_download_loading">Please wait while we prepare everything…</string>
+    <string name="onboarding_download_retry">Retry</string>
+    <string name="onboarding_download_title">Setting Up</string>
+    <string name="onboarding_filter_category">Category</string>
+    <string name="onboarding_filter_keep_one">Keep at least one option selected.</string>
+    <string name="onboarding_filter_login">Login Required</string>
+    <string name="onboarding_filter_login_none">No filter applied (optional).</string>
+    <string name="onboarding_filter_pricing">Pricing</string>
+    <string name="onboarding_filter_privacy">Privacy</string>
+    <string name="onboarding_filters_hidden_desc">You can manually enable services later in Settings.</string>
+    <string name="onboarding_filters_hidden_title">Filters are hidden because auto‑enable is off.</string>
+    <string name="onboarding_finish_button">Finish Setup</string>
+    <string name="onboarding_info_bullet1">• Download configuration files</string>
+    <string name="onboarding_info_bullet2">• Update service database</string>
+    <string name="onboarding_info_bullet3">• Ready in seconds</string>
+    <string name="onboarding_info_connection_note">This requires an internet connection.</string>
+    <string name="onboarding_info_description">We\'ll fetch the latest list of AI services so you can choose the ones that fit your needs.</string>
+    <string name="onboarding_info_title">Get Started</string>
+    <string name="onboarding_login_not_required">Not Required</string>
+    <string name="onboarding_login_required">Required</string>
+    <string name="onboarding_preferences_note">All preferences can be changed later from Settings.</string>
+    <string name="onboarding_selection_subtitle">Pick at least one filter in each category to personalise your AI hub.</string>
+    <string name="onboarding_selection_title">Choose Your Preferences</string>
+    <string name="onboarding_welcome_bullet1">• Discover the best AI tools curated for you</string>
+    <string name="onboarding_welcome_bullet2">• Filter by category, pricing, and privacy</string>
+    <string name="onboarding_welcome_bullet3">• Stay up‑to‑date with the latest services</string>
+    <string name="onboarding_welcome_subtitle">Your one‑stop access to the world of AI assistants.</string>
+    <string name="onboarding_welcome_swipe_hint">Swipe or tap Next to begin</string>
+    <string name="onboarding_welcome_title">Welcome to AI Hub</string>
+    <string name="open_in_browser_description">Open in external browser</string>
     <string name="section_about">About</string>
     <string name="section_cloud_updates">Cloud Updates</string>
     <string name="section_performance">Performance</string>
@@ -208,8 +289,9 @@
     <string name="section_security_privacy">Security &amp; Privacy</string>
     <string name="section_storage">Storage</string>
     <string name="section_webview">WebView</string>
-
-    <!-- Settings -->
+    <string name="selection_preferences_description">Choose which categories, pricing, privacy, and login requirements you prefer. New services that match your selections will be automatically enabled when the app updates.</string>
+    <string name="setting_auto_enable_services">Auto‑enable new services</string>
+    <string name="setting_auto_enable_services_description">Automatically enable new AI services that match your filters when they become available.</string>
     <string name="setting_block_trackers_ads">Block trackers &amp; ads</string>
     <string name="setting_block_trackers_ads_description">Recommended for privacy</string>
     <string name="setting_custom_injection">Custom JS/CSS Injection</string>
@@ -226,6 +308,8 @@
     <string name="setting_manage_ai_services_description">Enable, disable &amp; reorder AI services</string>
     <string name="setting_memory_management">Memory Management</string>
     <string name="setting_memory_management_description">Control simultaneous AI loading</string>
+    <string name="setting_multiple_default_ai">Multiple default AIs</string>
+    <string name="setting_multiple_default_ai_description">Open multiple default AI when app start</string>
     <string name="setting_pinch_to_zoom">Pinch to zoom</string>
     <string name="setting_pinch_to_zoom_description">Zoom in and out of web pages</string>
     <string name="setting_restore_last_ai">Load last opened AI</string>
@@ -236,24 +320,22 @@
     <string name="setting_third_party_cookies_description">May be required for some logins</string>
     <string name="setting_update_frequency">Update frequency</string>
     <string name="setting_update_frequency_description">How often to check for updates</string>
-
-    <!-- Status & Tabs -->
+    <string name="share_link_description">Share via other apps</string>
     <string name="status_updating">Updating…</string>
     <string name="tab_all_services">All Services</string>
     <string name="tab_favorites">Favorites</string>
-
-    <!-- Theme Options -->
     <string name="theme_auto">Auto</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
-
-    <!-- Titles -->
     <string name="title_active_ai_services">Active AI Services</string>
     <string name="title_ai_assistants">AI Assistants</string>
-    <string name="title_settings">Settings</string>
     <string name="title_quick_reminder">Quick reminder</string>
-
-    <!-- Desc -->
-    <string name="desc_email_method">We\'ll send you a direct link to submit via email</string>
-    <string name="desc_github_issue">Open an issue on our repository (requires GitHub account)</string>
+    <string name="title_selection_preferences">Selection Preferences</string>
+    <string name="title_settings">Settings</string>
+    <string name="update_added_services">Added %1$d new services:</string>
+    <string name="update_modified_services">Modified services (%d):</string>
+    <string name="update_new_categories">New categories added (%1$d):</string>
+    <string name="update_no_changes">No changes detected. Already up to date.</string>
+    <string name="update_removed_services">Removed %1$d services:</string>
+    <string name="update_result_title">Update Result</string>
 </resources>

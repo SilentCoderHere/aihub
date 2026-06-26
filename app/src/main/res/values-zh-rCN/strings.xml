@@ -15,7 +15,6 @@
     <string name="action_copy">复制</string>
     <string name="action_copy_link">复制链接</string>
     <string name="action_delete">删除</string>
-    <string name="app_tagline">你的AI伙伴合集</string>
     <string name="action_discard">放弃</string>
     <string name="action_filter">筛选</string>
     <string name="action_got_it">明白</string>
@@ -68,7 +67,6 @@
     <string name="label_alert">警告</string>
     <string name="label_always_blocked_domains">永久屏蔽域名</string>
     <string name="label_before_leave">离开之前</string>
-    <string name="label_blocked_url">屏蔽URL</string>
     <string name="label_changed">已修改</string>
     <string name="label_changes_summary">%1$d 项变更，涵盖5个分类</string>
     <string name="label_chatbot_interface">这是一款具备直聊界面的聊天机器人</string>
@@ -88,8 +86,6 @@
     <string name="label_font_size_large">大</string>
     <string name="label_font_size_medium">中</string>
     <string name="label_font_size_small">小</string>
-    <string name="label_font_size_xlarge">超大</string>
-    <string name="label_font_size_xsmall">极小</string>
     <string name="label_frequency_1_day">每天</string>
     <string name="label_frequency_1_week">每周</string>
     <string name="label_frequency_3_days">每3天</string>
@@ -149,7 +145,6 @@
     <string name="msg_clear_all_cache_confirmation">清除网页临时文件\n可能会让你退出网站登录状态。</string>
     <string name="msg_clear_all_data_confirmation">删除缓存、Cookie、浏览记录、登录信息……\n此操作无法撤销。</string>
     <string name="msg_clear_site_data_warning">这将仅清除%1$s的Cookie、本地存储和会话数据。\n你可能会从该网站登出\n\n其他服务不会受到影响。</string>
-    <string name="msg_copy_description">如需反馈此问题，请复制以下详细信息</string>
     <string name="msg_custom_injection">注意：更改需重新加载后生效。可添加自定义JavaScript/CSS，注入到所有服务中。</string>
     <string name="msg_disable_record_mode">关闭录制模式</string>
     <string name="msg_domain_update_success">域规则已更新</string>
@@ -164,7 +159,6 @@
     <string name="msg_microphone_enabled">已启用麦克风</string>
     <string name="msg_no_ai_services_enabled">未启用AI服务</string>
     <string name="msg_no_suitable_app_found">未找到合适应用</string>
-    <string name="msg_page_blocked_description">此页面因安全设置无法加载。</string>
     <string name="msg_permission_denied">权限被拒绝</string>
     <string name="msg_press_again">再次按下返回键退出</string>
     <string name="msg_processing_blob">正在处理blob下载…</string>
