@@ -41,15 +41,29 @@ fun shareLink(context: Context, url: String, title: String) {
         })
 }
 
-fun cleanTrackingParams(context: Context, url: String): String {
+fun cleanTrackingParams(url: String): String {
+    val trackingParams = listOf(
+        "gclid", "fbclid", "msclkid", "ttclid", "twclid", "yclid",
+        "igshid", "li_fat_id", "gbraid", "wbraid", "gad_source",
+        "srsltid", "ndclid", "sccid", "dclid",
+        "_ga", "_gl", "ef_id", "s_kwcid",
+        "mc_cid", "mc_eid", "_bta_tid", "_bta_c",
+        "trk_contact", "trk_msg", "_ke", "_kx", "dm_i", "mkt_tok",
+        "ref", "affiliate_id", "click_id", "campid", "customid",
+        "irclickid", "mkwid", "pcrid", "_branch_match_id",
+        "gclsrc", "gdfms", "gdftrk", "epik", "pp", "si", "rtid", "vmcid",
+        "_hsenc", "_hsmi", "__hssc", "__hstc",
+    )
     return try {
         val uri = url.toUri()
         val builder = uri.buildUpon()
         builder.clearQuery()
-        val settings = SettingsManager(context)
 
         uri.queryParameterNames.forEach { param ->
-            if (!settings.getTrackingParams().contains(param.lowercase())) {
+            if (!param.startsWith(
+                    "utm_", ignoreCase = true
+                ) && !trackingParams.contains(param.lowercase())
+            ) {
                 val values = uri.getQueryParameters(param)
                 values.forEach { value ->
                     builder.appendQueryParameter(param, value)

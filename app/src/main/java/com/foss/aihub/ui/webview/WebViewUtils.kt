@@ -30,6 +30,7 @@ import com.foss.aihub.utils.USER_AGENT_MOBILE
 import com.foss.aihub.utils.cleanTrackingParams
 import com.foss.aihub.utils.extractLinkTitle
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
 object WebViewProxyHelper {
     private val executor = Executors.newSingleThreadExecutor()
@@ -105,7 +106,7 @@ fun createWebViewForService(
             val url = bundle.getString("url") ?: return
             val title = bundle.getString("title") ?: ""
 
-            val cleanUrl = cleanTrackingParams(context, url)
+            val cleanUrl = cleanTrackingParams(url)
             val displayTitle = title.ifBlank { extractLinkTitle(context, cleanUrl) }
 
 
@@ -152,7 +153,7 @@ fun createWebViewForService(
 
             when (result.type) {
                 WebView.HitTestResult.SRC_ANCHOR_TYPE -> {
-                    val url = result.extra?.let { cleanTrackingParams(context, it) }
+                    val url = result.extra?.let { cleanTrackingParams(it) }
                         ?: return@setOnLongClickListener false
 
                     val title = extractLinkTitle(context, url)
@@ -238,6 +239,10 @@ fun updateWebViewSettings(
     webView: WebView, settings: AppSettings, reload: Boolean
 ) {
     webView.settings.apply {
+        val percent = settings.fontSizePercentage
+        val baseSize = 16
+        val baseFixedSize = 15
+        val scale = percent / 100f
         val cookieManager = CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, settings.thirdPartyCookies)
@@ -245,45 +250,9 @@ fun updateWebViewSettings(
         setSupportZoom(settings.enableZoom)
         builtInZoomControls = settings.enableZoom
         displayZoomControls = false
-
-        when (settings.fontSize.lowercase()) {
-            "x-small" -> {
-                textZoom = 80
-                defaultFontSize = 14
-                defaultFixedFontSize = 13
-            }
-
-            "small" -> {
-                textZoom = 90
-                defaultFontSize = 15
-                defaultFixedFontSize = 14
-            }
-
-            "medium" -> {
-                textZoom = 100
-                defaultFontSize = 16
-                defaultFixedFontSize = 15
-            }
-
-            "large" -> {
-                textZoom = 110
-                defaultFontSize = 18
-                defaultFixedFontSize = 16
-            }
-
-            "x-large" -> {
-                textZoom = 120
-                defaultFontSize = 20
-                defaultFixedFontSize = 17
-            }
-
-            else -> {
-                textZoom = 100
-                defaultFontSize = 16
-                defaultFixedFontSize = 15
-            }
-        }
-
+        textZoom = percent
+        defaultFontSize = (baseSize * scale).roundToInt()
+        defaultFixedFontSize = (baseFixedSize * scale).roundToInt()
         javaScriptEnabled = true
         domStorageEnabled = true
         mediaPlaybackRequiresUserGesture = false

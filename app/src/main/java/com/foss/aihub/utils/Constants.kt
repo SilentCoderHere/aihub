@@ -1,7 +1,5 @@
 package com.foss.aihub.utils
 
-import com.foss.aihub.models.AiService
-
 const val USER_AGENT_DESKTOP =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
 const val USER_AGENT_MOBILE =
@@ -10,7 +8,5 @@ const val GITHUB_USER_NAME = "SilentCoderHere"
 const val GITHUB_REPO_NAME = "aihub"
 const val SUPPORT_EMAIL = "silentcoder@tutamail.com"
 const val CLOUD_BASE_URL = "https://silentcoderhere.github.io/aihub-config-data/"
-const val AI_SERVICES_FILE = "ai_services_list.json"
-const val DOMAIN_AND_RULES_FILE = "domain_filtering_rules.json"
-
-var aiServices: List<AiService> = emptyList()
+const val AI_SERVICES_FILE = "ais.json"
+const val DOMAINS_FILE = "domains.txt"

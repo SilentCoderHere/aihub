@@ -1,7 +1,6 @@
 package com.foss.aihub.ui.webview
 
 import android.graphics.Bitmap
-import android.text.Html.escapeHtml
 import android.util.Log
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -9,7 +8,6 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.foss.aihub.MainActivity
-import com.foss.aihub.R
 import com.foss.aihub.models.AiService
 import com.foss.aihub.utils.readAssetsFile
 import java.io.ByteArrayInputStream
@@ -80,27 +78,17 @@ class CustomWebViewClient(
     }
 
     override fun shouldInterceptRequest(
-        view: WebView?, request: WebResourceRequest?,
+        view: WebView?, request: WebResourceRequest?
     ): WebResourceResponse? {
         val url = request?.url?.toString() ?: return null
-        if (!WebViewSecurity.allowConnectivityForService(service.id, url)) {
-            Log.d("AI_HUB", "🚫 Blocked for ${service.name}: $url")
-            var html = context.readAssetsFile("blockedPage.txt")
-
-            html = html.replace("{{BLOCKED_TITLE}}", context.getString(R.string.label_page_blocked))
-            html = html.replace(
-                "{{BLOCKED_DESCRIPTION}}", context.getString(R.string.msg_page_blocked_description)
-            )
-            html =
-                html.replace("{{LABEL_BLOCKED_URL}}", context.getString(R.string.label_blocked_url))
-            html = html.replace("{{BLOCKED_URL}}", escapeHtml(url))
-            html = html.replace("{{LABEL_SERVICE}}", context.getString(R.string.label_service))
-            html = html.replace("{{SERVICE_NAME}}", service.name)
-            html = html.replace("{{COPY_BUTTON_TEXT}}", context.getString(R.string.action_copy))
-            html = html.replace("{{FOOTER_TEXT}}", context.getString(R.string.msg_copy_description))
-
+        if (!WebViewSecurity.allowConnectivityForService(url)) {
             return WebResourceResponse(
-                "text/html", "UTF-8", ByteArrayInputStream(html.toByteArray())
+                "text/html",
+                "UTF-8",
+                403,
+                "Forbidden",
+                emptyMap(),
+                ByteArrayInputStream(ByteArray(0))
             )
         }
         return null
@@ -109,16 +97,8 @@ class CustomWebViewClient(
     override fun shouldOverrideUrlLoading(
         view: WebView?, request: WebResourceRequest?
     ): Boolean {
-        val service = view?.tag as? AiService ?: return false
         val url = request?.url?.toString() ?: return false
-
-        if (!WebViewSecurity.allowConnectivityForService(service.id, url)) {
-            Log.d("AI_HUB", "🚫 Navigation blocked for ${service.name}: $url")
-            return true
-        }
-
-        Log.d("AI_HUB", "Loading in WebView: $url")
-        return false
+        return !WebViewSecurity.allowConnectivityForService(url)
     }
 
     private fun injectBlobInterceptor(view: WebView) {

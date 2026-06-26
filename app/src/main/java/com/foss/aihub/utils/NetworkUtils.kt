@@ -10,11 +10,9 @@ fun Throwable.isNoNetworkError(): Boolean {
     val root = rootCause()
 
     return root is UnresolvedAddressException || root is UnknownHostException || root is ConnectException || (root is SocketException && root.message?.contains(
-        "unreachable",
-        ignoreCase = true
+        "unreachable", ignoreCase = true
     ) == true) || root.message?.contains(
-        "Network is unreachable",
-        ignoreCase = true
+        "Network is unreachable", ignoreCase = true
     ) == true || root.message?.contains("unresolved address", ignoreCase = true) == true
 }
 

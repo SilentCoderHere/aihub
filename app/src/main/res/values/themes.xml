@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.AIHub" parent="Theme.AppCompat.DayNight.NoActionBar" />
 
-    <style name="Theme.AIHub" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_icon_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.AIHub</item>
     </style>
 </resources>
