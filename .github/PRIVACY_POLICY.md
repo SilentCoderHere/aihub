@@ -1,33 +1,54 @@
 # Privacy Policy
 
-Last updated: February 22, 2026
+**Last updated:** June 27, 2026
 
-This app is maintained by an individual developer (Silent Coder), with help from the community. It is not owned or operated by a company.
+This app is built and maintained by an individual developer (Silent Coder), not a company.
 
-## Data Collection
-This app does not collect, store, or share any personal data.
+---
 
-We do NOT collect:
-- Personal information
-- Usage data
-- Analytics
-- Account information
+## What data do we collect?
+**Absolutely none.**
 
-## External Websites
-This app opens external AI websites using a WebView.
+We do **not** collect:
+- Your name, email, or personal details
+- Your usage history or browsing activity
+- Analytics or crash reports
+- Any account information
 
-It also connects to GitHub Pages to load AI service information and required connection lists.
+---
 
-These external websites are not controlled by the app developer. They may collect data under their own privacy policies. Only the connections needed for the app to work are allowed, but it is not possible to fully block all third-party tracking.
+## How does the app work?
 
-Please review the privacy policies of those websites before using them.
+The app is basically a browser that opens AI websites. To keep things clean, it also blocks annoying ads and trackers.
 
-## Data Sharing
-No user data is sold or shared because no user data is collected.
+The app downloads everything it needs from **one single public repository** on GitHub:  
+[github.com/SilentCoderHere/aihub-config-data](https://github.com/SilentCoderHere/aihub-config-data)
 
-## Changes to This Policy
-This policy may be updated if the app changes.
+From that repository, the app loads:
+1. **The list of AI services** to show you in the app.
+2. **A processed list of domains** used to block ads and trackers on your device.
 
-## Contact
-If you have questions, contact:
-silentcoder@tutamail.com
+---
+
+## What about the AI websites themselves?
+
+When you tap on an AI service inside the app, it opens that website in a built-in browser. 
+
+These websites are run by third-party companies, not by this app's developer. They may collect their own data, so it is a good idea to check their privacy policies before using them.
+
+---
+
+## Do we share your data?
+No. Since we do not collect any data, there is nothing to share or sell.
+
+---
+
+## Will this policy change?
+If the app changes in the future, this policy may be updated. The date at the top will always show when it was last revised.
+
+---
+
+## Questions?
+If anything is unclear, just reach out:
+
+**silentcoder@tutamail.com**
