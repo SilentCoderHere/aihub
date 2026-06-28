@@ -223,4 +223,26 @@
     <string name="title_quick_reminder">Szybkie przypomnienie</string>
     <string name="desc_email_method">Wyślemy Ci bezpośredni link umożliwiający przesłanie zgłoszenia e-mailem</string>
     <string name="desc_github_issue">Otwórz issue w naszym repozytorium (potrzebne konto na Githubie)</string>
+    <string name="action_apply">Zastosuj</string>
+    <string name="action_clear_filters">Wyczyść filtry</string>
+    <string name="action_favorite">Ulubione</string>
+    <string name="action_hide_filters">Ukryj filtry</string>
+    <string name="action_reset_filters">Resetuj filtry</string>
+    <string name="action_show_filters">Pokaż filtry</string>
+    <string name="action_unfavorite">Nielubiane</string>
+    <string name="action_view_details">Detale</string>
+    <string name="action_done">Zrobione</string>
+    <string name="filter_all_services">Wszystkie usługi</string>
+    <string name="filter_category">Kategorie</string>
+    <string name="filter_favorites">Ulubione</string>
+    <string name="filter_favorites_only">Tylko ulubione</string>
+    <string name="filter_keep_one_hint">Zaznacz co najmniej jedną opcję.</string>
+    <string name="filter_login_required">Wymagane logowanie</string>
+    <string name="filter_no_filter_hint">Nie zastosowano żadnego filtra (opcjonalnie).</string>
+    <string name="filter_price">Cena</string>
+    <string name="filter_privacy">Prywatność</string>
+    <string name="info">Informacja</string>
+    <string name="label_best_for">Najlepszy do</string>
+    <string name="label_category">Kategoria</string>
+    <string name="label_login_not_required">Nie zalogowany</string>
 </resources>
