@@ -229,7 +229,7 @@
     <string name="action_hide_filters">Ukryj filtry</string>
     <string name="action_reset_filters">Resetuj filtry</string>
     <string name="action_show_filters">Pokaż filtry</string>
-    <string name="action_unfavorite">Nielubiane</string>
+    <string name="action_unfavorite">Usuń z ulubionych</string>
     <string name="action_view_details">Detale</string>
     <string name="action_done">Zrobione</string>
     <string name="filter_all_services">Wszystkie usługi</string>
@@ -244,5 +244,26 @@
     <string name="info">Informacja</string>
     <string name="label_best_for">Najlepszy do</string>
     <string name="label_category">Kategoria</string>
-    <string name="label_login_not_required">Nie zalogowany</string>
+    <string name="label_login_not_required">Bez loginu</string>
+    <string name="label_login_not_required_short">Bez loginu</string>
+    <string name="label_login_required">Potrzebny login</string>
+    <string name="label_login_required_short">Login</string>
+    <string name="label_no">Nie</string>
+    <string name="label_pricing">Cennik</string>
+    <string name="label_privacy">Prywatność</string>
+    <string name="label_service_name">Nazwa Serwisu</string>
+    <string name="label_website">Strona Internetowa</string>
+    <string name="onboarding_button_next">Następny</string>
+    <string name="onboarding_dialog_got_it">Rozumiem</string>
+    <string name="onboarding_dialog_login_note">Uwaga –</string>
+    <string name="onboarding_dialog_login_note_desc">Wybranie jednej opcji odpowiednio filtruje usługi. Pozostawienie pustej opcji powoduje włączenie obu.</string>
+    <string name="onboarding_dialog_login_not_required">Nie Potrzebne –</string>
+    <string name="onboarding_dialog_login_not_required_desc">Możesz użyć tego serwisu bez zalogowania się.</string>
+    <string name="onboarding_dialog_login_required">Potrzebne -</string>
+    <string name="onboarding_dialog_login_required_desc">Musisz mieć konto, aby używać z tych usług.</string>
+    <string name="onboarding_dialog_pricing_title">Opcje cenowe</string>
+    <string name="onboarding_dialog_privacy_avoid">Unikaj –</string>
+    <string name="onboarding_dialog_privacy_avoid_desc">Usługi, które mogą zbierać i udostępniać twoje dane.</string>
+    <string name="onboarding_dialog_privacy_friendly">Przyjazne –</string>
+    <string name="onboarding_dialog_privacy_friendly_desc">Usługi zapewniające prywatność użytkowników i ochronę danych.</string>
 </resources>
