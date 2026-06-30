@@ -51,9 +51,7 @@
 
 ## 🛡️ Tracker & Ad Blocking
 
-By default, AI Hub blocks **unnecessary connections** commonly used for tracking, analytics, and advertising. This significantly reduces what AI service websites can collect.
-
-> ⚠️ **Important:** This is a best-effort measure, not a complete solution. Some tracking methods may still bypass these blocks. For maximum privacy, always review the privacy policies of the AI services you use.
+By default, AI Hub blocks **ads and trackers** using the [StevenBlack hosts list](https://github.com/StevenBlack/hosts). The domain list is automatically parsed and extracted via a GitHub Action, ensuring it stays up‑to‑date with minimal overhead.
 
 
 ## 📸 Screenshots
@@ -97,9 +95,7 @@ Help translate AI Hub into your language! We use [Weblate](https://hosted.weblat
 ## 🙏 Special Thanks
 
 - **[Nora](https://github.com/nonbili/Nora)** – original idea for this app
-- **[gptAssist](https://github.com/woheller69/gptAssist)** – inspiration for connection blocking
-- **[Assistral](https://github.com/shano/assistral)** – necessary connections list for Mistral
-- **[huggingAssist](https://github.com/woheller69/huggingassist)** – necessary connections list for Hugging Face
+- **[StevenBlack](https://github.com/StevenBlack/hosts)** – for the comprehensive hosts list used for ad and tracker blocking
 - **[uxwing](https://uxwing.com/)** – beautiful app icon
 - **Kotlin & Material Design 3** – for making development delightful
 
