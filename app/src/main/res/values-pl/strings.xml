@@ -132,7 +132,7 @@
     <string name="msg_unsupported_scheme">Nieobsługiwany schemat pobierania: %1$s</string>
     <string name="msg_update_all_success">Zaktualizowano reguły domeny i usługi AI</string>
     <string name="msg_update_failed">Aktualizacja nie powiodła się – sprawdź połączenie</string>
-    <string name="section_about">O</string>
+    <string name="section_about">O programie</string>
     <string name="section_cloud_updates">Aktualizacje w chmurze</string>
     <string name="section_performance">Wydajność</string>
     <string name="section_preferences">Preferencje</string>
@@ -334,4 +334,17 @@
     <string name="onboarding_dialog_pricing_paid">Płatne –</string>
     <string name="onboarding_dialog_privacy_neutral">Neutralne –</string>
     <string name="onboarding_filter_pricing">Cena</string>
+    <string name="action_restore">Przywróć</string>
+    <string name="setting_restore">Przywróć ustawienia</string>
+    <string name="setting_backup">Ustawienia kopii zapasowej</string>
+    <string name="setting_backup_description">Zapisz bieżące ustawienia do pliku JSON</string>
+    <string name="setting_backup_failed">Kopia zapasowa nie udała się</string>
+    <string name="setting_backup_success">Pomyślnie utworzono kopię zapasową</string>
+    <string name="setting_restore_failed">Przywracanie nie powiodło się</string>
+    <string name="setting_restore_success">Ustawienia zostały pomyślnie przywrócone</string>
+    <string name="setting_backup_restore">Kopia zapasowa i przywracanie</string>
+    <string name="setting_restore_message">Spowoduje to nadpisanie wszystkich bieżących ustawień ustawieniami z pliku kopii zapasowej. Jesteś pewien?</string>
+    <string name="setting_restore_description">Importuj ustawienia z pliku JSON</string>
+    <string name="setting_check_app_updates">Sprawdź aktualizacje aplikacji</string>
+    <string name="setting_check_app_updates_description">Automatyczne sprawdzanie dostępności nowych wersji co 3 dni</string>
 </resources>

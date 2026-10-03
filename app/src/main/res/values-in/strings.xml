@@ -334,4 +334,17 @@
     <string name="update_no_changes">Tidak ada perubahan terdeteksi. Sudah versi terbaru.</string>
     <string name="update_removed_services">Menghapus %1$d layanan:</string>
     <string name="update_result_title">Hasil pembaruan</string>
+    <string name="action_restore">Pulihkan</string>
+    <string name="setting_restore">Pulihkan Pengaturan</string>
+    <string name="setting_backup">Cadangkan Pengaturan</string>
+    <string name="setting_backup_description">Simpan pengaturan saat ini ke file JSON</string>
+    <string name="setting_backup_failed">Pencadangan gagal</string>
+    <string name="setting_backup_success">Pencadangan berhasil</string>
+    <string name="setting_restore_failed">Pemulihan gagal</string>
+    <string name="setting_restore_success">Pengaturan berhasil dipulihkan</string>
+    <string name="setting_backup_restore">Cadangkan &amp; Pulihkan</string>
+    <string name="setting_restore_message">Tindakan ini akan menimpa semua pengaturan saat ini dengan pengaturan dari file cadangan. Apakah Anda yakin?</string>
+    <string name="setting_restore_description">Impor pengaturan dari file JSON</string>
+    <string name="setting_check_app_updates">Periksa pembaruan aplikasi</string>
+    <string name="setting_check_app_updates_description">Periksa versi baru secara otomatis setiap 3 hari</string>
 </resources>
