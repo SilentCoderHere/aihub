@@ -9,7 +9,7 @@
     <string name="action_clear_all_cache">Limpiar caché</string>
     <string name="action_clear_all_cache_description">Eliminar archivos temporales</string>
     <string name="action_clear_all_data">Restablecer todos los datos</string>
-    <string name="action_clear_all_data_description">Restablecer todo - úselo con cuidado</string>
+    <string name="action_clear_all_data_description">Restablecer todo - úselo con precaución</string>
     <string name="action_clear_cache">Limpiar caché</string>
     <string name="action_clear_everything">Limpiar todo</string>
     <string name="action_clear_site_data">Limpiar datos del sitio</string>
@@ -149,7 +149,7 @@
     <string name="msg_unsaved_changes">Tienes cambios sin guardar. ¿Deseas guardarlos antes de salir?</string>
     <string name="msg_unsupported_scheme">Esquema de descarga no soportado: %1$s</string>
     <string name="msg_update_all_success">Reglas de dominios y servicios IA actualizados</string>
-    <string name="msg_update_failed">Actualización fallida – verifique conexión</string>
+    <string name="msg_update_failed">Actualización fallida – verifique la conexión</string>
     <string name="msg_write_css_here">Escribe tu CSS personalizado aquí…</string>
     <string name="msg_write_js_here">Escribe tu JavaScript personalizado aquí…</string>
     <!-- Sections -->
@@ -345,4 +345,17 @@
     <string name="update_no_changes">No se detectaron cambios. Ya está actualizado.</string>
     <string name="update_removed_services">Se eliminaron %1$d servicios:</string>
     <string name="update_result_title">Resultado de la actualización</string>
+    <string name="action_restore">Restaurar</string>
+    <string name="setting_restore">Restaurar Configuración</string>
+    <string name="setting_backup">Respaldar Configuración</string>
+    <string name="setting_backup_description">Guardar la configuración actual a un archivo JSON</string>
+    <string name="setting_backup_failed">Falló el respaldo</string>
+    <string name="setting_backup_success">Respaldo exitoso</string>
+    <string name="setting_restore_failed">Restauración fallida</string>
+    <string name="setting_restore_success">Configuración restaurada con éxito</string>
+    <string name="setting_backup_restore">Respaldar y Restaurar</string>
+    <string name="setting_restore_message">Esto reescribirá toda la configuración actual por la del archivo de respaldo. ¿Estás seguro?</string>
+    <string name="setting_restore_description">Importar configuración desde un archivo JSON</string>
+    <string name="setting_check_app_updates">Buscar actualizaciones.</string>
+    <string name="setting_check_app_updates_description">Buscar automáticamente nuevas versiones cada 3 días</string>
 </resources>
