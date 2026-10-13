@@ -68,7 +68,7 @@ open class CustomWebChromeClient(
                     useWideViewPort = true
                     allowFileAccess = true
                     allowContentAccess = true
-                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                    mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
                     cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
                 }
 
