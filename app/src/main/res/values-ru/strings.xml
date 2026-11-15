@@ -162,7 +162,7 @@
     <string name="msg_permission_denied">Отказано в доступе</string>
     <string name="msg_press_again">Нажмите «Назад» ещё раз, чтобы выйти</string>
     <string name="msg_processing_blob">Обработка загрузки blob…</string>
-    <string name="msg_remove_from_fav">Удалить из избранного</string>
+    <string name="msg_remove_from_fav">Убрать из избранного</string>
     <string name="msg_restart_required">Для вступления изменений в силу требуется перезапуск.</string>
     <string name="msg_saved">Сохранено: %1$s</string>
     <string name="msg_service_killed">%s закрыт</string>
@@ -225,7 +225,7 @@
     <string name="desc_github_issue">Открыть задачу в нашем репозитории (требуется учётная запись GitHub)</string>
     <string name="action_apply">Применить</string>
     <string name="action_clear_filters">Очистить фильтры</string>
-    <string name="action_done">Готово</string>
+    <string name="action_done">Завершено</string>
     <string name="action_favorite">В избранное</string>
     <string name="action_hide_filters">Скрыть фильтры</string>
     <string name="action_reset_filters">Сбросить фильтры</string>
@@ -267,9 +267,9 @@
     <string name="onboarding_dialog_got_it">Понятно</string>
     <string name="onboarding_dialog_login_note">Примечание</string>
     <string name="onboarding_dialog_login_note_desc">Выбор одного варианта фильтрует сервисы соответствующим образом. Если оставить поле пустым, будут показаны оба варианта.</string>
-    <string name="onboarding_dialog_login_not_required">Не требуется</string>
+    <string name="onboarding_dialog_login_not_required">Не требуется –</string>
     <string name="onboarding_dialog_login_not_required_desc">Вы можете использовать сервис без необходимости авторизации.</string>
-    <string name="onboarding_dialog_login_required">Требуется</string>
+    <string name="onboarding_dialog_login_required">Требуется –</string>
     <string name="onboarding_dialog_login_required_desc">Для использования этого сервиса вам понадобится учетная запись.</string>
     <string name="onboarding_dialog_login_title">Требуется авторизация</string>
     <string name="onboarding_dialog_pricing_free">Бесплатно</string>
@@ -334,4 +334,17 @@
     <string name="update_no_changes">Изменений не обнаружено. У вас уже установлена последняя версия.</string>
     <string name="update_removed_services">Удалено сервисов (%1$d):</string>
     <string name="update_result_title">Результат обновления</string>
+    <string name="action_restore">Восстановить</string>
+    <string name="setting_restore">Восстановить Настройки</string>
+    <string name="setting_backup">Создать резервную копию настроек</string>
+    <string name="setting_backup_failed">Резервное копирование не удалось</string>
+    <string name="setting_backup_success">Резервное копирование завершено</string>
+    <string name="setting_restore_failed">Восстановление не удалось</string>
+    <string name="setting_restore_success">Настройки восстановлены успешно</string>
+    <string name="setting_restore_message">Все текущие настройки будут перезаписаны из резервной копии. Вы уверены?</string>
+    <string name="setting_check_app_updates">Проверить на наличие обновлений</string>
+    <string name="setting_check_app_updates_description">Автоматически проверять на наличие обновлений каждые 3 дня</string>
+    <string name="setting_backup_description">Сохранить текущие настройки в JSON-файл</string>
+    <string name="setting_backup_restore">Резервная копия и восстановление</string>
+    <string name="setting_restore_description">Импортировать настройки из JSON-файла</string>
 </resources>
